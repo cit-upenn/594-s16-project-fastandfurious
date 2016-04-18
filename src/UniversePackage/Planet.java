@@ -14,6 +14,7 @@ public abstract class Planet {
     public double upperRadiusLimit;
     public double radius;
     public List<Planet> satellites;
+    
 
     /**
      * creates a new planet instance
@@ -78,5 +79,6 @@ public abstract class Planet {
     	
     	return newPlanet;
     }
+   
 
 }

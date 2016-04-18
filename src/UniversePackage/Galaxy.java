@@ -2,6 +2,7 @@ package UniversePackage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 import java.util.Random;
 
 /**
@@ -9,7 +10,7 @@ import java.util.Random;
  * A container of the entire galaxy
  * A galaxy has planets and satellites
  */
-public class Galaxy {
+public class Galaxy extends Observable{
 
     // every galaxy has a star
     public Planet star;
@@ -39,8 +40,10 @@ public class Galaxy {
     	
         // initialize container for planets
         planets = new ArrayList<>();
-
+        
+        // initialize star
         star = new GiantPlanet(height/2, width/2);
+        // add star as the first planet
         planets.add(star);
 
         int leftLim = margin;
@@ -51,9 +54,9 @@ public class Galaxy {
 
         for(int i = 0; i < numPlanets; i++) {
 
-            Planet planet = null;
+            Planet planet = null; 
             int counter = 0;
-            while(counter < trialLimit){
+            while(counter < trialLimit) {
                 planet = Planet.createPlanet(leftLim+generator.nextInt(horizontalRange),upperLim+generator.nextInt(verticalRange));
                 for(Planet existingPlanet: planets){
                     if(overlap(planet, existingPlanet)) {
@@ -75,9 +78,13 @@ public class Galaxy {
      */
     public void makeStep() {
     	
-    	for(Planet planet: planets) {
+    	for(int i = 1; i < planets.size(); i++) {
+    		
+    		Planet planet = planets.get(i);
     		planet.move(0, 0);
     	}
+    	
+    	this.notifyObservers();
     }
 
     /**
@@ -93,7 +100,7 @@ public class Galaxy {
         double rx = (rhs.getPosition())[0];
         double ry = (rhs.getPosition())[1];
         double centerDist = Math.sqrt(Math.pow(lx - rx, 2) + Math.pow(ly - ry, 2));
-
+        
         return centerDist <= lhs.getRadius() + rhs.getRadius();
     }
 }
