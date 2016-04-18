@@ -96,4 +96,5 @@ public class Galaxy {
 
         return centerDist <= lhs.getRadius() + rhs.getRadius();
     }
+    
 }
