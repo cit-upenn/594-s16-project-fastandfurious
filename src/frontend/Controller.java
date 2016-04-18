@@ -1,6 +1,7 @@
 package frontend;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Font;
 
 import javax.swing.ImageIcon;
@@ -23,8 +24,6 @@ public class Controller {
 	private Galaxy galaxy;
 	
 	private JFrame frame;
-	private JPanel imagePanel;
-	private JLabel background;
 	private JPanel[] control;
 	private JLabel[] player;
 	private JLabel[] playerName;
@@ -44,36 +43,33 @@ public class Controller {
 	}
 
 	private void init() {
-		galaxy = new Galaxy(1280, 740, 100, 100);
-		view = new View(galaxy);
+		galaxy = new Galaxy(960, 740, 30);
+		view = new View(galaxy);		
 		galaxy.addObserver(view);
 	}
 	
 	
 	private void display() {
+		
 		layOutComponents();
 		attachListenersToComponents();
-		frame.setBounds(10, 10, 1280, 740);
+			
+		frame.pack();
 		frame.setVisible(true);
-		frame.setResizable(false);
+		frame.setResizable(false);				
 	}
 	
 	
 	private void layOutComponents() {
 		frame = new JFrame("Conquer the Universe");
+		frame.setPreferredSize(new Dimension(1280, 740));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
 		
-//		imagePanel = new JPanel();
-//		imagePanel.setBounds(160, 0, 960, 740);
-//		frame.add(imagePanel);
-		
-//		background = new JLabel();
-//		background.setIcon(new ImageIcon(this.getClass().getResource("/resources/universe960x720.jpg")));
-//		imagePanel.add(background);
 		view.setBounds(160, 0, 960, 740);
 		frame.add(view);
-		
+
+			
 		control = new JPanel[2];
 		for(int i = 0; i < control.length; i++) {
 			control[i] = new JPanel();
@@ -81,9 +77,9 @@ public class Controller {
 			control[i].setVisible(true);
 		}
 		control[0].setBounds(0, 0, 160, 740);
-		frame.add(control[0]);
 		control[1].setBounds(1120, 0, 160, 740);
-		frame.add(control[1]);
+		frame.getContentPane().add(control[0]);
+		frame.getContentPane().add(control[1]);
 		
 		player = new JLabel[2];
 		ready = new JButton[2];
@@ -142,14 +138,14 @@ public class Controller {
 			    } else {
 			        column.setPreferredWidth(40);
 			    }
-			}
-			
+			}		
 			control[i].add(playerName[i]);
 			control[i].add(player[i]);					
 			control[i].add(ready[i]);
 			control[i].add(scrollPane[i]);
 			
 		}	
+		
 	
 	}
 	

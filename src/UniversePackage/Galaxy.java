@@ -23,11 +23,10 @@ public class Galaxy extends Observable{
     public int margin;
     public static Random generator;
 
-    public Galaxy(int width, int height, int margin, int numPlanets) {
+    public Galaxy(int width, int height, int numPlanets) {
 
         this.width = width;
         this.height = height;
-        this.margin = margin;
         generator = new Random();
         init(numPlanets);
     }
