@@ -12,24 +12,21 @@ import java.util.Random;
  */
 public class Galaxy extends Observable{
 
-
-    // every galaxy has a star
-    public Planet star;
-    // a galaxy must have some planets
-    public List<Planet> planets;
     // a galaxy has some size
     public int height;
     public int width;
-    public int margin;
+    public int gridLength;
     public static Random generator;
+    public Node[][] starboard;
+    
 
-    public Galaxy(int width, int height, int margin, int numPlanets) {
+    public Galaxy(int width, int height, int gridLength) {
 
         this.width = width;
         this.height = height;
-        this.margin = margin;
+        this.gridLength = gridLength;
         generator = new Random();
-        init(numPlanets);
+        init();
     }
 
     /**
@@ -37,41 +34,14 @@ public class Galaxy extends Observable{
      * @param numPlanets number of planets existing in the galaxy
      * @throws IllegalArgumentException
      */
-    public void init(int numPlanets) throws IllegalArgumentException {
+    public void init() throws IllegalArgumentException {
+    	 
+    	int numRows = height/gridLength;
+    	int numCols = width/gridLength;
     	
-        // initialize container for planets
-        planets = new ArrayList<>();
-        
-        // initialize star
-        star = new GiantPlanet(height/2, width/2);
-        // add star as the first planet
-        planets.add(star);
-
-        int leftLim = margin;
-        int upperLim = margin;
-        int horizontalRange = width - margin * 2;
-        int verticalRange = height - margin * 2;
-        int trialLimit = 1000;
-
-        for(int i = 0; i < numPlanets; i++) {
-
-            Planet planet = null; 
-            int counter = 0;
-            while(counter < trialLimit) {
-                planet = Planet.createPlanet(leftLim+generator.nextInt(horizontalRange),upperLim+generator.nextInt(verticalRange));
-                for(Planet existingPlanet: planets){
-                    if(overlap(planet, existingPlanet)) {
-                        counter++;
-                        continue;
-                    }
-                }
-                break;
-            }
-            if(planet == null) 
-            	throw new IllegalArgumentException("You can't put so many planets on board");      
-            
-            planets.add(planet);
-        }
+    	starboard = new Node[numRows][numCols];
+    	
+    	
     }
     
     /**
@@ -79,37 +49,8 @@ public class Galaxy extends Observable{
      */
     public void makeStep() {
     	
-    	for(int i = 1; i < planets.size(); i++) {
-    		
-    		Planet planet = planets.get(i);
-    		planet.move(0, 0);
-    	}
     	
     	this.notifyObservers();
     }
 
-    /**
-     * Determines if two planets overlap
-     * @param lhs left-hand-side planet
-     * @param rhs right-hand-side planet
-     * @return true if planets do overlap
-     */
-    public boolean overlap(Planet lhs, Planet rhs) {
-
-        double lx = (lhs.getPosition())[0];
-        double ly = (lhs.getPosition())[1];
-        double rx = (rhs.getPosition())[0];
-        double ry = (rhs.getPosition())[1];
-        double centerDist = Math.sqrt(Math.pow(lx - rx, 2) + Math.pow(ly - ry, 2));
-        
-        return centerDist <= lhs.getRadius() + rhs.getRadius();
-    }
-    
-    
-    /**
-     * @return The planets in this galaxy.
-     */
-    public List<Planet> getPlanet() {
-    	return this.planets;
-    }
 }

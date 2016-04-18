@@ -1,13 +1,14 @@
 package UniversePackage;
 
+
 /**
  * Templates for all kinds of players
  */
 public interface Player {
 
-    public Planet pickTarget();
+    public Node pickTarget();
 
     public boolean moveTowardTarget();
 
-
+    
 }

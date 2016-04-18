@@ -1,25 +1,22 @@
 package UniversePackage;
 
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 
-public class Planet implements Node{
+public class SupplyStation implements Node{
 	
 	private double x;
 	private double y;
 	private double radius;
 	private List<Node> neighbors;
-	private int base = 10;
 	private Player ruler;
 	
-	public Planet(double x, double y) {
-		
-		int sizeLevel = 1 + Galaxy.generator.nextInt(4);
+	public SupplyStation (double x, double y) {
 		this.x = x;
 		this.y = y;
-		radius = sizeLevel * base;
-		neighbors = new LinkedList<>();
+		this.radius = 5;
 		ruler = null;
+		neighbors = new LinkedList<>();
 	}
 
 	@Override
