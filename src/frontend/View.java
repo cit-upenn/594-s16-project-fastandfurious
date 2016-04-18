@@ -4,23 +4,22 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import UniversePackage.Galaxy;
 
+@SuppressWarnings("serial")
 public class View extends JPanel implements Observer {
 
 	private Galaxy galaxy;
 
 	private Image bgImg;
 	private Image[] planets;
+	private Image station;
 	
 	public View(Galaxy galaxy) {
 		this.galaxy = galaxy;
@@ -45,10 +44,11 @@ public class View extends JPanel implements Observer {
 	    	} else {
 	    		planets[i] = new ImageIcon("resources/planet1.png").getImage();
 	    		
-	    	}
-	    	    	
+	    	} 	    	
 	    }
+	    this.station = new ImageIcon("resources/station.png").getImage();
 	}
+	
 	
 	 
 	@Override
@@ -61,10 +61,8 @@ public class View extends JPanel implements Observer {
 		super.paintComponent(g);		
 		Graphics2D g2 = (Graphics2D) g;
 		g2.drawImage(bgImg, 0, 0, null);
-//		for (int i = 0; i < galaxy.getPlanet().size(); i++) {
-//			int j = i % 3;
-//			g.drawImage(planets[j], (int)galaxy.getPlanet().get(i).getPosition()[0], (int)galaxy.getPlanet().get(i).getPosition()[1], 50, 50, null);			
-//		}
+		g.drawImage(planets[0], 100, 500, 30, 30, null);
+		g.drawImage(station, 300, 300, 60, 60, null);
 	}
 	
 	@Override
