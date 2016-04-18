@@ -25,6 +25,10 @@ public class Galaxy extends Observable{
         this.width = width;
         this.height = height;
         this.gridLength = gridLength;
+
+
+        this.width = width;
+        this.height = height;
         generator = new Random();
         init();
     }
