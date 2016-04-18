@@ -15,8 +15,13 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableColumn;
 
+import UniversePackage.Galaxy;
+
 public class Controller {
 
+	private View view;
+	private Galaxy galaxy;
+	
 	private JFrame frame;
 	private JPanel imagePanel;
 	private JLabel background;
@@ -39,7 +44,9 @@ public class Controller {
 	}
 
 	private void init() {
-		
+		galaxy = new Galaxy(1280, 740, 100, 100);
+		view = new View(galaxy);
+		galaxy.addObserver(view);
 	}
 	
 	
@@ -57,13 +64,15 @@ public class Controller {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
 		
-		imagePanel = new JPanel();
-		imagePanel.setBounds(160, 0, 960, 740);
-		frame.add(imagePanel);
+//		imagePanel = new JPanel();
+//		imagePanel.setBounds(160, 0, 960, 740);
+//		frame.add(imagePanel);
 		
-		background = new JLabel();
-		background.setIcon(new ImageIcon(this.getClass().getResource("/resources/universe960x720.jpg")));
-		imagePanel.add(background);
+//		background = new JLabel();
+//		background.setIcon(new ImageIcon(this.getClass().getResource("/resources/universe960x720.jpg")));
+//		imagePanel.add(background);
+		view.setBounds(160, 0, 960, 740);
+		frame.add(view);
 		
 		control = new JPanel[2];
 		for(int i = 0; i < control.length; i++) {

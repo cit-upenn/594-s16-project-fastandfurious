@@ -2,6 +2,7 @@ package UniversePackage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 import java.util.Random;
 
 /**
@@ -9,7 +10,7 @@ import java.util.Random;
  * A container of the entire galaxy
  * A galaxy has planets and satellites
  */
-public class Galaxy {
+public class Galaxy extends Observable {
 
     // every galaxy has a star
     public Planet star;
@@ -21,7 +22,7 @@ public class Galaxy {
     public int margin;
     public static Random generator;
 
-    public Galaxy(int height, int width, int margin, int numPlanets) {
+    public Galaxy(int width, int height, int margin, int numPlanets) {
 
         this.width = width;
         this.height = height;
@@ -97,4 +98,11 @@ public class Galaxy {
         return centerDist <= lhs.getRadius() + rhs.getRadius();
     }
     
+    
+    /**
+     * @return The planets in this galaxy.
+     */
+    public List<Planet> getPlanet() {
+    	return this.planets;
+    }
 }
