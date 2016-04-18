@@ -12,6 +12,7 @@ import java.util.Random;
  */
 public class Galaxy extends Observable{
 
+
     // every galaxy has a star
     public Planet star;
     // a galaxy must have some planets
@@ -22,7 +23,7 @@ public class Galaxy extends Observable{
     public int margin;
     public static Random generator;
 
-    public Galaxy(int height, int width, int margin, int numPlanets) {
+    public Galaxy(int width, int height, int margin, int numPlanets) {
 
         this.width = width;
         this.height = height;
@@ -102,5 +103,13 @@ public class Galaxy extends Observable{
         double centerDist = Math.sqrt(Math.pow(lx - rx, 2) + Math.pow(ly - ry, 2));
         
         return centerDist <= lhs.getRadius() + rhs.getRadius();
+    }
+    
+    
+    /**
+     * @return The planets in this galaxy.
+     */
+    public List<Planet> getPlanet() {
+    	return this.planets;
     }
 }
