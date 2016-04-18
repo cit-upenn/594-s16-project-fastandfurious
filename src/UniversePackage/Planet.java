@@ -13,7 +13,7 @@ public class Planet implements Node{
 	private Player ruler;
 	
 	public Planet(double x, double y) {
-		
+
 		int sizeLevel = 1 + Galaxy.generator.nextInt(4);
 		this.x = x;
 		this.y = y;
