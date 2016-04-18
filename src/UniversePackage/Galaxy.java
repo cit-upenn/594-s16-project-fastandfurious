@@ -19,7 +19,7 @@ public class Galaxy {
     public int height;
     public int width;
     public int margin;
-    Random generator;
+    public static Random generator;
 
     public Galaxy(int height, int width, int margin, int numPlanets) {
 
@@ -30,13 +30,18 @@ public class Galaxy {
         init(numPlanets);
     }
 
-    public void init(int numPlanets) throws IllegalArgumentException{
-
-        // put star at the center of the universe
-        // star = new Star(height/2, width/2);
-
+    /**
+     * creates all planets on the star board
+     * @param numPlanets number of planets existing in the galaxy
+     * @throws IllegalArgumentException
+     */
+    public void init(int numPlanets) throws IllegalArgumentException {
+    	
         // initialize container for planets
         planets = new ArrayList<>();
+
+        star = new GiantPlanet(height/2, width/2);
+        planets.add(star);
 
         int leftLim = margin;
         int upperLim = margin;
@@ -47,12 +52,9 @@ public class Galaxy {
         for(int i = 0; i < numPlanets; i++) {
 
             Planet planet = null;
-
             int counter = 0;
-
-            while(counter < 1000){
-
-                planet = new SmallPlanet(leftLim+generator.nextInt(horizontalRange),upperLim+generator.nextInt(verticalRange));
+            while(counter < trialLimit){
+                planet = Planet.createPlanet(leftLim+generator.nextInt(horizontalRange),upperLim+generator.nextInt(verticalRange));
                 for(Planet existingPlanet: planets){
                     if(overlap(planet, existingPlanet)) {
                         counter++;
@@ -61,15 +63,25 @@ public class Galaxy {
                 }
                 break;
             }
-
-            if(planet == null) throw new IllegalArgumentException("You can put so many planets on board");
-
+            if(planet == null) 
+            	throw new IllegalArgumentException("You can't put so many planets on board");      
+            
             planets.add(planet);
         }
     }
+    
+    /**
+     * Every planet in the galaxy takes a small step
+     */
+    public void makeStep() {
+    	
+    	for(Planet planet: planets) {
+    		planet.move(0, 0);
+    	}
+    }
 
     /**
-     * determines f two planets overlap
+     * Determines if two planets overlap
      * @param lhs left-hand-side planet
      * @param rhs right-hand-side planet
      * @return true if planets do overlap
@@ -78,10 +90,8 @@ public class Galaxy {
 
         double lx = (lhs.getPosition())[0];
         double ly = (lhs.getPosition())[1];
-
         double rx = (rhs.getPosition())[0];
         double ry = (rhs.getPosition())[1];
-
         double centerDist = Math.sqrt(Math.pow(lx - rx, 2) + Math.pow(ly - ry, 2));
 
         return centerDist <= lhs.getRadius() + rhs.getRadius();

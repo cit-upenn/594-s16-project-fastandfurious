@@ -34,7 +34,7 @@ public abstract class Planet {
      * @param dy tiny change in y
      * @return true if move was made successfully
      */
-    public boolean moveTo(double dx, double dy) {
+    public boolean move(double dx, double dy) {
 
         x += dx;
         y += dy;
@@ -55,6 +55,28 @@ public abstract class Planet {
      */
     public double getRadius() {
         return radius;
+    }
+    
+    /**
+     * factory method, creates a new planet instance
+     * @return a newly created planet instance
+     */
+    public static Planet createPlanet(int x, int y){
+    	
+    	int sizeNum = Galaxy.generator.nextInt(4);
+    	
+    	Planet newPlanet = null;
+    	
+    	switch(sizeNum) {
+    	
+    		case 0: newPlanet = new SmallPlanet(x, y);break;
+    		case 1: newPlanet = new MediumPlanet(x, y);break;
+    		case 2: newPlanet = new HugePlanet(x, y);break;
+    		case 3: newPlanet = new GiantPlanet(x, y);break;
+    		default: System.out.println("How on earth did you get here?");
+    	}
+    	
+    	return newPlanet;
     }
 
 }
