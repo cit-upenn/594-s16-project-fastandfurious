@@ -47,7 +47,7 @@ public class Controller {
 
 	private void init() {
 
-		galaxy = new Galaxy(960, 740, 30);
+		galaxy = new Galaxy(960, 740, 30, 10);
 		view = new View(galaxy);		
 		galaxy.addObserver(view);
 	}

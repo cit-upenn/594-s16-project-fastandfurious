@@ -10,5 +10,4 @@ public interface Player {
 
     public boolean moveTowardTarget();
 
-    
 }
