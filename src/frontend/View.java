@@ -91,10 +91,8 @@ public class View extends JPanel implements Observer {
 				Node node = starboard[i][j];
 				if (node != null) {
 					int k = (i + j) % 3;
-					if (node instanceof Planet) {
-						
+					if (node instanceof Planet) {						
 						g.setColor(Color.white);
-	
 						g.drawOval((int)(node.getX() - node.getRadius() / 2), (int)(node.getY() - node.getRadius() / 2), (int)node.getRadius(), (int)node.getRadius());
 					
 					} else {
