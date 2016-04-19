@@ -82,6 +82,7 @@ public class View extends JPanel implements Observer {
 		super.paintComponent(g);		
 		Graphics2D g2 = (Graphics2D) g;
 		g2.drawImage(bgImg, 0, 0, null);
+
 		Node[][] starboard = galaxy.getStarBoard();
 		for (int i = 0; i < starboard.length; i++) {
 			for (int j = 0; j < starboard[0].length; j++) {

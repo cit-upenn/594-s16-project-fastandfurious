@@ -93,4 +93,5 @@ public class Galaxy extends Observable{
     public Node[][] getStarBoard() {
     	return starboard;
     }
+ 
 }
