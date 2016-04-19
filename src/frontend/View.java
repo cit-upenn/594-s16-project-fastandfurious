@@ -1,11 +1,14 @@
 package frontend;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Random;
@@ -61,7 +64,7 @@ public class View extends JPanel implements Observer {
 		refs[1] = "resouces/duck2.gif";
 		refs[2] = "resouces/duck3.gif";
 		
-		hPlayer = new HumanPlayer(refs, 10, 10, 30); 
+		hPlayer = new HumanPlayer(refs, 10, 10, 30, Color.orange); 
 
 	}
 
@@ -90,14 +93,22 @@ public class View extends JPanel implements Observer {
 			for (int j = 0; j < starboard[0].length; j++) {
 				Node node = starboard[i][j];
 				if (node != null) {
-					int k = (i + j) % 3;
 					if (node instanceof Planet) {						
-						g.setColor(Color.white);
-						g.drawOval((int)(node.getX() - node.getRadius() / 2), (int)(node.getY() - node.getRadius() / 2), (int)node.getRadius(), (int)node.getRadius());
-					
+						// g.setColor(Color.white);
+						Shape circle = new Ellipse2D.Double(node.getX() - node.getRadius()/2, 
+															node.getY() - node.getRadius()/2, 
+															node.getRadius(), 
+															node.getRadius());
+						g2.setColor(Color.green);
+						g2.setStroke(new BasicStroke(2));
+						g2.draw(circle);
+						
+						
 					} else {
-						g.setColor(Color.cyan);
-						g.drawRect((int)(node.getX() - node.getRadius() / 2), (int)(node.getY() - node.getRadius() / 2), (int)node.getRadius(), (int)node.getRadius());
+						
+						g2.setColor(Color.white);
+						g2.setStroke(new BasicStroke(2));
+						g2.drawRect((int)(node.getX() - node.getRadius() / 2), (int)(node.getY() - node.getRadius() / 2), (int)node.getRadius(), (int)node.getRadius());
 					}
 
 				}			

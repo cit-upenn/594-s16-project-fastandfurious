@@ -1,5 +1,7 @@
 package player;
 
+import java.awt.Color;
+
 import UniversePackage.Node;
 
 /**
@@ -10,5 +12,7 @@ public interface Player {
     public Node pickTarget();
 
     public boolean moveTowardTarget();
+    
+    public Color getPlayerColor();
 
 }

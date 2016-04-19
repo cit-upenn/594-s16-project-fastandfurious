@@ -1,5 +1,6 @@
 package UniversePackage;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,7 +14,7 @@ public class SupplyStation implements Node{
 	private double radius;
 	private List<Node> neighbors;
 	private Player ruler;
-	
+	private Color color;
 	private boolean clicked;
 	
 	public SupplyStation (double x, double y) {
@@ -23,6 +24,7 @@ public class SupplyStation implements Node{
 		ruler = null;
 		neighbors = new LinkedList<>();
 		clicked = false;
+		color = null;
 	}
 
 	@Override
@@ -70,5 +72,27 @@ public class SupplyStation implements Node{
 			return true;
 		return false;
 
+	}
+
+	@Override
+	public Color getColor() {
+		return color;
+	}
+	
+	@Override
+	public void setRuler(Player ruler) {
+		this.ruler = ruler;
+	}
+
+	@Override
+	public boolean buildEdge(Node lhs, Node rhs) {
+		if(lhs == null || rhs == null
+			|| Math.abs(lhs.getX() - rhs.getX()) > 50 
+			|| Math.abs(lhs.getY() - rhs.getY()) > 50) {
+			return false;
+		}
+		lhs.getNeighbors().add(rhs);
+		rhs.getNeighbors().add(lhs);
+		return true;
 	}
 }

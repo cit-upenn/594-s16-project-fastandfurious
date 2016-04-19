@@ -1,10 +1,13 @@
 package player;
 
+import java.awt.Color;
 import java.awt.Image;
 
 import javax.swing.ImageIcon;
 
-public class HumanPlayer {
+import UniversePackage.Node;
+
+public class HumanPlayer implements Player{
 
 	private Animate animation;
 	private int sequenceNum;
@@ -15,7 +18,9 @@ public class HumanPlayer {
 	private double dx;
 	private double dy;
 	
-	public HumanPlayer(String[] refs, double x, double y, int size) {
+	private Color pColor;
+	
+	public HumanPlayer(String[] refs, double x, double y, int size, Color pColor) {
 		Image[] images = new Image[refs.length];
 		for(int i = 0; i < refs.length; i++) {
 			Image image = new ImageIcon(refs[i]).getImage();
@@ -26,6 +31,7 @@ public class HumanPlayer {
 		this.setX(x);
 		this.setY(y);
 		this.setSize(size);
+		this.pColor = pColor;
 	}
 	
 	public double getX() {
@@ -50,5 +56,22 @@ public class HumanPlayer {
 	
 	public void translate() {
 		
+	}
+
+	@Override
+	public Node pickTarget() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean moveTowardTarget() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Color getPlayerColor() {
+		return pColor;
 	}
 }

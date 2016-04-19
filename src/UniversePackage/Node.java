@@ -1,6 +1,7 @@
 package UniversePackage;
 import java.awt.Point;
 import java.util.List;
+import java.awt.Color;
 
 import player.Player;
 
@@ -40,9 +41,27 @@ public interface Node {
 	public void click();
 	
 	/**
+	 * @return color of the node
+	 */
+	public Color getColor();
+	
+	/**
+	 * change ruler of a node
+	 */
+	public void setRuler(Player ruler);
+	
+	/**
 	 * @param p
 	 * @return True if the point is contained within the node.
 	 */
 	public boolean contains(Point p);
+	
+	/**
+	 * build an edge between two nodes
+	 * @param lhs left-hand-side node
+	 * @param rhs right-hand-side node
+	 * @return true if operation is successful
+	 */
+	public boolean buildEdge(Node lhs, Node rhs);
 }
 
