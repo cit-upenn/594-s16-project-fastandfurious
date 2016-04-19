@@ -14,7 +14,7 @@ public class SupplyStation implements Node{
 	public SupplyStation (double x, double y) {
 		this.x = x;
 		this.y = y;
-		this.radius = 5;
+		this.radius = 25;
 		ruler = null;
 		neighbors = new LinkedList<>();
 	}
@@ -42,5 +42,10 @@ public class SupplyStation implements Node{
 	@Override
 	public Player getRuler() {
 		return ruler;
+	}
+	
+	public String toString() {
+		return "(S " + this.getX() + " " + this.getY() + ")";
+				
 	}
 }

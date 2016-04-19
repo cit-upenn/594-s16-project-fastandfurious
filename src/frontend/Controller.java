@@ -1,6 +1,7 @@
 package frontend;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 
@@ -12,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableColumn;
@@ -28,9 +30,10 @@ public class Controller {
 	private JLabel[] player;
 	private JLabel[] playerName;
 	private JButton[] ready;
-	private JComboBox<String> selectList;
+	private JComboBox<String>[] selectList;
 	private JScrollPane[] scrollPane;
 	private JTable[] table;
+	private JTextArea[] messageBoard;
 	
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -44,7 +47,7 @@ public class Controller {
 
 	private void init() {
 
-		galaxy = new Galaxy(960, 740, 30, 10);
+		galaxy = new Galaxy(940, 720, 90, 30);
 		view = new View(galaxy);		
 		galaxy.addObserver(view);
 	}
@@ -61,6 +64,7 @@ public class Controller {
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	private void layOutComponents() {
 		frame = new JFrame("Conquer the Universe");
 		frame.setPreferredSize(new Dimension(1280, 740));
@@ -74,6 +78,7 @@ public class Controller {
 		control = new JPanel[2];
 		for(int i = 0; i < control.length; i++) {
 			control[i] = new JPanel();
+			control[i].setBackground(Color.LIGHT_GRAY);
 			control[i].setLayout(null);			
 			control[i].setVisible(true);
 		}
@@ -87,7 +92,8 @@ public class Controller {
 		playerName = new JLabel[2];
 		table = new JTable[2];
 		scrollPane = new JScrollPane[2];
-		selectList = new JComboBox<String>();
+		selectList = new JComboBox[2];
+		messageBoard = new JTextArea[2];
 		
 		// setup a table to display the statistics
 		String[] columnNames = {"Name", "Status"};
@@ -105,27 +111,36 @@ public class Controller {
 			ready[i] = new JButton("Ready!");
 			table[i] = new JTable(data, columnNames);
 			scrollPane[i] = new JScrollPane(table[i]);
+			messageBoard[i] = new JTextArea();
+			messageBoard[i].setBackground(Color.BLACK);;
+			selectList[i] = new JComboBox<String>();
 			if (i == 0) {
 				playerName[i].setText("Player1");
+				playerName[i].setForeground(Color.GREEN);
 				playerName[i].setBounds(16, 5, 120, 20);	
 				player[i].setIcon(new ImageIcon(this.getClass().getResource("/resources/zootopia_fox128x96.jpg")));
-				player[i].setBounds(16, 30, 128, 96);
+				player[i].setBounds(16, 40, 128, 96);
 				ready[i].setBounds(16, 650, 128, 50);
 						
-				selectList.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-				selectList.setBounds(10, 140, 140, 30);
-				control[i].add(selectList);
+				selectList[i].setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+				selectList[i].setBounds(10, 150, 140, 30);
 				
 				scrollPane[i].setBounds(10, 400, 140, 150);
+				messageBoard[i].setBounds(10, 250, 140, 120);
 				
 			} else {
 				playerName[i].setText("Player2");
+				playerName[i].setForeground(Color.ORANGE);
 				playerName[i].setBounds(1136, 5, 120, 20);
 				player[i].setIcon(new ImageIcon(this.getClass().getResource("/resources/zootopia_judy128x96.jpg")));
-				player[i].setBounds(1136, 30, 128, 96);
+				player[i].setBounds(1136, 40, 128, 96);
 				ready[i].setBounds(1136, 650, 128, 50);
 				
+				selectList[i].setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+				selectList[i].setBounds(1130, 150, 140, 30);
+				
 				scrollPane[i].setBounds(1130, 400, 140, 150);
+				messageBoard[i].setBounds(1130, 250, 140, 120);
 			}
 			playerName[i].setHorizontalAlignment(SwingConstants.CENTER);
 			playerName[i].setFont(new Font("Lucida Grande", Font.BOLD, 20));
@@ -143,11 +158,11 @@ public class Controller {
 			control[i].add(playerName[i]);
 			control[i].add(player[i]);					
 			control[i].add(ready[i]);
+			control[i].add(selectList[i]);
 			control[i].add(scrollPane[i]);
+			control[i].add(messageBoard[i]);
 			
 		}	
-		
-	
 	}
 	
 	private void attachListenersToComponents() {

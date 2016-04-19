@@ -9,15 +9,15 @@ public class Planet implements Node{
 	private double y;
 	private double radius;
 	private List<Node> neighbors;
-	private int base = 10;
+	private int base = 5;
 	private Player ruler;
 	
 	public Planet(double x, double y) {
 
-		int sizeLevel = 1 + Galaxy.generator.nextInt(4);
+		int sizeLevel = Galaxy.generator.nextInt(5);
 		this.x = x;
 		this.y = y;
-		radius = sizeLevel * base;
+		radius = sizeLevel * base + 20;
 		neighbors = new LinkedList<>();
 		ruler = null;
 	}
@@ -45,5 +45,10 @@ public class Planet implements Node{
 	@Override
 	public Player getRuler() {
 		return ruler;
+	}
+	
+	public String toString() {
+		return "(P " + this.getX() + " " + this.getY() + ")";
+				
 	}
 }

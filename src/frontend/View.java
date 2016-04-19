@@ -11,13 +11,17 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 import UniversePackage.Galaxy;
+import UniversePackage.Node;
+import UniversePackage.Planet;
 
+@SuppressWarnings("serial")
 public class View extends JPanel implements Observer {
 
 	private Galaxy galaxy;
 
 	private Image bgImg;
 	private Image[] planets;
+	private Image station;
 	
 	public View(Galaxy galaxy) {
 		this.galaxy = galaxy;
@@ -42,10 +46,11 @@ public class View extends JPanel implements Observer {
 	    	} else {
 	    		planets[i] = new ImageIcon("resources/planet1.png").getImage();
 	    		
-	    	}
-	    	    	
+	    	} 	    	
 	    }
+	    this.station = new ImageIcon("resources/station.png").getImage();
 	}
+	
 	
 	 
 	@Override
@@ -58,6 +63,23 @@ public class View extends JPanel implements Observer {
 		super.paintComponent(g);		
 		Graphics2D g2 = (Graphics2D) g;
 		g2.drawImage(bgImg, 0, 0, null);
+
+		Node[][] starboard = galaxy.getStarBoard();
+		for (int i = 0; i < starboard.length; i++) {
+			for (int j = 0; j < starboard[0].length; j++) {
+				Node node = starboard[i][j];
+				if (node != null) {
+					int k = (i + j) % 3;
+					if (node instanceof Planet) {
+						g.drawImage(planets[k], (int)(node.getX() - node.getRadius() / 2), (int)(node.getY() - node.getRadius() / 2), (int)node.getRadius(), (int)node.getRadius(), null);
+					} else {
+						g.drawImage(station, (int)(node.getX() - node.getRadius() / 2), (int)(node.getY() - node.getRadius() / 2), (int)node.getRadius(), (int)node.getRadius(), null);
+					}
+					
+				}			
+			}
+		}
+		
 	}
 	
 	@Override

@@ -30,5 +30,5 @@ public interface Node {
 	 * @return ruler of the node
 	 */
 	public Player getRuler();
-	
+
 }
