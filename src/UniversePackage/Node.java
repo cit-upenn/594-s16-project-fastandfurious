@@ -1,5 +1,8 @@
 package UniversePackage;
+import java.awt.Point;
 import java.util.List;
+
+import player.Player;
 
 /**
  * A Node represents an existing location in the galaxy
@@ -31,4 +34,15 @@ public interface Node {
 	 */
 	public Player getRuler();
 
+	/**
+	 * Mark that the node has been clicked.
+	 */
+	public void click();
+	
+	/**
+	 * @param p
+	 * @return True if the point is contained within the node.
+	 */
+	public boolean contains(Point p);
 }
+
