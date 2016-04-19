@@ -1,5 +1,6 @@
 package frontend;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -65,15 +66,21 @@ public class View extends JPanel implements Observer {
 		g2.drawImage(bgImg, 0, 0, null);
 
 		Node[][] starboard = galaxy.getStarBoard();
+		
 		for (int i = 0; i < starboard.length; i++) {
 			for (int j = 0; j < starboard[0].length; j++) {
 				Node node = starboard[i][j];
 				if (node != null) {
 					int k = (i + j) % 3;
 					if (node instanceof Planet) {
-						g.drawImage(planets[k], (int)(node.getX() - node.getRadius() / 2), (int)(node.getY() - node.getRadius() / 2), (int)node.getRadius(), (int)node.getRadius(), null);
+						
+						g.setColor(Color.white);
+	
+						g.drawOval((int)(node.getX() - node.getRadius() / 2), (int)(node.getY() - node.getRadius() / 2), (int)node.getRadius(), (int)node.getRadius());
+					
 					} else {
-						g.drawImage(station, (int)(node.getX() - node.getRadius() / 2), (int)(node.getY() - node.getRadius() / 2), (int)node.getRadius(), (int)node.getRadius(), null);
+						g.setColor(Color.cyan);
+						g.drawRect((int)(node.getX() - node.getRadius() / 2), (int)(node.getY() - node.getRadius() / 2), (int)node.getRadius(), (int)node.getRadius());
 					}
 					
 				}			

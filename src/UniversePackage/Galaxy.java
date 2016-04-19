@@ -1,6 +1,5 @@
 package UniversePackage;
 
-import java.util.Arrays;
 import java.util.Observable;
 import java.util.Random;
 
@@ -37,9 +36,12 @@ public class Galaxy extends Observable{
     public void init(int numPlanets) throws IllegalArgumentException {
     	 
     	int numRows = height / gridLength + 1;
-    	int numCols = width / gridLength + 1;
+    	int numCols = width / gridLength + 2;
     
     	starboard = new Node[numRows][numCols];
+    	
+    	starboard[1][1] = new Planet(gridLength, gridLength);
+    	starboard[numRows-2][numCols-2]= new Planet(  (numCols - 2) * gridLength, (numRows - 2) * gridLength);
     	
     	while(numPlanets > 0) {
     		
@@ -58,10 +60,6 @@ public class Galaxy extends Observable{
     				starboard[row][col] = new SupplyStation(col * gridLength, row * gridLength);
     			}
     		}
-    	}
-    	
-    	for(Node[] line: starboard) {		
-    		System.out.println(Arrays.toString(line));
     	}
     }
     

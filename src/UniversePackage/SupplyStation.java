@@ -14,7 +14,7 @@ public class SupplyStation implements Node{
 	public SupplyStation (double x, double y) {
 		this.x = x;
 		this.y = y;
-		this.radius = 25;
+		this.radius = 7;
 		ruler = null;
 		neighbors = new LinkedList<>();
 	}

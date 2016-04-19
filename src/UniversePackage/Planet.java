@@ -9,15 +9,14 @@ public class Planet implements Node{
 	private double y;
 	private double radius;
 	private List<Node> neighbors;
-	private int base = 5;
+	private int base = 20;
 	private Player ruler;
 	
 	public Planet(double x, double y) {
 
-		int sizeLevel = Galaxy.generator.nextInt(5);
 		this.x = x;
 		this.y = y;
-		radius = sizeLevel * base + 20;
+		radius = base;
 		neighbors = new LinkedList<>();
 		ruler = null;
 	}
