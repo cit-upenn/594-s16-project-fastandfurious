@@ -1,5 +1,6 @@
-package UniversePackage;
+package player;
 
+import UniversePackage.Node;
 
 /**
  * Templates for all kinds of players

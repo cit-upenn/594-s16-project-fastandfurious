@@ -4,6 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -120,7 +123,7 @@ public class Controller {
 				playerName[i].setBounds(16, 5, 120, 20);	
 				player[i].setIcon(new ImageIcon(this.getClass().getResource("/resources/zootopia_fox128x96.jpg")));
 				player[i].setBounds(16, 40, 128, 96);
-				ready[i].setBounds(16, 650, 128, 50);
+				ready[i].setBounds(16, 600, 128, 40);
 						
 				selectList[i].setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 				selectList[i].setBounds(10, 150, 140, 30);
@@ -134,7 +137,7 @@ public class Controller {
 				playerName[i].setBounds(1136, 5, 120, 20);
 				player[i].setIcon(new ImageIcon(this.getClass().getResource("/resources/zootopia_judy128x96.jpg")));
 				player[i].setBounds(1136, 40, 128, 96);
-				ready[i].setBounds(1136, 650, 128, 50);
+				ready[i].setBounds(1136, 600, 128, 40);
 				
 				selectList[i].setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 				selectList[i].setBounds(1130, 150, 140, 30);
@@ -167,5 +170,12 @@ public class Controller {
 	
 	private void attachListenersToComponents() {
 		
+		// add mouse listener for each node in the universe
+		view.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent event) {
+				Point mousePoint = event.getPoint();
+				view.click(mousePoint);
+			}
+		});
 	}
 }
