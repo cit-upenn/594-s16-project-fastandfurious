@@ -53,6 +53,7 @@ public class Controller {
 		galaxy = new Galaxy(940, 720, 50, 70);
 		view = new View(galaxy);		
 		galaxy.addObserver(view);
+		galaxy.start();
 	}
 	
 	

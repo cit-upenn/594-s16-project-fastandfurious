@@ -14,5 +14,7 @@ public interface Player {
     public boolean moveTowardTarget();
     
     public Color getPlayerColor();
+    
+    public int getWealth();
 
 }

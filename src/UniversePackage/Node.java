@@ -57,6 +57,23 @@ public interface Node {
 	public boolean contains(Point p);
 	
 	/**
+	 * slightly change the location of a node
+	 * might be a planet or a supply station
+	 * planets and supply stations move differently
+	 */
+	public void move();
+	
+	/**
+	 * @return instantaneous x coordinate of node center
+	 */
+	public double getInstX();
+	
+	/**
+	 * @return instantaneous y coordinates of node center
+	 */
+	public double getInstY();
+	
+	/**
 	 * build an edge between two nodes
 	 * @param lhs left-hand-side node
 	 * @param rhs right-hand-side node

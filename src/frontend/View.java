@@ -9,9 +9,9 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Random;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -93,22 +93,23 @@ public class View extends JPanel implements Observer {
 			for (int j = 0; j < starboard[0].length; j++) {
 				Node node = starboard[i][j];
 				if (node != null) {
-					if (node instanceof Planet) {						
-						// g.setColor(Color.white);
-						Shape circle = new Ellipse2D.Double(node.getX() - node.getRadius()/2, 
-															node.getY() - node.getRadius()/2, 
-															node.getRadius(), 
-															node.getRadius());
-						g2.setColor(Color.green);
+					
+					double x = node.getInstX();
+					double y = node.getInstY();
+					double r = node.getRadius();
+					
+					if (node instanceof Planet) {		
+						Shape circle = new Ellipse2D.Double(x - r/2, y - r/2, r, r);
+						g2.setColor(node.getColor());
 						g2.setStroke(new BasicStroke(2));
 						g2.draw(circle);
 						
-						
 					} else {
 						
-						g2.setColor(Color.white);
+						Shape rect = new Rectangle2D.Double(x - r/2, y - r/2, r, r);
+						g2.setColor(node.getColor());
 						g2.setStroke(new BasicStroke(2));
-						g2.drawRect((int)(node.getX() - node.getRadius() / 2), (int)(node.getY() - node.getRadius() / 2), (int)node.getRadius(), (int)node.getRadius());
+						g2.draw(rect);	
 					}
 
 				}			
@@ -120,6 +121,8 @@ public class View extends JPanel implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 
+		System.out.println("update");
+		
 		repaint();
 	}
 

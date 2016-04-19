@@ -17,14 +17,20 @@ public class SupplyStation implements Node{
 	private Color color;
 	private boolean clicked;
 	
+	private double instX;
+	private double instY;
+	
 	public SupplyStation (double x, double y) {
+		
 		this.x = x;
 		this.y = y;
 		this.radius = 7;
 		ruler = null;
 		neighbors = new LinkedList<>();
 		clicked = false;
-		color = null;
+		color = Color.white;
+		instX = this.x;
+		instY = this.y;
 	}
 
 	@Override
@@ -94,5 +100,21 @@ public class SupplyStation implements Node{
 		lhs.getNeighbors().add(rhs);
 		rhs.getNeighbors().add(lhs);
 		return true;
+	}
+
+	@Override
+	public void move() {
+		// TODO make some kind of move
+		
+	}
+
+	@Override
+	public double getInstX() {
+		return instX;
+	}
+
+	@Override
+	public double getInstY() {
+		return instY;
 	}
 }

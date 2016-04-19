@@ -10,16 +10,16 @@ public class ComputerPlayer implements Player {
 	private double x;
 	private double y;
 	private Color pColor;
+	private int wealth;
 	
-	public ComputerPlayer(Color pColor) {
-		
+	public ComputerPlayer(Color pColor) {		
 		this.pColor = pColor;
+		wealth = 100;
 	}
 	
 	
 	@Override
-	public Node pickTarget() {
-		
+	public Node pickTarget() {		
 		return null;
 	}
 
@@ -33,6 +33,11 @@ public class ComputerPlayer implements Player {
 	public Color getPlayerColor() {
 
 		return pColor;
+	}
+
+	@Override
+	public int getWealth() {		
+		return wealth;
 	}
 	
 

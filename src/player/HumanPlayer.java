@@ -15,6 +15,8 @@ public class HumanPlayer implements Player{
 	private double y;
 	private int size;
 	
+	private int wealth;
+	
 	private double dx;
 	private double dy;
 	
@@ -32,6 +34,7 @@ public class HumanPlayer implements Player{
 		this.setY(y);
 		this.setSize(size);
 		this.pColor = pColor;
+		this.wealth = 100;
 	}
 	
 	public double getX() {
@@ -73,5 +76,11 @@ public class HumanPlayer implements Player{
 	@Override
 	public Color getPlayerColor() {
 		return pColor;
+	}
+
+	@Override
+	public int getWealth() {
+		// TODO Auto-generated method stub
+		return wealth;
 	}
 }

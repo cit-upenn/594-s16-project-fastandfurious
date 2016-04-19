@@ -2,6 +2,12 @@ package UniversePackage;
 
 import java.util.Observable;
 import java.util.Random;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import javax.swing.Timer;
+
 
 /**
  * A gigantic galaxy
@@ -16,6 +22,7 @@ public class Galaxy extends Observable{
     public int gridLength;
     public static Random generator;
     public Node[][] starboard;
+    public Timer timer;
     
 
     public Galaxy(int width, int height, int gridLength, int numPlanets) {
@@ -38,8 +45,7 @@ public class Galaxy extends Observable{
     	int numRows = height / gridLength + 1;
     	int numCols = width / gridLength + 2;
     
-    	starboard = new Node[numRows][numCols];
-    	
+    	starboard = new Node[numRows][numCols];    	
     	starboard[1][1] = new Planet(gridLength, gridLength);
     	starboard[numRows-2][numCols-2]= new Planet(  (numCols - 2) * gridLength, (numRows - 2) * gridLength);
     	
@@ -63,11 +69,23 @@ public class Galaxy extends Observable{
     	}
     }
     
+    public void start() {
+    	
+    	timer = new Timer(100, new Strobe());
+    	timer.start();
+    }
+    
     /**
      * Every planet in the galaxy takes a small step
      */
     public void makeStep() {
-    		
+    	
+    	for(int i = 1; i < starboard.length; i++) {	
+    		for(int j = 1; j < starboard[0].length; j++) {
+    			starboard[i][j].move();		
+    		}
+    	}
+    	
     	this.notifyObservers();
     }
     
@@ -75,8 +93,7 @@ public class Galaxy extends Observable{
      * factory method. produce a new node instance.
      * @return new node instance
      */
-    public static Node generateNode(double x, double y){
-    	
+    public static Node generateNode(double x, double y){  	
     	int type = generator.nextInt(2);
     	Node res = null;
     	switch(type) {  	
@@ -90,6 +107,23 @@ public class Galaxy extends Observable{
     
     public Node[][] getStarBoard() {
     	return starboard;
+    }
+    
+    /**
+     * Tells the model to advance one "step."
+     */
+    private class Strobe implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+					@Override
+					protected Void doInBackground() throws Exception {
+						makeStep();
+						return null;
+					}
+			};
+			worker.execute();
+		}
     }
  
 }
