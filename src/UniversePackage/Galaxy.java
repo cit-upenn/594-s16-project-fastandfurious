@@ -2,10 +2,15 @@ package UniversePackage;
 
 import java.util.Observable;
 import java.util.Random;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
+
+import player.ComputerPlayer;
+import player.HumanPlayer;
+import player.Player;
 
 
 /**
@@ -16,13 +21,13 @@ import javax.swing.Timer;
 public class Galaxy extends Observable{
 
     // a galaxy has some size
-    public int height;
-    public int width;
-    public int gridLength;
+    private int height;
+    private int width;
+    private int gridLength;
     public static Random generator;
-    public Node[][] starboard;
-    public Timer timer;
-    
+    private Node[][] starboard;
+    private Timer timer;
+    private Player[] player;
 
     public Galaxy(int width, int height, int gridLength, int numPlanets) {
 
@@ -66,10 +71,19 @@ public class Galaxy extends Observable{
     			}
     		}
     	}
+    	
+    	String[] refs = new String[5];
+		refs[0] = "resources/duck.gif";
+		refs[1] = "resources/duck2.gif";
+		refs[2] = "resources/duck3.gif";
+		
+		player = new Player[2];
+		player[0] = new HumanPlayer(refs, 10, 10, Color.orange); 
+		player[1] = new ComputerPlayer(Color.GREEN);
     }
     
     public void start() {
-    	
+
     	timer = new Timer(50, new Strobe());
     	timer.start();
     }
@@ -126,4 +140,10 @@ public class Galaxy extends Observable{
 		}
     }
  
+    public Player getPlayer(int num) {
+    	if (num > 1 || num < 0) {
+    		return null;
+    	}
+    	return player[num];
+    }
 }

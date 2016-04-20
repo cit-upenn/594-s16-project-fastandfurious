@@ -1,13 +1,14 @@
 package UniversePackage;
 
 import java.util.List;
+import java.util.Observable;
 
 import player.Player;
 import java.awt.Color;
 import java.awt.Point;
 import java.util.LinkedList;
 
-public class Planet implements Node{
+public class Planet extends Observable implements Node  {
 
 	private double x;
 	private double y;
@@ -16,7 +17,7 @@ public class Planet implements Node{
 	private int base = 20;
 	private Player ruler;
 	private Color color;
-	
+
 	private boolean clicked;
 	private boolean inhabitable;
 	private double dx;
@@ -27,8 +28,9 @@ public class Planet implements Node{
 	private int defenseLevel;
 	private double instantX;
 	private double instantY;
-	
+
 	private int bound;
+	
 	private Node parentNode;
 	private Node predecessor;
 
@@ -36,15 +38,23 @@ public class Planet implements Node{
 
 		this.x = x;
 		this.y = y;
-		
+
 		instantX = this.x;
 		instantY = this.y;
-		
+
 		radius = base;
 		neighbors = new LinkedList<>();
 		ruler = null;
 		clicked = false;
-		
+
+		dx = -1 + 2 * Galaxy.generator.nextDouble();
+		dy = -1 + 2 * Galaxy.generator.nextDouble();
+
+		resourceLevel = Galaxy.generator.nextInt(6);
+		this.color = generateColor(resourceLevel);
+
+		bound = 10;	
+
 		dx = 0;
 		dy = ( Galaxy.generator.nextInt(2) == 0 )? 0.1: -0.1;
 		
@@ -91,7 +101,8 @@ public class Planet implements Node{
 	@Override
 	public void click() {
 		clicked = true;
-
+		setChanged();
+		notifyObservers();
 	}
 
 	@Override
@@ -100,10 +111,13 @@ public class Planet implements Node{
 		double xRight = getX() + getRadius();
 		double yTop = getY();
 		double yBottom = getY() + getRadius();
-		if(p.x > xLeft && p.x < xRight && p.y < yTop && p.y > yBottom)
+		System.out.println("xLeft: " + xLeft + " xRight: " + xRight + " yTop: " + yTop + " yBottom: " + yBottom +  " px: " + p.getX() + " py: " + p.getY());
+		if(p.getX() > xLeft && p.getX() < xRight && p.getY() > yTop && p.getY() < yBottom) {
+			System.out.println("Pressed at the planet!");
 			return true;
+		}			
+		System.out.println("not pressed at the planet!");
 		return false;
-
 	}
 
 	@Override
@@ -119,8 +133,8 @@ public class Planet implements Node{
 	@Override
 	public boolean buildEdge(Node lhs, Node rhs) {
 		if(lhs == null || rhs == null
-		   ||Math.abs(lhs.getX() - rhs.getX()) > 50 
-		   || Math.abs(lhs.getY() - rhs.getY()) > 50) {
+				||Math.abs(lhs.getX() - rhs.getX()) > 50 
+				|| Math.abs(lhs.getY() - rhs.getY()) > 50) {
 			return false;
 		}
 		lhs.getNeighbors().add(rhs);
@@ -130,7 +144,7 @@ public class Planet implements Node{
 
 	@Override
 	public void move() {
-		
+
 		if(Math.abs(instantY - y) >= bound) {		
 			dy = -dy;
 		}
@@ -146,21 +160,26 @@ public class Planet implements Node{
 	public double getInstY() {
 		return this.instantY;
 	}
-	
+
 	private Color generateColor(int colorNum) {
-		
-		Color res = Color.LIGHT_GRAY;	
+
+		Color res = Color.LIGHT_GRAY;
+
 		switch(colorNum) {
-			case 0: res = Color.LIGHT_GRAY; break;
-			case 1: res = Color.red; break;
-			case 2: res = Color.blue; break;
-			case 3: res = Color.cyan; break;
-			case 4: res = Color.green; break;
-			case 5: res = Color.yellow;
-			default:
+
+		case 0: res = Color.gray; break;
+		case 1: res = Color.red; break;
+		case 2: res = Color.blue; break;
+		case 3: res = Color.cyan; break;
+		case 4: res = Color.green; break;
+		case 5: res = Color.yellow;
+		default:
 		}
+
 		return res;
 	}
+	
+
 
 	@Override
 	public Node getParentNode() {		

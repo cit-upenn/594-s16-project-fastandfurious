@@ -15,7 +15,6 @@ import java.util.Observer;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
-
 import UniversePackage.Galaxy;
 import UniversePackage.Node;
 import UniversePackage.Planet;
@@ -30,7 +29,6 @@ public class View extends JPanel implements Observer {
 	private Image[] planets;
 	private Image station;
 	
-	private HumanPlayer hPlayer;
 
 	public View(Galaxy galaxy) {
 		
@@ -59,12 +57,6 @@ public class View extends JPanel implements Observer {
 		}
 		
 		this.station = new ImageIcon("resources/station.png").getImage();
-		String[] refs = new String[5];
-		refs[0] = "resources/duck.gif";
-		refs[1] = "resouces/duck2.gif";
-		refs[2] = "resouces/duck3.gif";
-		
-		hPlayer = new HumanPlayer(refs, 10, 10, 30, Color.orange); 
 
 	}
 
@@ -72,7 +64,7 @@ public class View extends JPanel implements Observer {
 	 * Update next step
 	 */
 	public void nextStep() {
-		hPlayer.translate();
+		((HumanPlayer) galaxy.getPlayer(0)).translate();
 		repaint();
 	}
 
@@ -87,6 +79,8 @@ public class View extends JPanel implements Observer {
 		Graphics2D g2 = (Graphics2D) g;
 		g2.drawImage(bgImg, 0, 0, null);
 
+		((HumanPlayer) galaxy.getPlayer(0)).draw(g2, (int)((HumanPlayer) galaxy.getPlayer(0)).getX(), (int)((HumanPlayer) galaxy.getPlayer(0)).getY());
+		
 		Node[][] starboard = galaxy.getStarBoard();
 		
 		for (int i = 0; i < starboard.length; i++) {
@@ -121,17 +115,17 @@ public class View extends JPanel implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 
-		// System.out.println("update");
 		repaint();
 	}
 
 	public void click(Point mousePoint) {
 		Node[][] starboard = galaxy.getStarBoard();
-		for (int i = 0; i < starboard.length; i++) {
-			for (int j = 0; j < starboard[0].length; j++) {
+		for (int i = 1; i < starboard.length - 1; i++) {
+			for (int j = 1; j < starboard[0].length - 1; j++) {
 				Node node = starboard[i][j];
 				if (node.contains(mousePoint)) {
-					node.click();
+					node.click();	
+					System.out.println("Clicked " + node);
 				}
 			}
 		}

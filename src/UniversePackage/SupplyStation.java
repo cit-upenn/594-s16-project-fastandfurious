@@ -4,10 +4,11 @@ import java.awt.Color;
 import java.awt.Point;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Observable;
 
 import player.Player;
 
-public class SupplyStation implements Node{
+public class SupplyStation extends Observable implements Node{
 	
 	private double x;
 	private double y;
