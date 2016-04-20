@@ -57,6 +57,7 @@ public class Controller {
 	private JScrollPane[] scrollPane;
 	private JTable[] table;
 	private JTextArea[] messageBoard;
+
 	
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -149,6 +150,7 @@ public class Controller {
 			};
 			
 		for(int i = 0; i < player.length; i++) {
+			
 			player[i] = new JLabel();	
 			playerName[i] = new JLabel();
 			table[i] = new JTable(data, columnNames);
@@ -276,7 +278,9 @@ public class Controller {
             @Override
             public void actionPerformed(ActionEvent event) {
             	
-            	Player humanPlayer = galaxy.getPlayer(0);
+            	Player humanPlayer = galaxy.getHumanPlayer();
+            	
+            	if(humanPlayer == null) return;
                 
             	Node source = humanPlayer.getCurrentNode();
             	Node dest = humanPlayer.getSelected();
@@ -296,7 +300,10 @@ public class Controller {
 			public void mouseMoved(MouseEvent event) {
 				Point p = event.getPoint();
 				Node cursor = locateNode(p.getX(), p.getY());
-				galaxy.getPlayer(0).setFocus(cursor);
+				Player human = galaxy.getHumanPlayer();
+				if(human != null) {
+					human.setFocus(cursor);
+				}
 			}
 		});
 	}
