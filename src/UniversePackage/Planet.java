@@ -106,16 +106,13 @@ public class Planet extends Observable implements Node  {
 
 	@Override
 	public boolean contains(Point p) {
-		double xLeft = getX();
-		double xRight = getX() + getRadius();
-		double yTop = getY();
-		double yBottom = getY() + getRadius();
-		System.out.println("xLeft: " + xLeft + " xRight: " + xRight + " yTop: " + yTop + " yBottom: " + yBottom +  " px: " + p.getX() + " py: " + p.getY());
+		double xLeft = getX() - getRadius() / 2;
+		double xRight = getX() + getRadius() / 2;
+		double yTop = getY() - getRadius() / 2;
+		double yBottom = getY() + getRadius() / 2;
 		if(p.getX() > xLeft && p.getX() < xRight && p.getY() > yTop && p.getY() < yBottom) {
-			System.out.println("Pressed at the planet!");
 			return true;
 		}			
-		System.out.println("not pressed at the planet!");
 		return false;
 	}
 

@@ -125,7 +125,6 @@ public class View extends JPanel implements Observer {
 				Node node = starboard[i][j];
 				if (node.contains(mousePoint)) {
 					node.click();	
-					System.out.println("Clicked " + node);
 				}
 			}
 		}

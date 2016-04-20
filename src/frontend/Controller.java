@@ -199,9 +199,7 @@ public class Controller {
 		view.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent event) {
 				Point mousePoint = event.getPoint();
-				System.out.println("Point: " + mousePoint.getX() + " " + mousePoint.getY());
 				view.click(mousePoint);
-				System.out.println("==clicked!");
 			}
 		});
 	}

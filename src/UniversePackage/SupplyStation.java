@@ -30,7 +30,7 @@ public class SupplyStation extends Observable implements Node{
 		
 		this.x = x;
 		this.y = y;
-		this.radius = 7;
+		this.radius = 10;
 		ruler = null;
 		neighbors = new LinkedList<>();
 		clicked = false;
@@ -75,18 +75,20 @@ public class SupplyStation extends Observable implements Node{
 	@Override
 	public void click() {
 		clicked = true;	
+		setChanged();
+		notifyObservers();
 	}
 
 	@Override
 	public boolean contains(Point p) {
-		double xLeft = getX();
-		double xRight = getX() + getRadius();
-		double yTop = getY();
-		double yBottom = getY() + getRadius();
-		if(p.x > xLeft && p.x < xRight && p.y < yTop && p.y > yBottom)
+		double xLeft = getX() - getRadius() / 2;
+		double xRight = getX() + getRadius() / 2;
+		double yTop = getY() - getRadius() / 2;
+		double yBottom = getY() + getRadius() / 2;
+		if(p.getX() > xLeft && p.getX() < xRight && p.getY() > yTop && p.getY() < yBottom) {
 			return true;
+		}			
 		return false;
-
 	}
 
 	@Override
