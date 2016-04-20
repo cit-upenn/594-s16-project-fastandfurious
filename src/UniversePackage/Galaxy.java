@@ -69,8 +69,8 @@ public class Galaxy extends Observable{
     }
     
     public void start() {
-    	
-    	timer = new Timer(20, new Strobe());
+
+    	timer = new Timer(50, new Strobe());
     	timer.start();
     }
     
@@ -84,6 +84,7 @@ public class Galaxy extends Observable{
     			starboard[i][j].move();		
     		}
     	}
+    	
     	this.setChanged();
     	this.notifyObservers();
     }
@@ -109,7 +110,7 @@ public class Galaxy extends Observable{
     }
     
     /**
-     * Tells the model to advance one "step."
+     * Tells the model to advance one "step"
      */
     private class Strobe implements ActionListener {
 		@Override

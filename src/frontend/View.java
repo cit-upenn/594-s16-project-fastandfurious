@@ -34,8 +34,8 @@ public class View extends JPanel implements Observer {
 	private HumanPlayer hPlayer;
 
 	public View(Galaxy galaxy) {
+		
 		this.galaxy = galaxy;
-
 		this.bgImg = new ImageIcon("resources/universe960x720.jpg").getImage();
 		Dimension size = new Dimension(bgImg.getWidth(null), bgImg.getHeight(null));
 		setPreferredSize(size);
@@ -58,8 +58,8 @@ public class View extends JPanel implements Observer {
 
 			} 	    	
 		}
-		this.station = new ImageIcon("resources/station.png").getImage();
 		
+		this.station = new ImageIcon("resources/station.png").getImage();
 		String[] refs = new String[5];
 		refs[0] = "resources/duck.gif";
 		refs[1] = "resources/duck2.gif";
@@ -124,7 +124,6 @@ public class View extends JPanel implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 
-//		System.out.println("update");	
 		repaint();
 	}
 

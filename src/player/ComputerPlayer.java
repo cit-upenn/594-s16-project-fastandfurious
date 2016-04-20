@@ -17,7 +17,6 @@ public class ComputerPlayer implements Player {
 		wealth = 100;
 	}
 	
-	
 	@Override
 	public Node pickTarget() {		
 		return null;

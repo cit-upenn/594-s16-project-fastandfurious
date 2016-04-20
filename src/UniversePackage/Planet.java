@@ -38,6 +38,8 @@ public class Planet extends Observable implements Node  {
 	
 	private Timer timer;
 
+	private Node parentNode;
+
 	public Planet(double x, double y) {
 
 		this.x = x;
@@ -61,6 +63,18 @@ public class Planet extends Observable implements Node  {
 
 		timer = new Timer(20, new Strobe());
 		timer.start();
+		
+		dx = 0;
+		dy = ( Galaxy.generator.nextInt(2) == 0 )? 0.1: -0.1;
+		
+		
+		resourceLevel = Galaxy.generator.nextInt(6);
+		this.color = generateColor(resourceLevel);
+		
+		bound = 2;
+		
+		parentNode = null;
+
 	}
 
 	@Override
@@ -138,13 +152,9 @@ public class Planet extends Observable implements Node  {
 	@Override
 	public void move() {
 
-		if(Math.abs(instantX - x) >= bound) {		
-			dx = -dx;
-		}
-		else if(Math.abs(instantY - y) >= bound) {		
+		if(Math.abs(instantY - y) >= bound) {		
 			dy = -dy;
 		}
-		instantX += dx;
 		instantY += dy;
 	}
 
@@ -197,4 +207,15 @@ public class Planet extends Observable implements Node  {
 			worker.execute();
 		}
     }
+
+
+	@Override
+	public Node getParentNode() {		
+		return this.parentNode;
+	}
+
+	@Override
+	public void setParentNode(Node parent) {	
+		this.parentNode = parent;
+	}
 }
