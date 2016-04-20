@@ -42,7 +42,8 @@ public class Controller {
 	private JLabel[] player;
 	private JLabel[] playerName;
 	private JLabel[] wealth;
-	private JButton[] ready;
+	private JButton ready;
+	private JLabel readyLabel;
 	private JComboBox<String> selectList;
 	
 	private JButton buildEdge;
@@ -80,8 +81,6 @@ public class Controller {
 			}
 		}
 		*/
-		
-		galaxy.start();
 		
 		Timer t = new Timer(100, new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -128,18 +127,22 @@ public class Controller {
 		frame.getContentPane().add(control[1]);
 		
 		player = new JLabel[2];
-		ready = new JButton[2];
 		playerName = new JLabel[2];
 		wealth = new JLabel[2];
 		table = new JTable[2];
 		scrollPane = new JScrollPane[2];
 		messageBoard = new JTextArea[2];		
 		selectList = new JComboBox<String>();
+		ready = new JButton();
+		readyLabel = new JLabel();
 		
 		// a bunch of buttons for human players 
 		buildEdge = new JButton("Build Edge");
+		buildEdge.setEnabled(false);
 		capture = new JButton("Capture");
+		capture.setEnabled(false);
 		travel = new JButton("Travel");
+		travel.setEnabled(false);
 		
 		// setup a table to display the statistics
 		String[] columnNames = {"Name", "Status"};
@@ -154,7 +157,6 @@ public class Controller {
 		for(int i = 0; i < player.length; i++) {
 			player[i] = new JLabel();	
 			playerName[i] = new JLabel();
-			ready[i] = new JButton("Ready!");
 			table[i] = new JTable(data, columnNames);
 			scrollPane[i] = new JScrollPane(table[i]);
 			messageBoard[i] = new JTextArea();
@@ -166,7 +168,7 @@ public class Controller {
 				playerName[i].setBounds(16, 5, 120, 20);	
 				player[i].setIcon(new ImageIcon(this.getClass().getResource("/resources/zootopia_fox128x96.jpg")));
 				player[i].setBounds(16, 40, 128, 96);
-				ready[i].setBounds(16, 620, 128, 35);
+				
 				wealth[i].setBounds(16, 200, 128, 30);
 				wealth[i].setFont(new Font("Comic Sans MS", Font.PLAIN, 15));
 				wealth[i].setText("Current Wealth: \n");
@@ -177,7 +179,10 @@ public class Controller {
 				
 				scrollPane[i].setBounds(10, 550, 140, 60);
 				messageBoard[i].setBounds(10, 250, 140, 180);
+				
+				readyLabel.setBounds(16, 620, 128, 35);
 				control[i].add(selectList);
+				control[i].add(readyLabel);
 				
 			} else {
 				playerName[i].setText("Player2");
@@ -185,7 +190,7 @@ public class Controller {
 				playerName[i].setBounds(1136, 5, 120, 20);
 				player[i].setIcon(new ImageIcon(this.getClass().getResource("/resources/zootopia_judy128x96.jpg")));
 				player[i].setBounds(1136, 40, 128, 96);
-				ready[i].setBounds(1136, 620, 128, 35);
+				
 				wealth[i].setBounds(1136, 200, 128, 30);
 				wealth[i].setFont(new Font("Comic Sans MS", Font.PLAIN, 15));
 				wealth[i].setText("Current Wealth: \n");
@@ -196,14 +201,17 @@ public class Controller {
 				
 				scrollPane[i].setBounds(1130, 550, 140, 60);
 				messageBoard[i].setBounds(1130, 250, 140, 180);
+				ready.setBounds(1136, 620, 128, 35);
+				ready.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+
+				control[i].add(ready);
 				control[i].add(buildEdge);
 				control[i].add(capture);
 				control[i].add(travel);
 			}
 			playerName[i].setHorizontalAlignment(SwingConstants.CENTER);
 			playerName[i].setFont(new Font("Lucida Grande", Font.BOLD, 20));
-			ready[i].setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-			
+						
 			TableColumn column = null;
 			for (int j = 0; j < 2; j++) {
 			    column = table[i].getColumnModel().getColumn(j);
@@ -215,7 +223,6 @@ public class Controller {
 			}		
 			control[i].add(playerName[i]);
 			control[i].add(player[i]);					
-			control[i].add(ready[i]);
 			control[i].add(wealth[i]);
 			control[i].add(scrollPane[i]);
 			control[i].add(messageBoard[i]);
@@ -229,21 +236,75 @@ public class Controller {
 		view.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent event) {
 				Point mousePoint = event.getPoint();		
-				click(mousePoint);		
+				Node node = click(mousePoint);	
+				if (node != null) {
+					buildEdge.setEnabled(true);
+					capture.setEnabled(true);
+					travel.setEnabled(true);
+				}
 			}
 		});
+		
+		ready.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+            	galaxy.start();
+            }
+        });
+		
+		
+		buildEdge.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+            	
+            	Node current = galaxy.getPlayer(0).getCurrentNode();
+//            	galaxy.buildEdge(current, targetNode);
+            }
+        });
+		
+		capture.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                
+            }
+        });
+		
+		travel.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                
+            }
+        });
 	}
 	
-	public void click(Point mousePoint) {
+	/**
+	 * locate node based on coordinates
+	 * @param mousePoint
+	 * @return pointer to node if adjacent, null otherwise
+	 */
+	public Node click(Point mousePoint) {
 		
-		Node current = galaxy.getPlayer(0).getCurrentNode();
-		Node targetNode = locatedNode(mousePoint.getX(), mousePoint.getY());
-		if (targetNode != null && galaxy.areAdjacentNodes(current, targetNode)) {			
-			targetNode.click();
-			galaxy.buildEdge(current, targetNode);
-			galaxy.getPlayer(0).setCurrentNode(targetNode);		
-			galaxy.getPlayer(0).addTarget(targetNode);
-		}
+//		Node current = galaxy.getPlayer(0).getCurrentNode();
+//		Node targetNode = locatedNode(mousePoint.getX(), mousePoint.getY());
+//		if (targetNode != null && galaxy.areAdjacentNodes(current, targetNode)) {			
+//			targetNode.click();		
+//			galaxy.buildEdge(current, targetNode);
+//			galaxy.getPlayer(0).setCurrentNode(targetNode);		
+//			galaxy.getPlayer(0).addTarget(targetNode);
+//		}
+		double x = mousePoint.getX();
+		double y = mousePoint.getY();
+		
+		int col = (int)(x / galaxy.getGridLength());
+		double remainder1 = x % galaxy.getGridLength();	
+		if(remainder1 >= 35) col++;
+		else if(remainder1 > 15) return null;
+		int row = (int)(y / galaxy.getGridLength());
+		double remainder2 = y % galaxy.getGridLength();
+		if(remainder2 >= 35) row++;
+		else if(remainder2 > 15) return null;
+		
+		return galaxy.getStarBoard()[row][col];
 	}
 	
 	/**
@@ -252,16 +313,16 @@ public class Controller {
 	 * @param y vertical...
 	 * @return pointer to node if adjacent, null otherwise
 	 */
-	private Node locatedNode(double x, double y) {
-		
-		int col = (int)(x/galaxy.getGridLength());
-		double remainder1 = x % galaxy.getGridLength();	
-		if(remainder1 >= 35) col++;
-		else if(remainder1 > 15) return null;
-		int row = (int)(y/galaxy.getGridLength());
-		double remainder2 = y % galaxy.getGridLength();
-		if(remainder2 >= 35) row++;
-		else if(remainder2 > 15) return null;
-		return galaxy.getStarBoard()[row][col];
-	}
+//	private Node locatedNode(double x, double y) {
+//		
+//		int col = (int)(x/galaxy.getGridLength());
+//		double remainder1 = x % galaxy.getGridLength();	
+//		if(remainder1 >= 35) col++;
+//		else if(remainder1 > 15) return null;
+//		int row = (int)(y/galaxy.getGridLength());
+//		double remainder2 = y % galaxy.getGridLength();
+//		if(remainder2 >= 35) row++;
+//		else if(remainder2 > 15) return null;
+//		return galaxy.getStarBoard()[row][col];
+//	}
 }
