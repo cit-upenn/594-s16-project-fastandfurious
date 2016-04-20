@@ -10,6 +10,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.LinkedList;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -40,8 +42,14 @@ public class Controller {
 	private JPanel[] control;
 	private JLabel[] player;
 	private JLabel[] playerName;
+	private JLabel[] wealth;
 	private JButton[] ready;
-	private JComboBox<String>[] selectList;
+	private JComboBox<String> selectList;
+	
+	private JButton buildEdge;
+	private JButton capture;
+	private JButton travel;
+	
 	private JScrollPane[] scrollPane;
 	private JTable[] table;
 	private JTextArea[] messageBoard;
@@ -110,10 +118,16 @@ public class Controller {
 		player = new JLabel[2];
 		ready = new JButton[2];
 		playerName = new JLabel[2];
+		wealth = new JLabel[2];
 		table = new JTable[2];
 		scrollPane = new JScrollPane[2];
-		selectList = new JComboBox[2];
-		messageBoard = new JTextArea[2];
+		messageBoard = new JTextArea[2];		
+		selectList = new JComboBox<String>();
+		
+		// a bunch of buttons for human players 
+		buildEdge = new JButton("Build Edge");
+		capture = new JButton("Capture");
+		travel = new JButton("Travel");
 		
 		// setup a table to display the statistics
 		String[] columnNames = {"Name", "Status"};
@@ -132,21 +146,26 @@ public class Controller {
 			table[i] = new JTable(data, columnNames);
 			scrollPane[i] = new JScrollPane(table[i]);
 			messageBoard[i] = new JTextArea();
-			messageBoard[i].setBackground(Color.BLACK);;
-			selectList[i] = new JComboBox<String>();
+			messageBoard[i].setBackground(Color.BLACK);
+			wealth[i] = new JLabel();
 			if (i == 0) {
 				playerName[i].setText("Player1");
 				playerName[i].setForeground(Color.GREEN);
 				playerName[i].setBounds(16, 5, 120, 20);	
 				player[i].setIcon(new ImageIcon(this.getClass().getResource("/resources/zootopia_fox128x96.jpg")));
 				player[i].setBounds(16, 40, 128, 96);
-				ready[i].setBounds(16, 600, 128, 40);
-						
-				selectList[i].setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-				selectList[i].setBounds(10, 150, 140, 30);
+				ready[i].setBounds(16, 620, 128, 35);
+				wealth[i].setBounds(16, 200, 128, 30);
+				wealth[i].setFont(new Font("Comic Sans MS", Font.PLAIN, 15));
+				wealth[i].setText("Current Wealth: \n");
 				
-				scrollPane[i].setBounds(10, 400, 140, 150);
-				messageBoard[i].setBounds(10, 250, 140, 120);
+				// selectList only for player1 (computer)
+				selectList.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+				selectList.setBounds(10, 150, 140, 30);
+				
+				scrollPane[i].setBounds(10, 550, 140, 60);
+				messageBoard[i].setBounds(10, 250, 140, 180);
+				control[i].add(selectList);
 				
 			} else {
 				playerName[i].setText("Player2");
@@ -154,13 +173,20 @@ public class Controller {
 				playerName[i].setBounds(1136, 5, 120, 20);
 				player[i].setIcon(new ImageIcon(this.getClass().getResource("/resources/zootopia_judy128x96.jpg")));
 				player[i].setBounds(1136, 40, 128, 96);
-				ready[i].setBounds(1136, 600, 128, 40);
+				ready[i].setBounds(1136, 620, 128, 35);
+				wealth[i].setBounds(1136, 200, 128, 30);
+				wealth[i].setFont(new Font("Comic Sans MS", Font.PLAIN, 15));
+				wealth[i].setText("Current Wealth: \n");
 				
-				selectList[i].setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-				selectList[i].setBounds(1130, 150, 140, 30);
+				buildEdge.setBounds(1140, 450, 120, 30);
+				capture.setBounds(1140, 480, 120, 30);
+				travel.setBounds(1140, 510, 120, 30);
 				
-				scrollPane[i].setBounds(1130, 400, 140, 150);
-				messageBoard[i].setBounds(1130, 250, 140, 120);
+				scrollPane[i].setBounds(1130, 550, 140, 60);
+				messageBoard[i].setBounds(1130, 250, 140, 180);
+				control[i].add(buildEdge);
+				control[i].add(capture);
+				control[i].add(travel);
 			}
 			playerName[i].setHorizontalAlignment(SwingConstants.CENTER);
 			playerName[i].setFont(new Font("Lucida Grande", Font.BOLD, 20));
@@ -178,7 +204,7 @@ public class Controller {
 			control[i].add(playerName[i]);
 			control[i].add(player[i]);					
 			control[i].add(ready[i]);
-			control[i].add(selectList[i]);
+			control[i].add(wealth[i]);
 			control[i].add(scrollPane[i]);
 			control[i].add(messageBoard[i]);
 			
