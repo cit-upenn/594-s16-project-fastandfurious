@@ -15,6 +15,7 @@ import java.util.Observer;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
 import UniversePackage.Galaxy;
 import UniversePackage.Node;
@@ -61,10 +62,10 @@ public class View extends JPanel implements Observer {
 		
 		String[] refs = new String[5];
 		refs[0] = "resources/duck.gif";
-		refs[1] = "resouces/duck2.gif";
-		refs[2] = "resouces/duck3.gif";
+		refs[1] = "resources/duck2.gif";
+		refs[2] = "resources/duck3.gif";
 		
-		hPlayer = new HumanPlayer(refs, 10, 10, 30, Color.orange); 
+		hPlayer = new HumanPlayer(refs, 10, 10, Color.orange); 
 
 	}
 
@@ -87,6 +88,8 @@ public class View extends JPanel implements Observer {
 		Graphics2D g2 = (Graphics2D) g;
 		g2.drawImage(bgImg, 0, 0, null);
 
+		hPlayer.draw(g2, (int)hPlayer.getX(), (int)hPlayer.getY());
+		
 		Node[][] starboard = galaxy.getStarBoard();
 		
 		for (int i = 0; i < starboard.length; i++) {
@@ -121,18 +124,18 @@ public class View extends JPanel implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 
-		System.out.println("update");
-		
+//		System.out.println("update");	
 		repaint();
 	}
 
 	public void click(Point mousePoint) {
 		Node[][] starboard = galaxy.getStarBoard();
-		for (int i = 0; i < starboard.length; i++) {
-			for (int j = 0; j < starboard[0].length; j++) {
+		for (int i = 1; i < starboard.length - 1; i++) {
+			for (int j = 1; j < starboard[0].length - 1; j++) {
 				Node node = starboard[i][j];
 				if (node.contains(mousePoint)) {
-					node.click();
+					node.click();	
+					System.out.println("Clicked " + node);
 				}
 			}
 		}

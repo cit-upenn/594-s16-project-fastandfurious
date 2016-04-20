@@ -4,7 +4,6 @@ import java.util.Observable;
 import java.util.Random;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 
@@ -71,7 +70,7 @@ public class Galaxy extends Observable{
     
     public void start() {
     	
-    	timer = new Timer(100, new Strobe());
+    	timer = new Timer(20, new Strobe());
     	timer.start();
     }
     
@@ -80,12 +79,12 @@ public class Galaxy extends Observable{
      */
     public void makeStep() {
     	
-    	for(int i = 1; i < starboard.length; i++) {	
-    		for(int j = 1; j < starboard[0].length; j++) {
+    	for(int i = 1; i < starboard.length - 1; i++) {	
+    		for(int j = 1; j < starboard[0].length - 1; j++) {
     			starboard[i][j].move();		
     		}
     	}
-    	
+    	this.setChanged();
     	this.notifyObservers();
     }
     

@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -19,6 +21,7 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.table.TableColumn;
 
 import UniversePackage.Galaxy;
@@ -54,6 +57,14 @@ public class Controller {
 		view = new View(galaxy);		
 		galaxy.addObserver(view);
 		galaxy.start();
+		
+		Timer t = new Timer(200, new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				view.nextStep();
+			}
+		});
+		t.start();
+		
 	}
 	
 	
@@ -176,6 +187,7 @@ public class Controller {
 			public void mousePressed(MouseEvent event) {
 				Point mousePoint = event.getPoint();
 				view.click(mousePoint);
+				System.out.println("==clicked!");
 			}
 		});
 	}

@@ -1,6 +1,7 @@
 package UniversePackage;
 import java.awt.Point;
 import java.util.List;
+import java.util.Observable;
 import java.awt.Color;
 
 import player.Player;
