@@ -3,14 +3,9 @@ package UniversePackage;
 import java.util.List;
 import java.util.Observable;
 
-import javax.swing.SwingWorker;
-import javax.swing.Timer;
-
 import player.Player;
 import java.awt.Color;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.LinkedList;
 
 public class Planet extends Observable implements Node  {
@@ -36,8 +31,6 @@ public class Planet extends Observable implements Node  {
 
 	private int bound;
 	
-	private Timer timer;
-
 	private Node parentNode;
 
 	public Planet(double x, double y) {
@@ -61,9 +54,6 @@ public class Planet extends Observable implements Node  {
 
 		bound = 10;	
 
-		timer = new Timer(20, new Strobe());
-		timer.start();
-		
 		dx = 0;
 		dy = ( Galaxy.generator.nextInt(2) == 0 )? 0.1: -0.1;
 		
@@ -110,7 +100,8 @@ public class Planet extends Observable implements Node  {
 	@Override
 	public void click() {
 		clicked = true;
-
+		setChanged();
+		notifyObservers();
 	}
 
 	@Override
@@ -119,7 +110,8 @@ public class Planet extends Observable implements Node  {
 		double xRight = getX() + getRadius();
 		double yTop = getY();
 		double yBottom = getY() + getRadius();
-		if(p.x > xLeft && p.x < xRight && p.y > yTop && p.y < yBottom) {
+		System.out.println("xLeft: " + xLeft + " xRight: " + xRight + " yTop: " + yTop + " yBottom: " + yBottom +  " px: " + p.getX() + " py: " + p.getY());
+		if(p.getX() > xLeft && p.getX() < xRight && p.getY() > yTop && p.getY() < yBottom) {
 			System.out.println("Pressed at the planet!");
 			return true;
 		}			
@@ -186,27 +178,6 @@ public class Planet extends Observable implements Node  {
 		return res;
 	}
 	
-	
-	/**
-	 * Tells the player that the node has been clicked.
-	 *
-	 */
-	private class Strobe implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-					@Override
-					protected Void doInBackground() throws Exception {
-						if (clicked) {
-							setChanged();
-							notifyObservers();
-						}
-						return null;
-					}
-			};
-			worker.execute();
-		}
-    }
 
 
 	@Override

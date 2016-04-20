@@ -15,8 +15,6 @@ import java.util.Observer;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
-import javax.swing.Timer;
-
 import UniversePackage.Galaxy;
 import UniversePackage.Node;
 import UniversePackage.Planet;
@@ -31,7 +29,6 @@ public class View extends JPanel implements Observer {
 	private Image[] planets;
 	private Image station;
 	
-	private HumanPlayer hPlayer;
 
 	public View(Galaxy galaxy) {
 		
@@ -60,12 +57,6 @@ public class View extends JPanel implements Observer {
 		}
 		
 		this.station = new ImageIcon("resources/station.png").getImage();
-		String[] refs = new String[5];
-		refs[0] = "resources/duck.gif";
-		refs[1] = "resources/duck2.gif";
-		refs[2] = "resources/duck3.gif";
-		
-		hPlayer = new HumanPlayer(refs, 10, 10, Color.orange); 
 
 	}
 
@@ -73,7 +64,7 @@ public class View extends JPanel implements Observer {
 	 * Update next step
 	 */
 	public void nextStep() {
-		hPlayer.translate();
+		((HumanPlayer) galaxy.getPlayer(0)).translate();
 		repaint();
 	}
 
@@ -88,7 +79,7 @@ public class View extends JPanel implements Observer {
 		Graphics2D g2 = (Graphics2D) g;
 		g2.drawImage(bgImg, 0, 0, null);
 
-		hPlayer.draw(g2, (int)hPlayer.getX(), (int)hPlayer.getY());
+		((HumanPlayer) galaxy.getPlayer(0)).draw(g2, (int)((HumanPlayer) galaxy.getPlayer(0)).getX(), (int)((HumanPlayer) galaxy.getPlayer(0)).getY());
 		
 		Node[][] starboard = galaxy.getStarBoard();
 		

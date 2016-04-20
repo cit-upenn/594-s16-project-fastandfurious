@@ -25,6 +25,9 @@ import javax.swing.Timer;
 import javax.swing.table.TableColumn;
 
 import UniversePackage.Galaxy;
+import UniversePackage.Planet;
+import UniversePackage.SupplyStation;
+import player.HumanPlayer;
 
 public class Controller {
 
@@ -56,6 +59,16 @@ public class Controller {
 		galaxy = new Galaxy(940, 720, 50, 70);
 		view = new View(galaxy);		
 		galaxy.addObserver(view);
+		
+		for (int i = 1; i < galaxy.getStarBoard().length - 1; i++) {
+			for (int j = 1; j < galaxy.getStarBoard()[0].length; j++) {
+				if (galaxy.getStarBoard()[i][j] instanceof Planet) {
+					((Planet)galaxy.getStarBoard()[i][j]).addObserver(((HumanPlayer) galaxy.getPlayer(0)));
+				} else if (galaxy.getStarBoard()[i][j] instanceof SupplyStation) {
+					((SupplyStation)galaxy.getStarBoard()[i][j]).addObserver(((HumanPlayer) galaxy.getPlayer(0)));
+				}			
+			}
+		}
 		galaxy.start();
 		
 		Timer t = new Timer(200, new ActionListener() {
@@ -186,6 +199,7 @@ public class Controller {
 		view.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent event) {
 				Point mousePoint = event.getPoint();
+				System.out.println("Point: " + mousePoint.getX() + " " + mousePoint.getY());
 				view.click(mousePoint);
 				System.out.println("==clicked!");
 			}
