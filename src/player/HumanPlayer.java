@@ -25,6 +25,8 @@ public class HumanPlayer implements Player, Observer {
 	private double dx;
 	private double dy;
 	
+	private Node currentNode;
+	
 	private Color pColor;
 	
 	public HumanPlayer(String[] refs, double x, double y, Color pColor) {
@@ -96,6 +98,13 @@ public class HumanPlayer implements Player, Observer {
 		return wealth;
 	}
 
+	public void setCurrentNode(Node node) {
+		this.currentNode = node;
+	}
+	
+	public Node getCurrentNode() {
+		return currentNode;
+	}
 	@Override
 	public void update(Observable node, Object arg) {
 		if (node instanceof Planet) {

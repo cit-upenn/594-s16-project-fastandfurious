@@ -74,13 +74,6 @@ public interface Node {
 	 */
 	public double getInstY();
 	
-	/**
-	 * build an edge between two nodes
-	 * @param lhs left-hand-side node
-	 * @param rhs right-hand-side node
-	 * @return true if operation is successful
-	 */
-	public boolean buildEdge(Node lhs, Node rhs);
 	
 	/**
 	 * @return parent node of the current node

@@ -103,18 +103,6 @@ public class SupplyStation extends Observable implements Node{
 	}
 
 	@Override
-	public boolean buildEdge(Node lhs, Node rhs) {
-		if(lhs == null || rhs == null
-		   || Math.abs(lhs.getX() - rhs.getX()) > 50 
-		   || Math.abs(lhs.getY() - rhs.getY()) > 50) {
-			return false;
-		}
-		lhs.getNeighbors().add(rhs);
-		rhs.getNeighbors().add(lhs);
-		return true;
-	}
-
-	@Override
 	public void move() {
 		
 		if(Math.abs(instY - y) > bound)

@@ -1,5 +1,7 @@
 package UniversePackage;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Random;
 import java.awt.Color;
@@ -28,6 +30,7 @@ public class Galaxy extends Observable{
     private Node[][] starboard;
     private Timer timer;
     private Player[] player;
+    private List<Edge> edges;
 
     public Galaxy(int width, int height, int gridLength, int numPlanets) {
 
@@ -36,6 +39,7 @@ public class Galaxy extends Observable{
         this.gridLength = gridLength;
 
         generator = new Random();
+        edges = new LinkedList<>();
         init(numPlanets);
     }
 
@@ -51,7 +55,7 @@ public class Galaxy extends Observable{
     
     	starboard = new Node[numRows][numCols];    	
     	starboard[1][1] = new Planet(gridLength, gridLength);
-    	starboard[numRows-2][numCols-2]= new Planet(  (numCols - 2) * gridLength, (numRows - 2) * gridLength);
+    	starboard[numRows-2][numCols-2]= new Planet((numCols - 2) * gridLength, (numRows - 2) * gridLength);
     	
     	while(numPlanets > 0) {
     		
@@ -78,7 +82,8 @@ public class Galaxy extends Observable{
 		refs[2] = "resources/duck3.gif";
 		
 		player = new Player[2];
-		player[0] = new HumanPlayer(refs, 10, 10, Color.orange); 
+		player[0] = new HumanPlayer(refs, starboard[1][1].getX(), starboard[1][1].getY(), Color.orange); 
+		((HumanPlayer)player[0]).setCurrentNode(starboard[1][1]);
 		player[1] = new ComputerPlayer(Color.GREEN);
     }
     
@@ -146,4 +151,36 @@ public class Galaxy extends Observable{
     	}
     	return player[num];
     }
+    
+    /**
+	 * build an edge between two nodes
+	 * @param lhs left-hand-side node
+	 * @param rhs right-hand-side node
+	 * @return true if operation is successful
+	 */
+    public boolean buildEdge(Node lhs, Node rhs) {
+		if(lhs == null || rhs == null
+				||Math.abs(lhs.getX() - rhs.getX()) > 50 
+				|| Math.abs(lhs.getY() - rhs.getY()) > 50) {
+			return false;
+		}
+		lhs.getNeighbors().add(rhs);
+		rhs.getNeighbors().add(lhs);
+		
+		Edge edge = new Edge(lhs, rhs);
+		edges.add(edge);
+		
+    	this.setChanged();
+    	this.notifyObservers();
+		
+		return true;
+	}
+    
+    /**
+     * @return list of edges
+     */
+    public List<Edge> getEdges() {
+    	return this.edges;
+    }
+    
 }

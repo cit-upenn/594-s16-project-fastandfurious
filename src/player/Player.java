@@ -16,5 +16,9 @@ public interface Player {
     public Color getPlayerColor();
     
     public int getWealth();
+    
+	public void setCurrentNode(Node node);
+	
+	public Node getCurrentNode();
 
 }

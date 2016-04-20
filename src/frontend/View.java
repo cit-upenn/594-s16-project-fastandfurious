@@ -15,6 +15,8 @@ import java.util.Observer;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
+
+import UniversePackage.Edge;
 import UniversePackage.Galaxy;
 import UniversePackage.Node;
 import UniversePackage.Planet;
@@ -105,16 +107,18 @@ public class View extends JPanel implements Observer {
 						g2.setStroke(new BasicStroke(2));
 						g2.draw(rect);	
 					}
-
+					
 				}			
 			}
 		}
-
+		
+		for(Edge edge: galaxy.getEdges()) {
+			edge.draw(g2);
+		}
 	}
 
 	@Override
 	public void update(Observable o, Object arg) {
-
 		repaint();
 	}
 
@@ -124,7 +128,10 @@ public class View extends JPanel implements Observer {
 			for (int j = 1; j < starboard[0].length - 1; j++) {
 				Node node = starboard[i][j];
 				if (node.contains(mousePoint)) {
-					node.click();	
+					node.click();
+					Node current = galaxy.getPlayer(0).getCurrentNode();
+					galaxy.buildEdge(current, node);
+					galaxy.getPlayer(0).setCurrentNode(node);
 				}
 			}
 		}

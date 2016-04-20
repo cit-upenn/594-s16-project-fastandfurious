@@ -38,6 +38,18 @@ public class ComputerPlayer implements Player {
 	public int getWealth() {		
 		return wealth;
 	}
+
+	@Override
+	public void setCurrentNode(Node node) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Node getCurrentNode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 
 }

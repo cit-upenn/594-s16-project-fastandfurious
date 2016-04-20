@@ -200,6 +200,7 @@ public class Controller {
 			public void mousePressed(MouseEvent event) {
 				Point mousePoint = event.getPoint();
 				view.click(mousePoint);
+				
 			}
 		});
 	}
