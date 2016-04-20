@@ -34,14 +34,16 @@ public interface Player {
 	
 	public void draw(Graphics2D g2,int x,int y);
 	
-	public void drawHalo(Graphics2D g2);
+	public void drawFocus(Graphics2D g2);
+	
+	public void drawSelection(Graphics2D g2);
+	
+	public void setFocus(Node focus);
 	
 	public Node getFocus();
 	
-	public void setFocus();
+	public void setSelected(Node selection);
 	
 	public Node getSelected();
-	
-	public void setSelected();
 
 }

@@ -122,13 +122,6 @@ public class ComputerPlayer implements Player {
 
 	}
 
-	@Override
-	public void drawHalo(Graphics2D g2) {
-		
-		double geometryX = focus.getInstX();
-		double geometryY = focus.getInstY();
-		double radius = focus.getRadius();	
-	}
 
 	@Override
 	public Node getSelected() {
@@ -137,7 +130,7 @@ public class ComputerPlayer implements Player {
 	}
 
 	@Override
-	public void setSelected() {
+	public void setSelected(Node selection) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -149,7 +142,19 @@ public class ComputerPlayer implements Player {
 	}
 
 	@Override
-	public void setFocus() {
+	public void setFocus(Node focus) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void drawFocus(Graphics2D g2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void drawSelection(Graphics2D g2) {
 		// TODO Auto-generated method stub
 		
 	}

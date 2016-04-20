@@ -29,6 +29,7 @@ public class HumanPlayer implements Player {
 	
 	private Node currentNode;
 	private Node focus;
+	private Node selected;
 	
 	private Color pColor;
 	
@@ -48,9 +49,10 @@ public class HumanPlayer implements Player {
 		this.wealth = 100;
 		
 		speed = 1.5; 
-		this.focus = null;
 		destinations = new LinkedList<>();
 		
+		this.focus = null;
+		this.selected = null;
 	}
 	
 	public double getX() {
@@ -141,31 +143,32 @@ public class HumanPlayer implements Player {
 	}
 
 	@Override
-	public Node getFocus() {
-		return null;
-	}
-
-	@Override
-	public void setFocus() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void drawHalo(Graphics2D g2) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public Node getSelected() {
-		// TODO Auto-generated method stub
-		return null;
+		return selected;
 	}
 
 	@Override
-	public void setSelected() {
+	public void setSelected(Node selection) {
+		this.selected = selection;
+	}
+
+	@Override
+	public Node getFocus() {
+		return this.focus;
+	}
+
+	@Override
+	public void setFocus(Node focus) {
+		this.focus = focus;
+	}
+
+	@Override
+	public void drawFocus(Graphics2D g2) {
 		// TODO Auto-generated method stub
-		
+	}
+
+	@Override
+	public void drawSelection(Graphics2D g2) {
+		// TODO Auto-generated method stub
 	}
 }
