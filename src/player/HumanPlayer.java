@@ -3,8 +3,9 @@ package player;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
 
 import javax.swing.ImageIcon;
 
@@ -12,24 +13,27 @@ import UniversePackage.Node;
 import UniversePackage.Planet;
 import UniversePackage.SupplyStation;
 
-public class HumanPlayer implements Player, Observer {
+public class HumanPlayer implements Player {
 
 	private Animate animation;
 	private int sequenceNum;
 	private double x;
 	private double y;
-	private int size;
+	private Queue<Node> destinations;
 	
 	private int wealth;
 	
+	
 	private double dx;
 	private double dy;
+	private double speed;
 	
 	private Node currentNode;
 	
 	private Color pColor;
 	
 	public HumanPlayer(String[] refs, double x, double y, Color pColor) {
+		
 		Image[] images = new Image[refs.length];
 		for(int i = 0; i < refs.length; i++) {
 			Image image = new ImageIcon(refs[i]).getImage();
@@ -37,12 +41,16 @@ public class HumanPlayer implements Player, Observer {
 		}
 		this.animation = new Animate(images);
 		sequenceNum = 0;
+		
 		this.setX(x);
 		this.setY(y);
-		dx = 5;
-		dy = 5;
 		this.pColor = pColor;
 		this.wealth = 100;
+		
+		speed = 1.5; 
+		
+		destinations = new LinkedList<>();
+		
 	}
 	
 	public double getX() {
@@ -61,18 +69,14 @@ public class HumanPlayer implements Player, Observer {
 		this.y = y;
 	}
 	
-	public void setSize(int size) {
-		this.size = size;
-	}
-	
 	public void translate() {
 		sequenceNum = (sequenceNum < 2) ? sequenceNum + 1 : 0;
 		animation.nextImage(sequenceNum);
 	}
 
-	
+	@Override
 	public void draw(Graphics2D g2,int x,int y) {
-		animation.draw(g2, (int)this.getX(), (int)this.getY());
+		animation.draw(g2, x, y);
 	}
 	
 	@Override
@@ -82,9 +86,25 @@ public class HumanPlayer implements Player, Observer {
 	}
 
 	@Override
-	public boolean moveTowardTarget() {
+	public boolean move() {
 		
-		return false;
+		dx = 0;
+		dy = 0;
+		
+		if(!destinations.isEmpty()) {
+			Node nextTarget = destinations.peek();
+			if(Math.abs(x - nextTarget.getX()) < 1
+			   && Math.abs(y - nextTarget.getY()) < 1){
+				destinations.poll();	
+			}
+			if(!destinations.isEmpty()) {
+				setVelocity(destinations.peek());
+			}
+		}
+		
+		x += dx;
+		y += dy;
+		return true;
 	}
 
 	@Override
@@ -93,27 +113,32 @@ public class HumanPlayer implements Player, Observer {
 	}
 
 	@Override
-	public int getWealth() {
-		
+	public int getWealth() {	
 		return wealth;
 	}
 
+	@Override
 	public void setCurrentNode(Node node) {
 		this.currentNode = node;
 	}
 	
+	@Override
 	public Node getCurrentNode() {
 		return currentNode;
 	}
-	@Override
-	public void update(Observable node, Object arg) {
-		if (node instanceof Planet) {
-			setX(((Planet) node).getX());
-			setY(((Planet) node).getY());
-		} else if (node instanceof SupplyStation) {
-			setX(((SupplyStation) node).getX());
-			setY(((SupplyStation) node).getY());
-		}
+	
+	private void setVelocity(Node dest){
 		
+		double deltaX = dest.getX() - x;
+		double deltaY = dest.getY() - y;
+		double mod = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+		dx = deltaX/mod * speed;
+		dy = deltaY/mod * speed;
+
+	}
+
+	@Override
+	public void addTarget(Node target) {	
+		destinations.offer(target);
 	}
 }

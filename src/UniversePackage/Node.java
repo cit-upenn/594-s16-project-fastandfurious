@@ -3,6 +3,7 @@ import java.awt.Point;
 import java.util.List;
 import java.util.Observable;
 import java.awt.Color;
+import java.awt.Graphics2D;
 
 import player.Player;
 
@@ -91,8 +92,14 @@ public interface Node {
 	public Node getPredecessor();
 	
 	/**
-	 * 
+	 * set current predecessor of a node
 	 */
 	public void setPredecessor(Node pred);
+	
+	/**
+	 * general method for draw a shape
+	 * @param g graphics instance used for drawing
+	 */
+	public void draw(Graphics2D g);
 }
 

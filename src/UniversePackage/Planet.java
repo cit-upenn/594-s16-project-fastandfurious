@@ -4,8 +4,13 @@ import java.util.List;
 import java.util.Observable;
 
 import player.Player;
+
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
 import java.util.LinkedList;
 
 public class Planet extends Observable implements Node  {
@@ -182,9 +187,17 @@ public class Planet extends Observable implements Node  {
 	}
 
 	@Override
-	public void setPredecessor(Node pred) {
-		// TODO Auto-generated method stub
+	public void setPredecessor(Node pred) {	
+		this.predecessor = pred;	
+	}
+
+	@Override
+	public void draw(Graphics2D g2) {
 		
+		Shape circle = new Ellipse2D.Double(instantX - radius/2, instantY - radius/2, radius, radius);
+		g2.setColor(color);
+		g2.setStroke(new BasicStroke(2));
+		g2.draw(circle);
 	}
 	
 	
