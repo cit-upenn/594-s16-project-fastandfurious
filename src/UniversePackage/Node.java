@@ -92,5 +92,14 @@ public interface Node {
 	 */
 	public void setParentNode(Node parent);
 	
+	/**
+	 * @return current predecessor of node
+	 */
+	public Node getPredecessor();
+	
+	/**
+	 * 
+	 */
+	public void setPredecessor(Node pred);
 }
 
