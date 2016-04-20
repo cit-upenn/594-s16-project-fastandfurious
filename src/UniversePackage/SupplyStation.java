@@ -26,11 +26,11 @@ public class SupplyStation extends Observable implements Node{
 	private double instY;
 	
 	private double bound;
-	double dx, dy;
+	private double dx, dy;
 	
 	private Node parentNode;
 	private Node pred;
-	
+
 	public SupplyStation (double x, double y) {
 		
 		this.x = x;
@@ -45,6 +45,7 @@ public class SupplyStation extends Observable implements Node{
 		bound = 2;
 		dy = (Galaxy.generator.nextInt(2) == 1) ? 0.2 : -0.2;
 		parentNode = null;
+		
 	}
 
 	@Override
@@ -110,8 +111,7 @@ public class SupplyStation extends Observable implements Node{
 	public void move() {
 		
 		if(Math.abs(instY - y) > bound)
-			dy *= -1;	
-		
+			dy *= -1;		
 		instY += dy;
 	}
 

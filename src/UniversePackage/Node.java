@@ -1,5 +1,6 @@
 package UniversePackage;
 import java.awt.Point;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 import java.awt.Color;
@@ -101,5 +102,6 @@ public interface Node {
 	 * @param g graphics instance used for drawing
 	 */
 	public void draw(Graphics2D g);
+
 }
 

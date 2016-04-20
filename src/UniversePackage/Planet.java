@@ -199,6 +199,7 @@ public class Planet extends Observable implements Node  {
 		g2.setStroke(new BasicStroke(2));
 		g2.draw(circle);
 	}
+
 	
 	
 }
