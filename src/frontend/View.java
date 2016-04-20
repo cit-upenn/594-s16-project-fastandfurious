@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 
 import UniversePackage.*;
 import player.HumanPlayer;
+import player.Player;
 
 @SuppressWarnings("serial")
 public class View extends JPanel implements Observer {
@@ -94,6 +95,10 @@ public class View extends JPanel implements Observer {
 		for(Edge edge: galaxy.getEdges()) {
 			edge.draw(g2);
 		}
+		
+		Player human = galaxy.getPlayer(0);
+		
+		human.draw(g2, (int)human.getX(), (int)human.getY());
 	}
 
 	@Override

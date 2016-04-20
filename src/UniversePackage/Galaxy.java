@@ -106,6 +106,9 @@ public class Galaxy extends Observable{
     		}
     	}
     	
+    	player[0].move();
+    	player[1].move();
+    	
     	this.setChanged();
     	this.notifyObservers();
     }

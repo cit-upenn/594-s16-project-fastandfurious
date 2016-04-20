@@ -17,8 +17,6 @@ public class ComputerPlayer implements Player {
 	public ComputerPlayer(Color pColor) {		
 		this.pColor = pColor;
 		wealth = 100;
-		dx = 0;
-		dy = 0;
 	}
 	
 	@Override
@@ -52,6 +50,42 @@ public class ComputerPlayer implements Player {
 	@Override
 	public Node getCurrentNode() {
 		return null;
+	}
+
+	@Override
+	public double getX() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setX(double x) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public double getY() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setY(double y) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addTarget(Node target) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void draw(Graphics2D g2, int x, int y) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 

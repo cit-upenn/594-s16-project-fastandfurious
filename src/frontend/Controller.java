@@ -61,6 +61,7 @@ public class Controller {
 		view = new View(galaxy);		
 		galaxy.addObserver(view);
 		
+		/*
 		for (int i = 1; i < galaxy.getStarBoard().length - 1; i++) {
 			for (int j = 1; j < galaxy.getStarBoard()[0].length; j++) {
 				if (galaxy.getStarBoard()[i][j] instanceof Planet) {
@@ -70,6 +71,8 @@ public class Controller {
 				}			
 			}
 		}
+		*/
+		
 		galaxy.start();
 		
 		Timer t = new Timer(100, new ActionListener() {
@@ -212,7 +215,8 @@ public class Controller {
 		if (targetNode != null && galaxy.areAdjacentNodes(current, targetNode)) {			
 			targetNode.click();
 			galaxy.buildEdge(current, targetNode);
-			galaxy.getPlayer(0).setCurrentNode(targetNode);					
+			galaxy.getPlayer(0).setCurrentNode(targetNode);		
+			galaxy.getPlayer(0).addTarget(targetNode);
 		}
 	}
 	
