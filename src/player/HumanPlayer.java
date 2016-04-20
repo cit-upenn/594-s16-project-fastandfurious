@@ -1,8 +1,11 @@
 package player;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
@@ -21,7 +24,6 @@ public class HumanPlayer implements Player {
 	private double y;
 	private Queue<Node> destinations;
 	private int wealth;
-	
 	
 	private double dx;
 	private double dy;
@@ -101,6 +103,9 @@ public class HumanPlayer implements Player {
 			if(!destinations.isEmpty()) {
 				setVelocity(destinations.peek());
 			}
+			else {
+				currentNode = nextTarget;
+			}
 		}		
 		x += dx;
 		y += dy;
@@ -163,12 +168,42 @@ public class HumanPlayer implements Player {
 	}
 
 	@Override
-	public void drawFocus(Graphics2D g2) {
-		// TODO Auto-generated method stub
+	public void drawHalo(Graphics2D g2, String type) {
+		
+		Node node = null;
+		
+		if(type.equals("focus")) {
+			node = focus;
+			
+		}else if(type.equals("selection")) {
+			node = selected;
+		}
+		
+		if(node != null) {
+			
+			double cx = node.getInstX();
+			double cy = node.getInstY();
+			
+			double radius = 30;
+			
+			Shape halo = new Ellipse2D.Double(cx - radius/2, cy - radius/2, radius, radius);
+			
+			if(type.equals("focus")) {
+				
+				final float dash1[] = {10.0f};
+				g2.setStroke(new BasicStroke(1.5f,
+		                BasicStroke.CAP_BUTT,
+		                BasicStroke.JOIN_MITER,
+		                10.0f, dash1, 0.0f));	
+				
+			}else if(type.equals("selection")) {
+				g2.setStroke(new BasicStroke(1.5f));
+			}
+
+			g2.setColor(pColor);
+			g2.draw(halo);
+		}
 	}
 
-	@Override
-	public void drawSelection(Graphics2D g2) {
-		// TODO Auto-generated method stub
-	}
+
 }

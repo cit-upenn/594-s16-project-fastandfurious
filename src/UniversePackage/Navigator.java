@@ -7,7 +7,7 @@ import java.util.LinkedList;
 
 public class Navigator {
 	
-	public List<Node> breathFirstSearch(Node start, Node end) {
+	public static List<Node> breathFirstSearch(Node start, Node end) {
 		
 		Queue<Node> queue = new LinkedList<>();
 		start.setPredecessor(null);
@@ -28,7 +28,9 @@ public class Navigator {
 					queue.offer(neighbor);
 				}
 			}
+			visited.add(node);
 		}
+		
 		if(found) {
 			LinkedList<Node> path = new LinkedList<>();
 			Node node = end;
@@ -37,7 +39,7 @@ public class Navigator {
 				node = node.getPredecessor();
 			}
 			return path;
-		}
-		else return null;
+		}	
+		return null;
 	}
 }

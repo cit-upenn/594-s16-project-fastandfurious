@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,10 +29,12 @@ import javax.swing.Timer;
 import javax.swing.table.TableColumn;
 
 import UniversePackage.Galaxy;
+import UniversePackage.Navigator;
 import UniversePackage.Node;
 import UniversePackage.Planet;
 import UniversePackage.SupplyStation;
-import player.HumanPlayer;
+import player.Player;
+
 
 public class Controller {
 
@@ -71,17 +74,6 @@ public class Controller {
 		view = new View(galaxy);		
 		galaxy.addObserver(view);
 		
-		/*
-		for (int i = 1; i < galaxy.getStarBoard().length - 1; i++) {
-			for (int j = 1; j < galaxy.getStarBoard()[0].length; j++) {
-				if (galaxy.getStarBoard()[i][j] instanceof Planet) {
-					((Planet)galaxy.getStarBoard()[i][j]).addObserver(((HumanPlayer) galaxy.getPlayer(0)));
-				} else if (galaxy.getStarBoard()[i][j] instanceof SupplyStation) {
-					((SupplyStation)galaxy.getStarBoard()[i][j]).addObserver(((HumanPlayer) galaxy.getPlayer(0)));
-				}			
-			}
-		}
-		*/
 		galaxy.start();
 
 		Timer t = new Timer(100, new ActionListener() {
@@ -242,11 +234,15 @@ public class Controller {
 			@Override
 			public void mousePressed(MouseEvent event) {
 				Point mousePoint = event.getPoint();		
-				Node node = click(mousePoint);	
+				Node node = click(mousePoint);
+				galaxy.getPlayer(0).setSelected(node);			
 				if (node != null) {
+					
+					// TODO
 					buildEdge.setEnabled(true);
 					capture.setEnabled(true);
 					travel.setEnabled(true);
+					
 				}
 			}
 		});
@@ -264,7 +260,8 @@ public class Controller {
             public void actionPerformed(ActionEvent event) {
             	
             	Node current = galaxy.getPlayer(0).getCurrentNode();
-//            	galaxy.buildEdge(current, targetNode);
+            	Node targetNode = galaxy.getPlayer(0).getSelected();
+            	galaxy.buildEdge(current, targetNode);
             }
         });
 		
@@ -278,7 +275,16 @@ public class Controller {
 		travel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
+            	
+            	Player humanPlayer = galaxy.getPlayer(0);
                 
+            	Node source = humanPlayer.getCurrentNode();
+            	Node dest = humanPlayer.getSelected();
+            	List<Node> targets = Navigator.breathFirstSearch(source, dest);
+            	
+            	for(Node target: targets) {
+            		humanPlayer.addTarget(target);
+            	}
             }
         });
 		
@@ -290,12 +296,7 @@ public class Controller {
 			public void mouseMoved(MouseEvent event) {
 				Point p = event.getPoint();
 				Node cursor = locateNode(p.getX(), p.getY());
-				if(cursor == null) {
-					
-				}
-				else {
-					
-				}
+				galaxy.getPlayer(0).setFocus(cursor);
 			}
 		});
 	}

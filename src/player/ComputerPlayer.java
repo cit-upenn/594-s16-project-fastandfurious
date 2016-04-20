@@ -148,13 +148,7 @@ public class ComputerPlayer implements Player {
 	}
 
 	@Override
-	public void drawFocus(Graphics2D g2) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void drawSelection(Graphics2D g2) {
+	public void drawHalo(Graphics2D g2, String type) {
 		// TODO Auto-generated method stub
 		
 	}

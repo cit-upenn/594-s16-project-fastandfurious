@@ -33,8 +33,7 @@ public class Galaxy extends Observable{
     private Timer timer;
     private Player[] player;
     private List<Edge> edges;
-    private Node p1HighLight;
-    private Node p2HighLight;
+    private int numPlanets;
 
     public Galaxy(int width, int height, int gridLength, int numPlanets) {
 
@@ -45,9 +44,8 @@ public class Galaxy extends Observable{
         generator = new Random();
         edges = new LinkedList<>();
         
-        p1HighLight = p2HighLight = null;
+        this.numPlanets = numPlanets;
         
-        init(numPlanets);
     }
 
     /**
@@ -96,6 +94,8 @@ public class Galaxy extends Observable{
     
     public void start() {
 
+    	init(numPlanets);
+    	
     	timer = new Timer(35, new Strobe());
     	timer.start();
     }

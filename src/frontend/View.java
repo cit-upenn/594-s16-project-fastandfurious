@@ -93,6 +93,8 @@ public class View extends JPanel implements Observer {
 		
 		Player human = galaxy.getPlayer(0);	
 		human.draw(g2, (int)human.getX(), (int)human.getY());
+		human.drawHalo(g2, "focus");
+		human.drawHalo(g2, "selection");
 	}
 
 	@Override
