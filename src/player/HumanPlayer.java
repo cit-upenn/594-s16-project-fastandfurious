@@ -3,6 +3,8 @@ package player;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Stack;
 
 import javax.swing.ImageIcon;
@@ -17,7 +19,7 @@ public class HumanPlayer implements Player {
 	private int sequenceNum;
 	private double x;
 	private double y;
-	private Stack<Node> destinations;
+	private Queue<Node> destinations;
 	
 	private int wealth;
 	
@@ -47,7 +49,7 @@ public class HumanPlayer implements Player {
 		
 		speed = 1.5; 
 		
-		destinations = new Stack<>();
+		destinations = new LinkedList<>();
 		
 	}
 	
@@ -93,7 +95,7 @@ public class HumanPlayer implements Player {
 			Node nextTarget = destinations.peek();
 			if(Math.abs(x - nextTarget.getX()) < 1
 			   && Math.abs(y - nextTarget.getY()) < 1){
-				destinations.pop();	
+				destinations.poll();	
 			}
 			if(!destinations.isEmpty()) {
 				setVelocity(destinations.peek());
@@ -137,6 +139,6 @@ public class HumanPlayer implements Player {
 
 	@Override
 	public void addTarget(Node target) {	
-		destinations.push(target);
+		destinations.offer(target);
 	}
 }
