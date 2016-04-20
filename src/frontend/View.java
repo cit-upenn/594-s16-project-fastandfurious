@@ -24,12 +24,10 @@ import player.Player;
 public class View extends JPanel implements Observer {
 
 	private Galaxy galaxy;
-
 	private Image bgImg;
 	private Image[] planets;
 	private Image station;
 	
-
 	public View(Galaxy galaxy) {
 		
 		this.galaxy = galaxy;
@@ -45,17 +43,13 @@ public class View extends JPanel implements Observer {
 		this.planets = new Image[3];
 		for (int i = 0; i < planets.length; i++) {
 			if (i % 3 == 0) {
-				planets[i] = new ImageIcon("resources/Venus.png").getImage();	   
-
+				planets[i] = new ImageIcon("resources/Venus.png").getImage();
 			} else if (i % 3 == 1) {
 				planets[i] = new ImageIcon("resources/jupiter.png").getImage();
-
 			} else {
 				planets[i] = new ImageIcon("resources/planet1.png").getImage();
-
 			} 	    	
 		}
-		
 		this.station = new ImageIcon("resources/station.png").getImage();
 
 	}
@@ -75,6 +69,7 @@ public class View extends JPanel implements Observer {
 
 	@Override
 	public void paint(Graphics g) {	
+		
 		super.paintComponent(g);		
 		Graphics2D g2 = (Graphics2D) g;
 		g2.drawImage(bgImg, 0, 0, null);
@@ -96,8 +91,7 @@ public class View extends JPanel implements Observer {
 			edge.draw(g2);
 		}
 		
-		Player human = galaxy.getPlayer(0);
-		
+		Player human = galaxy.getPlayer(0);	
 		human.draw(g2, (int)human.getX(), (int)human.getY());
 	}
 

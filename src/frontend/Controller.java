@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.LinkedList;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -60,19 +61,6 @@ public class Controller {
 		galaxy = new Galaxy(940, 720, 50, 70);
 		view = new View(galaxy);		
 		galaxy.addObserver(view);
-		
-		/*
-		for (int i = 1; i < galaxy.getStarBoard().length - 1; i++) {
-			for (int j = 1; j < galaxy.getStarBoard()[0].length; j++) {
-				if (galaxy.getStarBoard()[i][j] instanceof Planet) {
-					((Planet)galaxy.getStarBoard()[i][j]).addObserver(((HumanPlayer) galaxy.getPlayer(0)));
-				} else if (galaxy.getStarBoard()[i][j] instanceof SupplyStation) {
-					((SupplyStation)galaxy.getStarBoard()[i][j]).addObserver(((HumanPlayer) galaxy.getPlayer(0)));
-				}			
-			}
-		}
-		*/
-		
 		galaxy.start();
 		
 		Timer t = new Timer(100, new ActionListener() {
@@ -197,13 +185,34 @@ public class Controller {
 		}	
 	}
 	
+	/**
+	 * 
+	 */
 	private void attachListenersToComponents() {
 		
-		// add mouse listener for each node in the universe
+		// add mouse click listener to view
 		view.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mousePressed(MouseEvent event) {
 				Point mousePoint = event.getPoint();		
 				click(mousePoint);		
+			}
+		});
+		
+		// add mouse motion listener to view
+		// this is used to help user keeping track
+		// of the current location of the cursor
+		view.addMouseMotionListener(new MouseAdapter() {
+			@Override
+			public void mouseMoved(MouseEvent event) {
+				Point p = event.getPoint();
+				Node cursor = locateNode(p.getX(), p.getY());
+				if(cursor == null) {
+					
+				}
+				else {
+					
+				}
 			}
 		});
 	}
@@ -211,7 +220,8 @@ public class Controller {
 	public void click(Point mousePoint) {
 		
 		Node current = galaxy.getPlayer(0).getCurrentNode();
-		Node targetNode = locatedNode(mousePoint.getX(), mousePoint.getY());
+		Node targetNode = locateNode(mousePoint.getX(), mousePoint.getY());
+		
 		if (targetNode != null && galaxy.areAdjacentNodes(current, targetNode)) {			
 			targetNode.click();
 			galaxy.buildEdge(current, targetNode);
@@ -226,16 +236,20 @@ public class Controller {
 	 * @param y vertical...
 	 * @return pointer to node if adjacent, null otherwise
 	 */
-	private Node locatedNode(double x, double y) {
+	private Node locateNode(double x, double y) {
 		
 		int col = (int)(x/galaxy.getGridLength());
-		double remainder1 = x % galaxy.getGridLength();	
+		double remainder1 = x % galaxy.getGridLength();
+		
 		if(remainder1 >= 35) col++;
 		else if(remainder1 > 15) return null;
+		
 		int row = (int)(y/galaxy.getGridLength());
 		double remainder2 = y % galaxy.getGridLength();
+		
 		if(remainder2 >= 35) row++;
 		else if(remainder2 > 15) return null;
+		
 		return galaxy.getStarBoard()[row][col];
 	}
 }

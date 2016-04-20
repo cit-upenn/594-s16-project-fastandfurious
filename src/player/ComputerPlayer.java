@@ -2,21 +2,33 @@ package player;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import UniversePackage.Node;
 
 public class ComputerPlayer implements Player {
 
+	private Animate animation;
+	private int sequenceNum;
 	private double x;
 	private double y;
-	private Color pColor;
+	private Queue<Node> destinations;
 	private int wealth;
+	private double dx;
+	private double dy;
+	private double speed;
 	
-	double dx, dy;
+	private Node currentNode;
+	private Node focus;
+	private Node selected;
+	
+	private Color pColor;
 	
 	public ComputerPlayer(Color pColor) {		
 		this.pColor = pColor;
 		wealth = 100;
+		destinations = new LinkedList<>();
 	}
 	
 	@Override
@@ -27,6 +39,18 @@ public class ComputerPlayer implements Player {
 	@Override
 	public boolean move() {
 		
+		dx = 0;
+		dy = 0;
+		if(!destinations.isEmpty()) {
+			Node nextTarget = destinations.peek();
+			if(Math.abs(x - nextTarget.getX()) < 1
+			   && Math.abs(y - nextTarget.getY()) < 1){
+				destinations.poll();	
+			}
+			if(!destinations.isEmpty()) {
+				setVelocity(destinations.peek());
+			}
+		}		
 		x += dx;
 		y += dy;
 		return true;
@@ -88,5 +112,45 @@ public class ComputerPlayer implements Player {
 		
 	}
 	
+	private void setVelocity(Node dest){
+		
+		double deltaX = dest.getX() - x;
+		double deltaY = dest.getY() - y;
+		double mod = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+		dx = deltaX/mod * speed;
+		dy = deltaY/mod * speed;
 
+	}
+
+	@Override
+	public void drawHalo(Graphics2D g2) {
+		
+		double geometryX = focus.getInstX();
+		double geometryY = focus.getInstY();
+		double radius = focus.getRadius();	
+	}
+
+	@Override
+	public Node getSelected() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setSelected() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Node getFocus() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setFocus() {
+		// TODO Auto-generated method stub
+		
+	}
 }

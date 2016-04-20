@@ -20,7 +20,6 @@ public class HumanPlayer implements Player {
 	private double x;
 	private double y;
 	private Queue<Node> destinations;
-	
 	private int wealth;
 	
 	
@@ -29,6 +28,7 @@ public class HumanPlayer implements Player {
 	private double speed;
 	
 	private Node currentNode;
+	private Node focus;
 	
 	private Color pColor;
 	
@@ -48,7 +48,7 @@ public class HumanPlayer implements Player {
 		this.wealth = 100;
 		
 		speed = 1.5; 
-		
+		this.focus = null;
 		destinations = new LinkedList<>();
 		
 	}
@@ -90,7 +90,6 @@ public class HumanPlayer implements Player {
 		
 		dx = 0;
 		dy = 0;
-		
 		if(!destinations.isEmpty()) {
 			Node nextTarget = destinations.peek();
 			if(Math.abs(x - nextTarget.getX()) < 1
@@ -100,8 +99,7 @@ public class HumanPlayer implements Player {
 			if(!destinations.isEmpty()) {
 				setVelocity(destinations.peek());
 			}
-		}
-		
+		}		
 		x += dx;
 		y += dy;
 		return true;
@@ -140,5 +138,34 @@ public class HumanPlayer implements Player {
 	@Override
 	public void addTarget(Node target) {	
 		destinations.offer(target);
+	}
+
+	@Override
+	public Node getFocus() {
+		return null;
+	}
+
+	@Override
+	public void setFocus() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void drawHalo(Graphics2D g2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Node getSelected() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setSelected() {
+		// TODO Auto-generated method stub
+		
 	}
 }
