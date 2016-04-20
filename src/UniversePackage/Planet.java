@@ -29,6 +29,7 @@ public class Planet implements Node{
 	private double instantY;
 	
 	private int bound;
+	private Node parentNode;
 
 	public Planet(double x, double y) {
 
@@ -43,13 +44,16 @@ public class Planet implements Node{
 		ruler = null;
 		clicked = false;
 		
-		dx = -1 + 2 * Galaxy.generator.nextDouble();
-		dy = -1 + 2 * Galaxy.generator.nextDouble();
+		dx = 0;
+		dy = ( Galaxy.generator.nextInt(2) == 0 )? 0.1: -0.1;
+		
 		
 		resourceLevel = Galaxy.generator.nextInt(6);
 		this.color = generateColor(resourceLevel);
 		
-		bound = 10;	
+		bound = 2;
+		
+		parentNode = null;
 	}
 
 	@Override
@@ -125,15 +129,10 @@ public class Planet implements Node{
 	@Override
 	public void move() {
 		
-		if(Math.abs(instantX - x) >= bound) {		
-			dx = -dx;
-		}
-		else if(Math.abs(instantY - y) >= bound) {		
+		if(Math.abs(instantY - y) >= bound) {		
 			dy = -dy;
 		}
-		instantX += dx;
 		instantY += dy;
-		System.out.println(instantX + " " + instantY);
 	}
 
 	@Override
@@ -148,11 +147,9 @@ public class Planet implements Node{
 	
 	private Color generateColor(int colorNum) {
 		
-		Color res = Color.LIGHT_GRAY;
-		
+		Color res = Color.LIGHT_GRAY;	
 		switch(colorNum) {
-		
-			case 0: res = Color.gray; break;
+			case 0: res = Color.LIGHT_GRAY; break;
 			case 1: res = Color.red; break;
 			case 2: res = Color.blue; break;
 			case 3: res = Color.cyan; break;
@@ -160,7 +157,16 @@ public class Planet implements Node{
 			case 5: res = Color.yellow;
 			default:
 		}
-		
 		return res;
+	}
+
+	@Override
+	public Node getParentNode() {		
+		return this.parentNode;
+	}
+
+	@Override
+	public void setParentNode(Node parent) {	
+		this.parentNode = parent;
 	}
 }

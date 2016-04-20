@@ -80,5 +80,16 @@ public interface Node {
 	 * @return true if operation is successful
 	 */
 	public boolean buildEdge(Node lhs, Node rhs);
+	
+	/**
+	 * @return parent node of the current node
+	 */
+	public Node getParentNode();
+	
+	/**
+	 * @param parent Node that is to be set as parent
+	 */
+	public void setParentNode(Node parent);
+	
 }
 

@@ -20,6 +20,11 @@ public class SupplyStation implements Node{
 	private double instX;
 	private double instY;
 	
+	private double bound;
+	double dx, dy;
+	
+	private Node parentNode;
+	
 	public SupplyStation (double x, double y) {
 		
 		this.x = x;
@@ -31,6 +36,9 @@ public class SupplyStation implements Node{
 		color = Color.white;
 		instX = this.x;
 		instY = this.y;
+		bound = 2;
+		dy = (Galaxy.generator.nextInt(2) == 1) ? 0.2 : -0.2;
+		parentNode = null;
 	}
 
 	@Override
@@ -104,8 +112,11 @@ public class SupplyStation implements Node{
 
 	@Override
 	public void move() {
-		// TODO make some kind of move
 		
+		if(Math.abs(instY - y) > bound)
+			dy *= -1;	
+		
+		instY += dy;
 	}
 
 	@Override
@@ -116,5 +127,15 @@ public class SupplyStation implements Node{
 	@Override
 	public double getInstY() {
 		return instY;
+	}
+
+	@Override
+	public Node getParentNode() {
+		return this.parentNode;
+	}
+
+	@Override
+	public void setParentNode(Node parent) {
+		this.parentNode = parent;
 	}
 }
