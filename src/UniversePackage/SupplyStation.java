@@ -24,6 +24,7 @@ public class SupplyStation implements Node{
 	double dx, dy;
 	
 	private Node parentNode;
+	private Node pred;
 	
 	public SupplyStation (double x, double y) {
 		
@@ -101,8 +102,8 @@ public class SupplyStation implements Node{
 	@Override
 	public boolean buildEdge(Node lhs, Node rhs) {
 		if(lhs == null || rhs == null
-			|| Math.abs(lhs.getX() - rhs.getX()) > 50 
-			|| Math.abs(lhs.getY() - rhs.getY()) > 50) {
+		   || Math.abs(lhs.getX() - rhs.getX()) > 50 
+		   || Math.abs(lhs.getY() - rhs.getY()) > 50) {
 			return false;
 		}
 		lhs.getNeighbors().add(rhs);
@@ -137,5 +138,15 @@ public class SupplyStation implements Node{
 	@Override
 	public void setParentNode(Node parent) {
 		this.parentNode = parent;
+	}
+
+	@Override
+	public Node getPredecessor() {
+		return pred;
+	}
+
+	@Override
+	public void setPredecessor(Node pred) {
+		this.pred = pred;
 	}
 }

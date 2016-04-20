@@ -30,6 +30,7 @@ public class Planet implements Node{
 	
 	private int bound;
 	private Node parentNode;
+	private Node predecessor;
 
 	public Planet(double x, double y) {
 
@@ -54,6 +55,7 @@ public class Planet implements Node{
 		bound = 2;
 		
 		parentNode = null;
+		predecessor = null;
 	}
 
 	@Override
@@ -169,4 +171,17 @@ public class Planet implements Node{
 	public void setParentNode(Node parent) {	
 		this.parentNode = parent;
 	}
+
+	@Override
+	public Node getPredecessor() {
+		return this.predecessor;
+	}
+
+	@Override
+	public void setPredecessor(Node pred) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
 }
