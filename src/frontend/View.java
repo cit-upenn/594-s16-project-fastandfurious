@@ -16,10 +16,7 @@ import java.util.Observer;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
-import UniversePackage.Edge;
-import UniversePackage.Galaxy;
-import UniversePackage.Node;
-import UniversePackage.Planet;
+import UniversePackage.*;
 import player.HumanPlayer;
 
 @SuppressWarnings("serial")
@@ -89,25 +86,7 @@ public class View extends JPanel implements Observer {
 			for (int j = 0; j < starboard[0].length; j++) {
 				Node node = starboard[i][j];
 				if (node != null) {
-					
-					double x = node.getInstX();
-					double y = node.getInstY();
-					double r = node.getRadius();
-					
-					if (node instanceof Planet) {		
-						Shape circle = new Ellipse2D.Double(x - r/2, y - r/2, r, r);
-						g2.setColor(node.getColor());
-						g2.setStroke(new BasicStroke(2));
-						g2.draw(circle);
-						
-					} else {
-						
-						Shape rect = new Rectangle2D.Double(x - r/2, y - r/2, r, r);
-						g2.setColor(node.getColor());
-						g2.setStroke(new BasicStroke(2));
-						g2.draw(rect);	
-					}
-					
+					node.draw(g2);
 				}			
 			}
 		}
@@ -122,18 +101,4 @@ public class View extends JPanel implements Observer {
 		repaint();
 	}
 
-	public void click(Point mousePoint) {
-		Node[][] starboard = galaxy.getStarBoard();
-		for (int i = 1; i < starboard.length - 1; i++) {
-			for (int j = 1; j < starboard[0].length - 1; j++) {
-				Node node = starboard[i][j];
-				if (node.contains(mousePoint)) {
-					node.click();
-					Node current = galaxy.getPlayer(0).getCurrentNode();
-					galaxy.buildEdge(current, node);
-					galaxy.getPlayer(0).setCurrentNode(node);
-				}
-			}
-		}
-	}
 }

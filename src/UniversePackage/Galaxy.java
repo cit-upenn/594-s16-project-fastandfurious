@@ -1,9 +1,11 @@
 package UniversePackage;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Random;
+import java.util.Set;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -89,7 +91,7 @@ public class Galaxy extends Observable{
     
     public void start() {
 
-    	timer = new Timer(50, new Strobe());
+    	timer = new Timer(35, new Strobe());
     	timer.start();
     }
     
@@ -159,9 +161,10 @@ public class Galaxy extends Observable{
 	 * @return true if operation is successful
 	 */
     public boolean buildEdge(Node lhs, Node rhs) {
-		if(lhs == null || rhs == null
-				||Math.abs(lhs.getX() - rhs.getX()) > 50 
-				|| Math.abs(lhs.getY() - rhs.getY()) > 50) {
+		
+    	if(lhs == null || rhs == null
+		   ||Math.abs(lhs.getX() - rhs.getX()) > 50 
+		   || Math.abs(lhs.getY() - rhs.getY()) > 50) {
 			return false;
 		}
 		lhs.getNeighbors().add(rhs);
@@ -177,10 +180,51 @@ public class Galaxy extends Observable{
 	}
     
     /**
+     * 
+     * @param node
+     * @return
+     */
+    private Set<Node> getNeighboringNodes(Node node) {
+    	
+    	int row = (int)node.getY()/gridLength;
+    	int col = (int)node.getX()/gridLength;
+    	Set<Node> neighbors = new HashSet<>();
+    	
+    	for(int i = row - 1; i <= row + 1; i++) {
+    		for(int j = col - 1; j <= col + 1; j++) {
+    			neighbors.add(starboard[i][j]);
+    		}
+    	}
+    	
+    	return neighbors;
+    }
+    
+    
+    /**
+     * This method determines if two nodes
+     *  are adjacent to each other
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    public boolean areAdjacentNodes(Node thisNode, Node otherNode) {
+    	
+    	Set<Node> neighbors = getNeighboringNodes(thisNode);
+    	return neighbors.contains(otherNode);
+    }
+    
+    /**
      * @return list of edges
      */
     public List<Edge> getEdges() {
     	return this.edges;
+    }
+    
+    /**
+     * @return grid length being used for current galaxy
+     */
+    public double getGridLength() {
+    	return gridLength;
     }
     
 }

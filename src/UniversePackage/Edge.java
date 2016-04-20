@@ -17,15 +17,18 @@ public class Edge {
 	public Edge(Node p1, Node p2) {
 		this.p1 = p1;
 		this.p2 = p2;
-		this.color =  Color.lightGray;
+		this.color =  Color.orange;
 	}
-	
 	
 	public void draw(Graphics2D g) {
 		
 		Line2D.Double line = new Line2D.Double(p1.getInstX(), p1.getInstY(), p2.getInstX(), p2.getInstY());
 		g.setColor(color);
-		g.setStroke(new BasicStroke(2));
+		final float dash1[] = {10.0f};
+		g.setStroke(new BasicStroke(1.5f,
+                BasicStroke.CAP_BUTT,
+                BasicStroke.JOIN_MITER,
+                10.0f, dash1, 0.0f));
 		g.draw(line);
 	}
 

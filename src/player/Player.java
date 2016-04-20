@@ -11,7 +11,7 @@ public interface Player {
 
     public Node pickTarget();
 
-    public boolean moveTowardTarget();
+    public boolean move();
     
     public Color getPlayerColor();
     

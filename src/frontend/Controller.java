@@ -25,6 +25,7 @@ import javax.swing.Timer;
 import javax.swing.table.TableColumn;
 
 import UniversePackage.Galaxy;
+import UniversePackage.Node;
 import UniversePackage.Planet;
 import UniversePackage.SupplyStation;
 import player.HumanPlayer;
@@ -71,7 +72,7 @@ public class Controller {
 		}
 		galaxy.start();
 		
-		Timer t = new Timer(200, new ActionListener() {
+		Timer t = new Timer(100, new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				view.nextStep();
 			}
@@ -198,10 +199,39 @@ public class Controller {
 		// add mouse listener for each node in the universe
 		view.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent event) {
-				Point mousePoint = event.getPoint();
-				view.click(mousePoint);
-				
+				Point mousePoint = event.getPoint();		
+				click(mousePoint);		
 			}
 		});
+	}
+	
+	public void click(Point mousePoint) {
+		
+		Node current = galaxy.getPlayer(0).getCurrentNode();
+		Node targetNode = locatedNode(mousePoint.getX(), mousePoint.getY());
+		if (targetNode != null && galaxy.areAdjacentNodes(current, targetNode)) {			
+			targetNode.click();
+			galaxy.buildEdge(current, targetNode);
+			galaxy.getPlayer(0).setCurrentNode(targetNode);					
+		}
+	}
+	
+	/**
+	 * locate node based on coordinates
+	 * @param x horizontal coordinates of node
+	 * @param y vertical...
+	 * @return pointer to node if adjacent, null otherwise
+	 */
+	private Node locatedNode(double x, double y) {
+		
+		int col = (int)(x/galaxy.getGridLength());
+		double remainder1 = x % galaxy.getGridLength();	
+		if(remainder1 >= 35) col++;
+		else if(remainder1 > 15) return null;
+		int row = (int)(y/galaxy.getGridLength());
+		double remainder2 = y % galaxy.getGridLength();
+		if(remainder2 >= 35) row++;
+		else if(remainder2 > 15) return null;
+		return galaxy.getStarBoard()[row][col];
 	}
 }

@@ -1,7 +1,11 @@
 package UniversePackage;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Shape;
+import java.awt.geom.Rectangle2D;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
@@ -139,5 +143,15 @@ public class SupplyStation extends Observable implements Node{
 	@Override
 	public void setPredecessor(Node pred) {
 		this.pred = pred;
+	}
+
+	@Override
+	public void draw(Graphics2D g2) {
+		
+		Shape rect = new Rectangle2D.Double(instX - radius/2, instY - radius/2, radius, radius);
+		g2.setColor(color);
+		g2.setStroke(new BasicStroke(2));
+		g2.draw(rect);	
+		
 	}
 }

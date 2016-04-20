@@ -12,9 +12,13 @@ public class ComputerPlayer implements Player {
 	private Color pColor;
 	private int wealth;
 	
+	double dx, dy;
+	
 	public ComputerPlayer(Color pColor) {		
 		this.pColor = pColor;
 		wealth = 100;
+		dx = 0;
+		dy = 0;
 	}
 	
 	@Override
@@ -23,14 +27,15 @@ public class ComputerPlayer implements Player {
 	}
 
 	@Override
-	public boolean moveTowardTarget() {
+	public boolean move() {
 		
-		return false;
+		x += dx;
+		y += dy;
+		return true;
 	}
 
 	@Override
 	public Color getPlayerColor() {
-
 		return pColor;
 	}
 
@@ -41,13 +46,11 @@ public class ComputerPlayer implements Player {
 
 	@Override
 	public void setCurrentNode(Node node) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public Node getCurrentNode() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	

@@ -30,6 +30,7 @@ public class HumanPlayer implements Player, Observer {
 	private Color pColor;
 	
 	public HumanPlayer(String[] refs, double x, double y, Color pColor) {
+		
 		Image[] images = new Image[refs.length];
 		for(int i = 0; i < refs.length; i++) {
 			Image image = new ImageIcon(refs[i]).getImage();
@@ -37,12 +38,14 @@ public class HumanPlayer implements Player, Observer {
 		}
 		this.animation = new Animate(images);
 		sequenceNum = 0;
+		
 		this.setX(x);
 		this.setY(y);
-		dx = 5;
-		dy = 5;
 		this.pColor = pColor;
 		this.wealth = 100;
+		
+		dx = 0;
+		dy = 0;
 	}
 	
 	public double getX() {
@@ -72,7 +75,7 @@ public class HumanPlayer implements Player, Observer {
 
 	
 	public void draw(Graphics2D g2,int x,int y) {
-		animation.draw(g2, (int)this.getX(), (int)this.getY());
+		animation.draw(g2, (int)x, (int)y);
 	}
 	
 	@Override
@@ -82,9 +85,10 @@ public class HumanPlayer implements Player, Observer {
 	}
 
 	@Override
-	public boolean moveTowardTarget() {
-		
-		return false;
+	public boolean move() {
+		x += dx;
+		y += dy;
+		return true;
 	}
 
 	@Override
@@ -93,8 +97,7 @@ public class HumanPlayer implements Player, Observer {
 	}
 
 	@Override
-	public int getWealth() {
-		
+	public int getWealth() {	
 		return wealth;
 	}
 
@@ -105,6 +108,7 @@ public class HumanPlayer implements Player, Observer {
 	public Node getCurrentNode() {
 		return currentNode;
 	}
+	
 	@Override
 	public void update(Observable node, Object arg) {
 		if (node instanceof Planet) {
