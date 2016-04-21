@@ -25,16 +25,18 @@ public class Planet extends Observable implements Node  {
 
 	private boolean clicked;
 	private boolean inhabitable;
+	private int population;
+	private int size;
+	private int defenseLevel;	
+	
 	private double dx;
 	private double dy;
 	private int resourceLevel;
-	private int population;
-	private int size;
-	private int defenseLevel;
 	private double instantX;
 	private double instantY;
 
 	private int bound;
+	private int rank;
 	
 	private Node parentNode;
 	private Node predecessor;
@@ -63,11 +65,11 @@ public class Planet extends Observable implements Node  {
 		dx = 0;
 		dy = ( Galaxy.generator.nextInt(2) == 0 )? 0.1: -0.1;
 		
-		
 		resourceLevel = Galaxy.generator.nextInt(6);
 		this.color = generateColor(resourceLevel);
 		
 		bound = 2;
+		rank = 0;
 		
 		parentNode = null;
 		predecessor = null;
@@ -200,6 +202,14 @@ public class Planet extends Observable implements Node  {
 		g2.draw(circle);
 	}
 
-	
+	@Override
+	public int getRank() {
+		return rank;
+	}
+
+	@Override
+	public void incrementRank() {
+		rank++;
+	}	
 	
 }

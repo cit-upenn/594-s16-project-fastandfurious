@@ -171,25 +171,18 @@ public class HumanPlayer implements Player {
 	public void drawHalo(Graphics2D g2, String type) {
 		
 		Node node = null;
-		
 		if(type.equals("focus")) {
 			node = focus;
 			
 		}else if(type.equals("selection")) {
 			node = selected;
 		}
-		
 		if(node != null) {
-			
 			double cx = node.getInstX();
 			double cy = node.getInstY();
-			
 			double radius = 30;
-			
 			Shape halo = new Ellipse2D.Double(cx - radius/2, cy - radius/2, radius, radius);
-			
-			if(type.equals("focus")) {
-				
+			if(type.equals("focus")) {			
 				final float dash1[] = {10.0f};
 				g2.setStroke(new BasicStroke(1.5f,
 		                BasicStroke.CAP_BUTT,
@@ -199,7 +192,6 @@ public class HumanPlayer implements Player {
 			}else if(type.equals("selection")) {
 				g2.setStroke(new BasicStroke(1.5f));
 			}
-
 			g2.setColor(pColor);
 			g2.draw(halo);
 		}

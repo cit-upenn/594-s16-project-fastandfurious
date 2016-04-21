@@ -28,6 +28,8 @@ public class SupplyStation extends Observable implements Node{
 	private double bound;
 	private double dx, dy;
 	
+	private int rank;
+	
 	private Node parentNode;
 	private Node pred;
 
@@ -42,6 +44,7 @@ public class SupplyStation extends Observable implements Node{
 		color = Color.white;
 		instX = this.x;
 		instY = this.y;
+		rank = 0;
 		bound = 2;
 		dy = (Galaxy.generator.nextInt(2) == 1) ? 0.2 : -0.2;
 		parentNode = null;
@@ -153,5 +156,15 @@ public class SupplyStation extends Observable implements Node{
 		g2.setStroke(new BasicStroke(2));
 		g2.draw(rect);	
 		
+	}
+
+	@Override
+	public int getRank() {
+		return rank;
+	}
+
+	@Override
+	public void incrementRank() {
+		rank++;
 	}
 }

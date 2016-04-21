@@ -81,15 +81,18 @@ public class Galaxy extends Observable{
     		}
     	}
     	
+    	// for every node in the galaxy, make set
+    	StarCluster.makeSet(starboard);
+    	
     	String[] refs = new String[5];
 		refs[0] = "resources/duck.gif";
 		refs[1] = "resources/duck2.gif";
 		refs[2] = "resources/duck3.gif";
 		
 		player = new Player[2];
-		player[0] = new HumanPlayer(refs, starboard[1][1].getX(), starboard[1][1].getY(), Color.orange); 
+		player[0] = new HumanPlayer(refs, starboard[1][1].getX(), starboard[1][1].getY(), Color.green); 
 		((HumanPlayer)player[0]).setCurrentNode(starboard[1][1]);
-		player[1] = new ComputerPlayer(Color.GREEN);
+		player[1] = new ComputerPlayer(Color.orange);
     }
     
     public void start() {

@@ -102,6 +102,15 @@ public interface Node {
 	 * @param g graphics instance used for drawing
 	 */
 	public void draw(Graphics2D g);
-
+	
+	/**
+	 * @return rank of the set containing the node
+	 */
+	public int getRank();
+	
+	/**
+	 * increment rank of current node
+	 */
+	public void incrementRank();
 }
 
