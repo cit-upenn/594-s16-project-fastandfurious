@@ -34,7 +34,7 @@ public class Galaxy extends Observable{
     private Player[] player;
     private List<Edge> edges;
     private int numPlanets;
-
+    
     public Galaxy(int width, int height, int gridLength, int numPlanets) {
 
         this.width = width;
@@ -43,7 +43,6 @@ public class Galaxy extends Observable{
 
         generator = new Random();
         edges = new LinkedList<>();
-        
         this.numPlanets = numPlanets;
         
     }
@@ -236,6 +235,19 @@ public class Galaxy extends Observable{
      */
     public double getGridLength() {
     	return gridLength;
+    }
+    
+    /**
+     * @return the human player
+     */
+    public Player getHumanPlayer(){
+    	
+    	for(int i = 0; i < player.length; i++) {
+    		if(player[i] instanceof HumanPlayer) {
+    			return player[i];
+    		}
+    	}
+    	return null;
     }
 
 }
