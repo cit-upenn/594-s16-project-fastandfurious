@@ -46,5 +46,10 @@ public interface Player {
 	public Node getSelected();
 	
 	public List<Node> getPath();
+	
+	/**
+	 * players need to think before they can make move
+	 */
+	public void think();
 
 }

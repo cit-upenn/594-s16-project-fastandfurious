@@ -9,6 +9,8 @@ import java.awt.geom.Ellipse2D;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import UniversePackage.Galaxy;
 import UniversePackage.Node;
@@ -36,21 +38,24 @@ public class ComputerPlayer implements Player {
 	
 	private Color pColor;
 	
+	private boolean isThinking;
+	private boolean isMoving;
+	
 	public ComputerPlayer(double x, double y, Color pColor, Galaxy galaxy) {		
 		
 		this.pColor = pColor;
 		wealth = 100;
 		destinations = new LinkedList<>();
-		
 		this.x = x;
 		this.y = y;
 		this.radius = 15;
-		
 		p1 = new Point(x, y - radius);
 		p2 = new Point(x - radius * Math.cos(Math.PI/6), y + radius/2);
 		p3 = new Point(x + radius * Math.cos(Math.PI/6), y + radius/2);
-		
 		this.galaxy = galaxy;
+		
+		this.isMoving = false;
+		this.isThinking = false;
 	}
 	
 	@Override
@@ -125,20 +130,16 @@ public class ComputerPlayer implements Player {
 
 	@Override
 	public void draw(Graphics2D g2) {
-		
 		int[] xpoints = new int[]{(int)p1.getX(), (int)p2.getX(), (int)p3.getX()};
 		int[] ypoints = new int[]{(int)p1.getY(), (int)p2.getY(), (int)p3.getY()};
-		
 		Shape triangle = new Polygon(xpoints, ypoints, 3);
-		g2.setStroke(new BasicStroke(1));
+		g2.setStroke(new BasicStroke(2));
 		g2.setColor(pColor);
 		g2.draw(triangle);
-		
 		rotate(5);
 	}
 	
 	private void setVelocity(Node dest){
-		
 		double deltaX = dest.getX() - x;
 		double deltaY = dest.getY() - y;
 		double mod = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
@@ -174,10 +175,10 @@ public class ComputerPlayer implements Player {
 		Node node = null;
 		if(type.equals("focus")) {
 			node = focus;
-			
 		}else if(type.equals("selection")) {
 			node = selected;
 		}
+		
 		if(node != null) {
 			double cx = node.getInstX();
 			double cy = node.getInstY();
@@ -221,6 +222,55 @@ public class ComputerPlayer implements Player {
 	public List<Node> getPath() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public void think() {
+		
+		if(!isThinking) {
+			
+			isThinking = true;
+			Analyzer a = new Analyzer();
+			Thread thinking = new Thread(a);
+			thinking.start();
+			
+			try {
+				thinking.join();
+				isThinking = false;
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private class Analyzer implements Runnable {
+
+		@Override
+		public void run() {
+			
+			System.out.println("start thinkg!");
+			
+			// first step try to perform a simple 
+			// b-f-s expansion
+			
+			// find all adjacent unconnected nodes
+			
+			Node[][] board = galaxy.getStarBoard();
+			Node current = currentNode;
+			
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			System.out.println("end thinkg!");
+			
+			return;
+		}
+		
+		
 	}
 	
 	private class Point {

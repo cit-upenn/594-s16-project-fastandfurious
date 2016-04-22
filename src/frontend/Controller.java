@@ -32,6 +32,7 @@ import UniversePackage.Galaxy;
 import UniversePackage.Navigator;
 import UniversePackage.Node;
 import UniversePackage.Planet;
+import UniversePackage.StarCluster;
 import UniversePackage.SupplyStation;
 import player.Player;
 
@@ -162,7 +163,7 @@ public class Controller {
 				playerName[i].setText("Player1");
 				playerName[i].setForeground(Color.GREEN);
 				playerName[i].setBounds(16, 5, 120, 20);	
-				player[i].setIcon(new ImageIcon(this.getClass().getResource("/resources/zootopia_fox128x96.jpg")));
+				player[i].setIcon(new ImageIcon(this.getClass().getResource("/resources/rsz_marvel-iron-man-mark-xlvi-sixth-scale-captain-america-civil-war-hot-toys-thumb-902622.jpg")));
 				player[i].setBounds(16, 40, 128, 96);
 				
 				wealth[i].setBounds(16, 200, 128, 30);
@@ -185,7 +186,7 @@ public class Controller {
 				playerName[i].setText("Player2");
 				playerName[i].setForeground(Color.ORANGE);
 				playerName[i].setBounds(1136, 5, 120, 20);
-				player[i].setIcon(new ImageIcon(this.getClass().getResource("/resources/zootopia_judy128x96.jpg")));
+				player[i].setIcon(new ImageIcon(this.getClass().getResource("/resources/rsz_captain.jpg")));
 				player[i].setBounds(1136, 40, 128, 96);
 				
 				wealth[i].setBounds(1136, 200, 128, 30);
@@ -238,7 +239,7 @@ public class Controller {
 			public void mousePressed(MouseEvent event) {
 				Point mousePoint = event.getPoint();		
 				Node node = click(mousePoint);
-				galaxy.getPlayer(0).setSelected(node);			
+				galaxy.getHumanPlayer().setSelected(node);			
 				if (node != null) {
 					
 					buildEdge.setEnabled(true);
@@ -261,9 +262,9 @@ public class Controller {
             @Override
             public void actionPerformed(ActionEvent event) {
             	
-            	Node current = galaxy.getPlayer(0).getCurrentNode();
+            	Node current = galaxy.getHumanPlayer().getCurrentNode();
             	Node targetNode = galaxy.getPlayer(0).getSelected();
-            	galaxy.buildEdge(current, targetNode);
+            	galaxy.buildEdge(current, targetNode, galaxy.getHumanPlayer());
             }
         });
 		
@@ -279,13 +280,14 @@ public class Controller {
             public void actionPerformed(ActionEvent event) {
             	
             	Player humanPlayer = galaxy.getHumanPlayer();
-            	
             	if(humanPlayer == null) return;
-                
             	Node source = humanPlayer.getCurrentNode();
             	Node dest = humanPlayer.getSelected();
+            	if(StarCluster.find(source) != StarCluster.find(dest)) {
+            		System.out.println("Target and source not connected");
+            		return;
+            	}
             	List<Node> targets = Navigator.breathFirstSearch(source, dest);
-            	
             	for(Node target: targets) {
             		humanPlayer.addTarget(target);
             	}
@@ -318,7 +320,6 @@ public class Controller {
 		
 		double x = mousePoint.getX();
 		double y = mousePoint.getY();
-		
 		return locateNode(x, y);
 	}
 	

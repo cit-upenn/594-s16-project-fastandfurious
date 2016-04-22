@@ -38,30 +38,19 @@ public class HumanPlayer implements Player {
 	private Queue<Node> path;
 	private Color pColor;
 	
-	public HumanPlayer(String[] refs, double x, double y, Color pColor) {
-		
-		Image[] images = new Image[refs.length];
-		for(int i = 0; i < refs.length; i++) {
-			Image image = new ImageIcon(refs[i]).getImage();
-			images[i] = image;
-		}
-		this.animation = new Animate(images);
-		sequenceNum = 0;
+	public HumanPlayer(double x, double y, Color pColor) {
 		
 		this.setX(x);
 		this.setY(y);
 		this.pColor = pColor;
 		this.wealth = 100;
 		this.path = new LinkedList<>();
-		
 		this.pColor = pColor;
-		
-		speed = 1.5; 
 		destinations = new LinkedList<>();
-		
 		this.focus = null;
 		this.selected = null;
 		
+		speed = 1.5; 
 		radius = 15;
 		
 		p1 = new Point(x, y - radius);
@@ -84,11 +73,6 @@ public class HumanPlayer implements Player {
 	public void setY(double y) {
 		this.y = y;
 	}
-	
-	public void translate() {
-		sequenceNum = (sequenceNum < 2) ? sequenceNum + 1 : 0;
-		animation.nextImage(sequenceNum);
-	}
 
 	@Override
 	public void draw(Graphics2D g2) {
@@ -98,7 +82,7 @@ public class HumanPlayer implements Player {
 		
 		Shape triangle = new Polygon(xpoints, ypoints, 3);
 		g2.setColor(pColor);
-		g2.setStroke(new BasicStroke(1));
+		g2.setStroke(new BasicStroke(2));
 		g2.draw(triangle);
 		
 		rotate(5);
@@ -264,6 +248,11 @@ public class HumanPlayer implements Player {
 		public void setY(double y) {
 			this.y = y;
 		}
+	}
+
+	@Override
+	public void think() {
+		
 	}
 
 }

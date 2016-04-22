@@ -45,7 +45,6 @@ public class View extends JPanel implements Observer {
 	 * Update next step
 	 */
 	public void nextStep() {
-		((HumanPlayer) galaxy.getPlayer(0)).translate();
 		repaint();
 	}
 

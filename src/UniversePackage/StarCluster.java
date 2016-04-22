@@ -58,6 +58,6 @@ public class StarCluster {
 	 * @param node to be separated
 	 */
 	public static void seperateNode(Node node) {
-		node.setParentNode(null);
+		node.setParentNode(node);
 	}
 }

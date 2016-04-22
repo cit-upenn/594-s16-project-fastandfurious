@@ -59,20 +59,22 @@ public class Galaxy extends Observable{
     	int numCols = width / gridLength + 2;
     
     	starboard = new Node[numRows][numCols];    	
+    	
+    	/* place planets on board */
+    	
     	starboard[1][1] = new Planet(gridLength, gridLength);
     	starboard[numRows-2][numCols-2]= new Planet((numCols - 2) * gridLength, (numRows - 2) * gridLength);
     	
     	while(numPlanets > 0) {
-    		
     		int row = 1 + generator.nextInt(numRows - 1);
     		int col = 1 + generator.nextInt(numCols - 1);
-    		
     		if(starboard[row][col] == null && row != numRows - 1 && col != numCols - 1) {
     			starboard[row][col] = new Planet(col *  gridLength, row * gridLength);
     			numPlanets--;
     		}
     	}
     	
+    	/* fill-in the vacancy */
     	for(int row = 1; row < numRows - 1; row++) {
     		for(int col = 1; col < numCols - 1; col++) {
     			if(starboard[row][col] == null) {
@@ -83,28 +85,20 @@ public class Galaxy extends Observable{
     	
     	// for every node in the galaxy, make set
     	StarCluster.makeSet(starboard);
-    	
-    	String[] refs = new String[5];
-		refs[0] = "resources/duck.gif";
-		refs[1] = "resources/duck2.gif";
-		refs[2] = "resources/duck3.gif";
 		
+		/* initialize players */
 		player = new Player[2];
-		
-		player[0] = new HumanPlayer(refs, starboard[1][1].getX(), starboard[1][1].getY(), Color.green); 
-		
-		((HumanPlayer)player[0]).setCurrentNode(starboard[1][1]);
-		
-		player[1] = new ComputerPlayer(starboard[starboard.length-2][starboard[0].length-2].getX(),
-										starboard[starboard.length-2][starboard[0].length-2].getY(), 
-										Color.orange, this);
+		player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 128, 255)); 
+		player[0].setCurrentNode(starboard[1][1]);
+		player[1] = new ComputerPlayer(starboard[numRows-2][numCols-2].getX(),starboard[numRows-2][numCols-2].getY(), Color.red, this);
+		player[1].setCurrentNode(starboard[starboard.length-2][starboard[0].length-2]);
     }
     
     public void start() {
 
     	init(numPlanets);
     	
-    	timer = new Timer(20, new Strobe());
+    	timer = new Timer(25, new Strobe());
     	timer.start();
     }
     
@@ -113,34 +107,19 @@ public class Galaxy extends Observable{
      */
     public void makeStep() {
     	
-    	for(int i = 1; i < starboard.length - 1; i++) {	
-    		for(int j = 1; j < starboard[0].length - 1; j++) {
-    			starboard[i][j].move();		
-    		}
-    	}
+    	for(int i = 1; i < starboard.length - 1; i++) 
+    		for(int j = 1; j < starboard[0].length - 1; j++) 
+    			starboard[i][j].move();	
     	
+    	player[0].think();
+    	player[1].think();
+
     	player[0].move();
     	player[1].move();
     	
     	this.setChanged();
     	this.notifyObservers();
     }
-    
-    /**
-     * factory method. produce a new node instance.
-     * @return new node instance
-     */
-    public static Node generateNode(double x, double y){  	
-    	int type = generator.nextInt(2);
-    	Node res = null;
-    	switch(type) {  	
-    		case 0: res = new SupplyStation(x, y); break;
-    		case 1: res = new Planet(x, y); break;
-    		default: System.err.println("Wth?");
-    	}
-    	return res;
-    }
-
     
     public Node[][] getStarBoard() {
     	return starboard;
@@ -164,9 +143,8 @@ public class Galaxy extends Observable{
     }
  
     public Player getPlayer(int num) {
-    	if (num > 1 || num < 0) {
+    	if (num > 1 || num < 0) 
     		return null;
-    	}
     	return player[num];
     }
     
@@ -176,7 +154,7 @@ public class Galaxy extends Observable{
 	 * @param rhs right-hand-side node
 	 * @return true if operation is successful
 	 */
-    public boolean buildEdge(Node lhs, Node rhs) {
+    public boolean buildEdge(Node lhs, Node rhs, Player p) {
 		
     	if(lhs == null || rhs == null ||Math.abs(lhs.getX() - rhs.getX()) > 50 
 		   || Math.abs(lhs.getY() - rhs.getY()) > 50
@@ -193,7 +171,7 @@ public class Galaxy extends Observable{
 		lhs.getNeighbors().add(rhs);
 		rhs.getNeighbors().add(lhs);
 		
-		Edge edge = new Edge(lhs, rhs);
+		Edge edge = new Edge(lhs, rhs, p);
 		edges.add(edge);
 		
     	this.setChanged();
@@ -246,12 +224,10 @@ public class Galaxy extends Observable{
     	int col = (int)node.getX()/gridLength;
     	Set<Node> neighbors = new HashSet<>();
     	
-    	for(int i = row - 1; i <= row + 1; i++) {
-    		for(int j = col - 1; j <= col + 1; j++) {
+    	for(int i = row - 1; i <= row + 1; i++) 
+    		for(int j = col - 1; j <= col + 1; j++) 
     			neighbors.add(starboard[i][j]);
-    		}
-    	}
-    	
+
     	return neighbors;
     }
     
@@ -264,7 +240,6 @@ public class Galaxy extends Observable{
      * @return
      */
     public boolean areAdjacentNodes(Node thisNode, Node otherNode) {
-    	
     	Set<Node> neighbors = getNeighboringNodes(thisNode);
     	return neighbors.contains(otherNode);
     }
@@ -287,12 +262,9 @@ public class Galaxy extends Observable{
      * @return the human player
      */
     public Player getHumanPlayer(){
-    	
-    	for(int i = 0; i < player.length; i++) {
-    		if(player[i] instanceof HumanPlayer) {
+    	for(int i = 0; i < player.length; i++) 
+    		if(player[i] instanceof HumanPlayer) 
     			return player[i];
-    		}
-    	}
     	return null;
     }
 
