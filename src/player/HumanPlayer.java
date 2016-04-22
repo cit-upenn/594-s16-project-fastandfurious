@@ -4,17 +4,14 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Stack;
-
+import java.util.List;
 import javax.swing.ImageIcon;
-
 import UniversePackage.Node;
-import UniversePackage.Planet;
-import UniversePackage.SupplyStation;
 
 public class HumanPlayer implements Player {
 
@@ -25,14 +22,20 @@ public class HumanPlayer implements Player {
 	private Queue<Node> destinations;
 	private int wealth;
 	
+	private Point p1;
+	private Point p2;
+	private Point p3;
+	private int deg;
+	
 	private double dx;
 	private double dy;
 	private double speed;
+	private double radius;
 	
 	private Node currentNode;
 	private Node focus;
 	private Node selected;
-	
+	private Queue<Node> path;
 	private Color pColor;
 	
 	public HumanPlayer(String[] refs, double x, double y, Color pColor) {
@@ -49,12 +52,21 @@ public class HumanPlayer implements Player {
 		this.setY(y);
 		this.pColor = pColor;
 		this.wealth = 100;
+		this.path = new LinkedList<>();
+		
+		this.pColor = pColor;
 		
 		speed = 1.5; 
 		destinations = new LinkedList<>();
 		
 		this.focus = null;
 		this.selected = null;
+		
+		radius = 15;
+		
+		p1 = new Point(x, y - radius);
+		p2 = new Point(x - radius * Math.cos(Math.PI/6), y + radius/2);
+		p3 = new Point(x + radius * Math.cos(Math.PI/6), y + radius/2);
 	}
 	
 	public double getX() {
@@ -79,8 +91,17 @@ public class HumanPlayer implements Player {
 	}
 
 	@Override
-	public void draw(Graphics2D g2,int x,int y) {
-		animation.draw(g2, x, y);
+	public void draw(Graphics2D g2) {
+		
+		int[] xpoints = new int[]{(int)p1.getX(), (int)p2.getX(), (int)p3.getX()};
+		int[] ypoints = new int[]{(int)p1.getY(), (int)p2.getY(), (int)p3.getY()};
+		
+		Shape triangle = new Polygon(xpoints, ypoints, 3);
+		g2.setColor(pColor);
+		g2.setStroke(new BasicStroke(1));
+		g2.draw(triangle);
+		
+		rotate(5);
 	}
 	
 	@Override
@@ -109,6 +130,7 @@ public class HumanPlayer implements Player {
 		}		
 		x += dx;
 		y += dy;
+	
 		return true;
 	}
 
@@ -197,5 +219,51 @@ public class HumanPlayer implements Player {
 		}
 	}
 
+	@Override
+	public List<Node> getPath() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	private void rotate(double increment) {
+		
+		this.deg += increment;
+		this.deg %= 360;
+		
+		double radians1 = (double)this.deg/180;
+		double radians2 = radians1 + Math.PI * 2/3;
+		double radians3 = radians2 + Math.PI * 2/3;
+	
+		p1.setX(x + radius * Math.cos(radians1));
+		p1.setY(y + radius * Math.sin(radians1));
+		
+		p2.setX(x + radius * Math.cos(radians2));
+		p2.setY(y + radius * Math.sin(radians2));
+		
+		p3.setX(x + radius * Math.cos(radians3));
+		p3.setY(y + radius * Math.sin(radians3));
+	}
+
+	private class Point {
+		
+		private double x, y;
+		
+		public Point(double x, double y) {
+			this.x = x;
+			this.y = y;
+		}
+		public double getX() {
+			return x;
+		}
+		public double getY() {
+			return y;
+		}
+		public void setX(double x) {
+			this.x = x;
+		}
+		public void setY(double y) {
+			this.y = y;
+		}
+	}
 
 }

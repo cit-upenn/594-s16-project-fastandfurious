@@ -24,7 +24,7 @@ public class StarCluster {
 	 * @param node to be located
 	 * @return parent node of the target node
 	 */
-	public Node find(Node node) {
+	public static Node find(Node node) {
 		
 		// if node is its own parent
 		// return itself
@@ -40,7 +40,7 @@ public class StarCluster {
 	 * @param lhs left-hand-side node
 	 * @param rhs right-hand-side node
 	 */
-	public void union(Node lhs, Node rhs) {
+	public static void union(Node lhs, Node rhs) {
 		Node lparent = find(lhs);
 		Node rparent = find(rhs);
 		if(lparent.getRank() < rparent.getRank()) 
@@ -53,7 +53,11 @@ public class StarCluster {
 		}
 	}
 	
-	public void seperateNode(Node node) {
+	/**
+	 * separate node from its current disjoint-set
+	 * @param node to be separated
+	 */
+	public static void seperateNode(Node node) {
 		node.setParentNode(null);
 	}
 }

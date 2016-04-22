@@ -2,6 +2,7 @@ package player;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.List;
 
 import UniversePackage.Node;
 
@@ -32,7 +33,7 @@ public interface Player {
 	
 	public void addTarget(Node target);
 	
-	public void draw(Graphics2D g2,int x,int y);
+	public void draw(Graphics2D g2);
 	
 	public void drawHalo(Graphics2D g2, String type);
 	
@@ -43,5 +44,7 @@ public interface Player {
 	public void setSelected(Node selection);
 	
 	public Node getSelected();
+	
+	public List<Node> getPath();
 
 }

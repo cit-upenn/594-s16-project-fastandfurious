@@ -63,10 +63,13 @@ public class Planet extends Observable implements Node  {
 		bound = 10;	
 
 		dx = 0;
-		dy = ( Galaxy.generator.nextInt(2) == 0 )? 0.1: -0.1;
+		dy = ( Galaxy.generator.nextInt(2) == 0 )? 0.05: -0.05;
 		
 		resourceLevel = Galaxy.generator.nextInt(6);
-		this.color = generateColor(resourceLevel);
+		
+		// this.color = generateColor(resourceLevel);
+		
+		this.color = Color.cyan;
 		
 		bound = 2;
 		rank = 0;

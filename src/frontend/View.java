@@ -39,19 +39,6 @@ public class View extends JPanel implements Observer {
 		setMaximumSize(size);
 		setSize(size);
 		setLayout(null);
-
-		this.planets = new Image[3];
-		for (int i = 0; i < planets.length; i++) {
-			if (i % 3 == 0) {
-				planets[i] = new ImageIcon("resources/Venus.png").getImage();
-			} else if (i % 3 == 1) {
-				planets[i] = new ImageIcon("resources/jupiter.png").getImage();
-			} else {
-				planets[i] = new ImageIcon("resources/planet1.png").getImage();
-			} 	    	
-		}
-		this.station = new ImageIcon("resources/station.png").getImage();
-
 	}
 
 	/*
@@ -73,8 +60,8 @@ public class View extends JPanel implements Observer {
 		super.paintComponent(g);		
 		Graphics2D g2 = (Graphics2D) g;
 		g2.drawImage(bgImg, 0, 0, null);
-
-		((HumanPlayer) galaxy.getPlayer(0)).draw(g2, (int)((HumanPlayer) galaxy.getPlayer(0)).getX(), (int)((HumanPlayer) galaxy.getPlayer(0)).getY());
+		
+		
 		
 		Node[][] starboard = galaxy.getStarBoard();
 		
@@ -91,10 +78,18 @@ public class View extends JPanel implements Observer {
 			edge.draw(g2);
 		}
 		
-		Player human = galaxy.getPlayer(0);	
-		human.draw(g2, (int)human.getX(), (int)human.getY());
-		human.drawHalo(g2, "focus");
-		human.drawHalo(g2, "selection");
+		
+		
+		Player p1 = galaxy.getPlayer(0);	
+		Player p2 = galaxy.getPlayer(1);
+		
+		p1.draw(g2);
+		p1.drawHalo(g2, "focus");
+		p1.drawHalo(g2, "selection");
+		
+		p2.draw(g2);
+		p2.drawHalo(g2, "focus");
+		p2.drawHalo(g2, "selection");
 	}
 
 	@Override

@@ -31,5 +31,9 @@ public class Edge {
                 10.0f, dash1, 0.0f));
 		g.draw(line);
 	}
+	
+	public boolean containsPoint(Node node) {
+		return p1 == node || p2 == node;
+	}
 
 }

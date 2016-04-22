@@ -46,7 +46,7 @@ public class SupplyStation extends Observable implements Node{
 		instY = this.y;
 		rank = 0;
 		bound = 2;
-		dy = (Galaxy.generator.nextInt(2) == 1) ? 0.2 : -0.2;
+		dy = (Galaxy.generator.nextInt(2) == 1) ? 0.05 : -0.05;
 		parentNode = null;
 		
 	}

@@ -1,6 +1,7 @@
 package UniversePackage;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
@@ -89,16 +90,21 @@ public class Galaxy extends Observable{
 		refs[2] = "resources/duck3.gif";
 		
 		player = new Player[2];
+		
 		player[0] = new HumanPlayer(refs, starboard[1][1].getX(), starboard[1][1].getY(), Color.green); 
+		
 		((HumanPlayer)player[0]).setCurrentNode(starboard[1][1]);
-		player[1] = new ComputerPlayer(Color.orange);
+		
+		player[1] = new ComputerPlayer(starboard[starboard.length-2][starboard[0].length-2].getX(),
+										starboard[starboard.length-2][starboard[0].length-2].getY(), 
+										Color.orange, this);
     }
     
     public void start() {
 
     	init(numPlanets);
     	
-    	timer = new Timer(35, new Strobe());
+    	timer = new Timer(20, new Strobe());
     	timer.start();
     }
     
@@ -172,11 +178,18 @@ public class Galaxy extends Observable{
 	 */
     public boolean buildEdge(Node lhs, Node rhs) {
 		
-    	if(lhs == null || rhs == null
-		   ||Math.abs(lhs.getX() - rhs.getX()) > 50 
-		   || Math.abs(lhs.getY() - rhs.getY()) > 50) {
+    	if(lhs == null || rhs == null ||Math.abs(lhs.getX() - rhs.getX()) > 50 
+		   || Math.abs(lhs.getY() - rhs.getY()) > 50
+		   ) {
+    		System.out.println("Impossible to build edge between un-adjacent nodes");
 			return false;
 		}
+    	
+    	if(StarCluster.find(lhs) == StarCluster.find(rhs)) {
+    		System.out.println("Edge already in existance");
+    		return false;
+    	}
+    	
 		lhs.getNeighbors().add(rhs);
 		rhs.getNeighbors().add(lhs);
 		
@@ -185,9 +198,42 @@ public class Galaxy extends Observable{
 		
     	this.setChanged();
     	this.notifyObservers();
+    	
+    	StarCluster.union(lhs, rhs);
 		
 		return true;
 	}
+    
+    /**
+     * destroy an existing edge in the galaxy
+     * @param lhs end point of edge
+     * @param rhs end point of edge
+     * @return true if destruction successful
+     */
+    public boolean destroyEdge(Node lhs, Node rhs) {
+    	
+    	if( lhs == null 
+    		|| rhs == null 
+    		|| Math.abs(lhs.getX() - rhs.getX()) > 50 
+    		|| Math.abs(lhs.getY() - rhs.getY()) > 50
+    		|| StarCluster.find(lhs) != StarCluster.find(rhs)) {
+
+    		System.out.println("Edge does not exist");
+    		return false;
+    	}
+    	lhs.getNeighbors().remove(rhs);
+    	rhs.getNeighbors().remove(lhs);
+    	Iterator<Edge> edgeIterator = edges.iterator(); 
+    	while(edgeIterator.hasNext()) {
+    		Edge edge = edgeIterator.next();
+    		if(edge.containsPoint(lhs) || edge.containsPoint(rhs)) {
+    			edgeIterator.remove();
+    			break;
+    		}
+    	}
+    	return true;
+    }
+    		
     
     /**
      * 

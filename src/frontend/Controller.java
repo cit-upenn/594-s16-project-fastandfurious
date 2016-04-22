@@ -107,7 +107,6 @@ public class Controller {
 		
 		view.setBounds(160, 0, 960, 740);
 		frame.add(view);
-
 			
 		control = new JPanel[2];
 		for(int i = 0; i < control.length; i++) {
@@ -159,6 +158,7 @@ public class Controller {
 			messageBoard[i].setBackground(Color.BLACK);
 			wealth[i] = new JLabel();
 			if (i == 0) {
+				
 				playerName[i].setText("Player1");
 				playerName[i].setForeground(Color.GREEN);
 				playerName[i].setBounds(16, 5, 120, 20);	
@@ -181,6 +181,7 @@ public class Controller {
 				control[i].add(readyLabel);
 				
 			} else {
+
 				playerName[i].setText("Player2");
 				playerName[i].setForeground(Color.ORANGE);
 				playerName[i].setBounds(1136, 5, 120, 20);
@@ -240,7 +241,6 @@ public class Controller {
 				galaxy.getPlayer(0).setSelected(node);			
 				if (node != null) {
 					
-					// TODO
 					buildEdge.setEnabled(true);
 					capture.setEnabled(true);
 					travel.setEnabled(true);
