@@ -63,7 +63,7 @@ public class Planet extends Observable implements Node  {
 		bound = 10;	
 
 		dx = 0;
-		dy = ( Galaxy.generator.nextInt(2) == 0 )? 0.05: -0.05;
+		dy = ( Galaxy.generator.nextInt(2) == 0 )? 0.1: -0.1;
 		
 		resourceLevel = Galaxy.generator.nextInt(6);
 		

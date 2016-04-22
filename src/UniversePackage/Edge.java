@@ -23,7 +23,7 @@ public class Edge {
 		
 		Line2D.Double line = new Line2D.Double(p1.getInstX(), p1.getInstY(), p2.getInstX(), p2.getInstY());
 		g.setColor(ruler.getPlayerColor());
-		g.setStroke(new BasicStroke(1));
+		g.setStroke(new BasicStroke(2.0f));
 		
 		g.draw(line);
 	}

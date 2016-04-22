@@ -88,7 +88,7 @@ public class Galaxy extends Observable{
 		
 		/* initialize players */
 		player = new Player[2];
-		player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 128, 255), this); 
+		player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), Color.orange, this); 
 		player[0].setCurrentNode(starboard[1][1]);
 		player[1] = new ComputerPlayer(starboard[numRows-2][numCols-2].getX(),starboard[numRows-2][numCols-2].getY(), Color.red, this);
 		player[1].setCurrentNode(starboard[starboard.length-2][starboard[0].length-2]);
@@ -111,8 +111,8 @@ public class Galaxy extends Observable{
     		for(int j = 1; j < starboard[0].length - 1; j++) 
     			starboard[i][j].move();	
     	
-//    	player[0].think();
-//    	player[1].think();
+    	player[0].think();
+    	player[1].think();
 
     	player[0].move();
     	player[1].move();

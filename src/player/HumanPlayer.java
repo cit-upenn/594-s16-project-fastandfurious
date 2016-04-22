@@ -208,13 +208,13 @@ public class HumanPlayer implements Player {
 			Shape halo = new Ellipse2D.Double(cx - radius/2, cy - radius/2, radius, radius);
 			if(type.equals("focus")) {			
 				final float dash1[] = {10.0f};
-				g2.setStroke(new BasicStroke(1.5f,
+				g2.setStroke(new BasicStroke(2.0f,
 		                BasicStroke.CAP_BUTT,
 		                BasicStroke.JOIN_MITER,
 		                10.0f, dash1, 0.0f));	
 				
 			}else if(type.equals("selection")) {
-				g2.setStroke(new BasicStroke(1.5f));
+				g2.setStroke(new BasicStroke(2.0f));
 			}
 			g2.setColor(pColor);
 			g2.draw(halo);
@@ -282,7 +282,7 @@ public class HumanPlayer implements Player {
 										selections.get(i).getInstY());
 			
 			final float dash1[] = {10.0f};
-			g2.setStroke(new BasicStroke(1.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f));	
+			g2.setStroke(new BasicStroke(2.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f));	
 			
 			g2.setColor(pColor);
 			g2.draw(line);

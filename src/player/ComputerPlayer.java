@@ -2,10 +2,12 @@ package player;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -13,7 +15,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import UniversePackage.Galaxy;
+import UniversePackage.Navigator;
 import UniversePackage.Node;
+import UniversePackage.StarCluster;
 
 public class ComputerPlayer implements Player {
 
@@ -137,6 +141,8 @@ public class ComputerPlayer implements Player {
 		g2.draw(triangle);
 		drawHalo(g2, "focus");
 		drawHalo(g2, "selection");
+		drawSelections(g2);
+		
 		rotate(5);
 	}
 	
@@ -243,29 +249,23 @@ public class ComputerPlayer implements Player {
 		@Override
 		public void run() {
 			
-			System.out.println("start thinkg!");
-			
 			// first step try to perform a simple 
-			// b-f-s expansion
-			
+			// b-f-s expansion		
 			// find all adjacent unconnected nodes
 			
 			Node[][] board = galaxy.getStarBoard();
 			Node current = currentNode;
 			
 			try {
-				Thread.sleep(5000);
+				selected = focus;
+				Node temp = board[Galaxy.generator.nextInt(board.length)][Galaxy.generator.nextInt(board[0].length)];
+				focus = temp;
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
-			
-			System.out.println("end thinkg!");
-			
+			}		
 			return;
 		}
-		
-		
 	}
 	
 	private class Point {
@@ -292,12 +292,45 @@ public class ComputerPlayer implements Player {
 
 	@Override
 	public LinkedList<Node> getSelections() {
-		// TODO Auto-generated method stub
+		
 		return selections;
 	}
+	
+	
+	private void drawSelections(Graphics2D g2) {
+		
+		for(int i = 1; i < selections.size(); i++) {			
+			Shape line = new Line2D.Double(selections.get(i-1).getInstX(), 
+										selections.get(i - 1).getInstY(), 
+										selections.get(i).getInstX(), 
+										selections.get(i).getInstY());		
+			final float dash1[] = {10.0f};
+			g2.setStroke(new BasicStroke(2.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f));	
+			
+			g2.setColor(pColor);
+			g2.draw(line);
+		}
+	}
+
+	
 	@Override
 	public void buildPath() {
-		// TODO Auto-generated method stub
+
+		if(selections.size() < 1) {
+			System.err.println("Please specify path to build");
+			return;
+		}
 		
+		Node start = selections.getFirst();
+		if(StarCluster.find(start) != StarCluster.find(currentNode)) {
+			System.err.println("Path must be connected to current node");
+			return;
+		}
+		
+		destinations.addAll(Navigator.breathFirstSearch(currentNode, start));
+		destinations.remove(start);
+		destinations.addAll(selections);	
+		
+		System.out.println(destinations);
 	}
 }
