@@ -7,11 +7,16 @@ import java.awt.Image;
 import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.List;
 import javax.swing.ImageIcon;
+
+import UniversePackage.Galaxy;
+import UniversePackage.Navigator;
 import UniversePackage.Node;
+import UniversePackage.StarCluster;
 
 public class HumanPlayer implements Player {
 
@@ -38,7 +43,11 @@ public class HumanPlayer implements Player {
 	private Queue<Node> path;
 	private Color pColor;
 	
-	public HumanPlayer(double x, double y, Color pColor) {
+	private Galaxy galaxy;
+	
+	private LinkedList<Node> selections;
+	
+	public HumanPlayer(double x, double y, Color pColor, Galaxy galaxy) {
 		
 		this.setX(x);
 		this.setY(y);
@@ -49,6 +58,7 @@ public class HumanPlayer implements Player {
 		destinations = new LinkedList<>();
 		this.focus = null;
 		this.selected = null;
+		this.galaxy = galaxy;
 		
 		speed = 1.5; 
 		radius = 15;
@@ -56,6 +66,8 @@ public class HumanPlayer implements Player {
 		p1 = new Point(x, y - radius);
 		p2 = new Point(x - radius * Math.cos(Math.PI/6), y + radius/2);
 		p3 = new Point(x + radius * Math.cos(Math.PI/6), y + radius/2);
+		
+		selections = new LinkedList<>();
 	}
 	
 	public double getX() {
@@ -85,15 +97,13 @@ public class HumanPlayer implements Player {
 		g2.setStroke(new BasicStroke(2));
 		g2.draw(triangle);
 		
+		drawHalo(g2, "focus");
+		drawHalo(g2, "selection");
+		drawSelections(g2);
+		
 		rotate(5);
 	}
 	
-	@Override
-	public Node pickTarget() {
-		
-		return null;
-	}
-
 	@Override
 	public boolean move() {
 		
@@ -103,13 +113,21 @@ public class HumanPlayer implements Player {
 			Node nextTarget = destinations.peek();
 			if(Math.abs(x - nextTarget.getX()) < 1
 			   && Math.abs(y - nextTarget.getY()) < 1){
-				destinations.poll();	
+				currentNode = destinations.poll();
 			}
 			if(!destinations.isEmpty()) {
-				setVelocity(destinations.peek());
+				
+				nextTarget = destinations.peek();
+				
+				if(StarCluster.find(currentNode) != StarCluster.find(nextTarget)) {
+					galaxy.buildEdge(currentNode, nextTarget, this);
+					StarCluster.union(currentNode, nextTarget);
+				}
+				
+				setVelocity(nextTarget);
 			}
 			else {
-				currentNode = nextTarget;
+				selections.clear();
 			}
 		}		
 		x += dx;
@@ -203,11 +221,6 @@ public class HumanPlayer implements Player {
 		}
 	}
 
-	@Override
-	public List<Node> getPath() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 	
 	private void rotate(double increment) {
 		
@@ -253,6 +266,49 @@ public class HumanPlayer implements Player {
 	@Override
 	public void think() {
 		
+	}
+	
+	public LinkedList<Node> getSelections() {
+		return selections;
+	}
+	
+	private void drawSelections(Graphics2D g2) {
+		
+		for(int i = 1; i < selections.size(); i++) {			
+			
+			Shape line = new Line2D.Double(selections.get(i-1).getInstX(), 
+										selections.get(i - 1).getInstY(), 
+										selections.get(i).getInstX(), 
+										selections.get(i).getInstY());
+			
+			final float dash1[] = {10.0f};
+			g2.setStroke(new BasicStroke(1.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f));	
+			
+			g2.setColor(pColor);
+			g2.draw(line);
+		}
+	}
+
+	@Override
+	public void buildPath() {
+		
+		if(selections.size() < 1) {
+			System.err.println("Please specify path to build");
+			return;
+		}
+		
+		Node start = selections.getFirst();
+		if(StarCluster.find(start) != StarCluster.find(currentNode)) {
+			System.err.println("Path must be connected to current node");
+			return;
+		}
+		
+		destinations.addAll(Navigator.breathFirstSearch(currentNode, start));
+		destinations.remove(start);
+		destinations.addAll(selections);	
+		
+		
+		System.out.println(destinations);
 	}
 
 }

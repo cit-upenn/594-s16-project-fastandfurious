@@ -51,7 +51,7 @@ public class Controller {
 	private JLabel readyLabel;
 	private JComboBox<String> selectList;
 	
-	private JButton buildEdge;
+	private JButton buildPath;
 	private JButton capture;
 	private JButton travel;
 	
@@ -132,8 +132,8 @@ public class Controller {
 		readyLabel = new JLabel();
 		
 		// a bunch of buttons for human players 
-		buildEdge = new JButton("Build Edge");
-		buildEdge.setEnabled(false);
+		buildPath = new JButton("Build Path");
+		buildPath.setEnabled(false);
 		capture = new JButton("Capture");
 		capture.setEnabled(false);
 		travel = new JButton("Travel");
@@ -193,7 +193,7 @@ public class Controller {
 				wealth[i].setFont(new Font("Comic Sans MS", Font.PLAIN, 15));
 				wealth[i].setText("Current Wealth: \n");
 				
-				buildEdge.setBounds(1140, 450, 120, 30);
+				buildPath.setBounds(1140, 450, 120, 30);
 				capture.setBounds(1140, 480, 120, 30);
 				travel.setBounds(1140, 510, 120, 30);
 				
@@ -203,7 +203,7 @@ public class Controller {
 				ready.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 
 				control[i].add(ready);
-				control[i].add(buildEdge);
+				control[i].add(buildPath);
 				control[i].add(capture);
 				control[i].add(travel);
 			}
@@ -235,17 +235,18 @@ public class Controller {
 		
 		// add mouse click listener to view
 		view.addMouseListener(new MouseAdapter() {
+			
 			@Override
 			public void mousePressed(MouseEvent event) {
 				Point mousePoint = event.getPoint();		
 				Node node = click(mousePoint);
+
+				galaxy.getHumanPlayer().getSelections().clear();
 				galaxy.getHumanPlayer().setSelected(node);			
-				if (node != null) {
-					
-					buildEdge.setEnabled(true);
+				if (node != null) {		
+					buildPath.setEnabled(true);
 					capture.setEnabled(true);
-					travel.setEnabled(true);
-					
+					travel.setEnabled(true);	
 				}
 			}
 		});
@@ -258,13 +259,16 @@ public class Controller {
         });
 		
 		
-		buildEdge.addActionListener(new ActionListener() {
+		buildPath.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
             	
-            	Node current = galaxy.getHumanPlayer().getCurrentNode();
+/*            	Node current = galaxy.getHumanPlayer().getCurrentNode();
             	Node targetNode = galaxy.getPlayer(0).getSelected();
-            	galaxy.buildEdge(current, targetNode, galaxy.getHumanPlayer());
+            	galaxy.buildEdge(current, targetNode, galaxy.getHumanPlayer());*/
+            	
+            	galaxy.getHumanPlayer().buildPath();
+            	
             }
         });
 		
@@ -281,6 +285,7 @@ public class Controller {
             	
             	Player humanPlayer = galaxy.getHumanPlayer();
             	if(humanPlayer == null) return;
+            	
             	Node source = humanPlayer.getCurrentNode();
             	Node dest = humanPlayer.getSelected();
             	if(StarCluster.find(source) != StarCluster.find(dest)) {
@@ -305,6 +310,35 @@ public class Controller {
 				Player human = galaxy.getHumanPlayer();
 				if(human != null) {
 					human.setFocus(cursor);
+				}
+			}
+		});
+		
+		view.addMouseMotionListener(new MouseAdapter() {
+			@Override
+			public void mouseDragged(MouseEvent event) {
+				
+				Point mousePoint = event.getPoint();	
+				Node node = locateNode(mousePoint.getX(), mousePoint.getY());
+				Player human = galaxy.getHumanPlayer();
+
+				if(node != null) {
+					
+					int size = human.getSelections().size();
+					
+					if(size == 0||galaxy.areAdjacentNodes(human.getSelections().get(size - 1), node)) {
+						if(!human.getSelections().contains(node)) {
+							human.getSelections().add(node);
+						}
+						
+						if(size> 2) {
+							
+							if(node == human.getSelections().get(size - 2)) {
+								human.getSelections().removeLast();
+							}
+						}
+					}
+
 				}
 			}
 		});

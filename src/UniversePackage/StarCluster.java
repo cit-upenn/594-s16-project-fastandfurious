@@ -43,9 +43,9 @@ public class StarCluster {
 	public static void union(Node lhs, Node rhs) {
 		Node lparent = find(lhs);
 		Node rparent = find(rhs);
-		if(lparent.getRank() < rparent.getRank()) 
+		if(lparent.getRank() > rparent.getRank()) 
 			rhs.setParentNode(lparent);
-		else if(lparent.getRank() > rparent.getRank()) 
+		else if(lparent.getRank() < rparent.getRank()) 
 			lhs.setParentNode(rparent);
 		else {
 			lhs.setParentNode(rparent);

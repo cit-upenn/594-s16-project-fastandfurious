@@ -36,6 +36,8 @@ public class ComputerPlayer implements Player {
 	private Node selected;
 	private Galaxy galaxy;
 	
+	private LinkedList<Node> selections;
+	
 	private Color pColor;
 	
 	private boolean isThinking;
@@ -56,13 +58,10 @@ public class ComputerPlayer implements Player {
 		
 		this.isMoving = false;
 		this.isThinking = false;
+		
+		selections = new LinkedList<>();
+		
 	}
-	
-	@Override
-	public Node pickTarget() {		
-		return null;
-	}
-
 	@Override
 	public boolean move() {
 		
@@ -136,6 +135,8 @@ public class ComputerPlayer implements Player {
 		g2.setStroke(new BasicStroke(2));
 		g2.setColor(pColor);
 		g2.draw(triangle);
+		drawHalo(g2, "focus");
+		drawHalo(g2, "selection");
 		rotate(5);
 	}
 	
@@ -217,12 +218,6 @@ public class ComputerPlayer implements Player {
 		p3.setX(x + radius * Math.cos(radians3));
 		p3.setY(y + radius * Math.sin(radians3));
 	}
-
-	@Override
-	public List<Node> getPath() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 	
 	@Override
 	public void think() {
@@ -293,5 +288,16 @@ public class ComputerPlayer implements Player {
 		public void setY(double y) {
 			this.y = y;
 		}
+	}
+
+	@Override
+	public LinkedList<Node> getSelections() {
+		// TODO Auto-generated method stub
+		return selections;
+	}
+	@Override
+	public void buildPath() {
+		// TODO Auto-generated method stub
+		
 	}
 }
