@@ -1,8 +1,5 @@
 package UniversePackage;
-import java.awt.Point;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Observable;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
@@ -37,11 +34,6 @@ public interface Node {
 	 * @return ruler of the node
 	 */
 	public Player getRuler();
-
-	/**
-	 * Mark that the node has been clicked.
-	 */
-	public void click();
 	
 	/**
 	 * @return color of the node
@@ -52,12 +44,6 @@ public interface Node {
 	 * change ruler of a node
 	 */
 	public void setRuler(Player ruler);
-	
-	/**
-	 * @param p
-	 * @return True if the point is contained within the node.
-	 */
-	public boolean contains(Point p);
 	
 	/**
 	 * slightly change the location of a node

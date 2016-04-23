@@ -7,7 +7,7 @@ import java.util.LinkedList;
 
 public class Navigator {
 	
-	public static List<Node> breathFirstSearch(Node start, Node end) {
+	public static List<Node> findSimplePath(Node start, Node end) {
 		
 		Queue<Node> queue = new LinkedList<>();
 		start.setPredecessor(null);

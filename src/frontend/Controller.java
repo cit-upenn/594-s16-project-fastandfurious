@@ -91,8 +91,7 @@ public class Controller {
 	private void display() {
 		
 		layOutComponents();
-		attachListenersToComponents();
-			
+		attachListeners();
 		frame.pack();
 		frame.setVisible(true);
 		frame.setResizable(false);				
@@ -224,29 +223,32 @@ public class Controller {
 			control[i].add(wealth[i]);
 			control[i].add(scrollPane[i]);
 			control[i].add(messageBoard[i]);
-			
 		}	
 	}
 	
 	/**
 	 * 
 	 */
-	private void attachListenersToComponents() {
+	private void attachListeners() {
 		
-		// add mouse click listener to view
 		view.addMouseListener(new MouseAdapter() {
 			
 			@Override
 			public void mousePressed(MouseEvent event) {
 				Point mousePoint = event.getPoint();		
 				Node node = click(mousePoint);
-
-				galaxy.getHumanPlayer().getSelections().clear();
-				galaxy.getHumanPlayer().setSelected(node);			
-				if (node != null) {		
-					buildPath.setEnabled(true);
-					capture.setEnabled(true);
-					travel.setEnabled(true);	
+				
+				if(galaxy.getHumanPlayer() != null) {
+					
+					if(!galaxy.getHumanPlayer().inMotion()) {
+						galaxy.getHumanPlayer().getSelections().clear();
+					}
+					galaxy.getHumanPlayer().setSelected(node);			
+					if (node != null) {		
+						buildPath.setEnabled(true);
+						capture.setEnabled(true);
+						travel.setEnabled(true);	
+					}
 				}
 			}
 		});
@@ -262,11 +264,6 @@ public class Controller {
 		buildPath.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-            	
-/*            	Node current = galaxy.getHumanPlayer().getCurrentNode();
-            	Node targetNode = galaxy.getPlayer(0).getSelected();
-            	galaxy.buildEdge(current, targetNode, galaxy.getHumanPlayer());*/
-            	
             	galaxy.getHumanPlayer().buildPath();
             	
             }
@@ -285,14 +282,13 @@ public class Controller {
             	
             	Player humanPlayer = galaxy.getHumanPlayer();
             	if(humanPlayer == null) return;
-            	
             	Node source = humanPlayer.getCurrentNode();
             	Node dest = humanPlayer.getSelected();
             	if(StarCluster.find(source) != StarCluster.find(dest)) {
             		System.out.println("Target and source not connected");
             		return;
             	}
-            	List<Node> targets = Navigator.breathFirstSearch(source, dest);
+            	List<Node> targets = Navigator.findSimplePath(source, dest);
             	for(Node target: targets) {
             		humanPlayer.addTarget(target);
             	}
@@ -321,24 +317,19 @@ public class Controller {
 				Point mousePoint = event.getPoint();	
 				Node node = locateNode(mousePoint.getX(), mousePoint.getY());
 				Player human = galaxy.getHumanPlayer();
-
 				if(node != null) {
-					
 					int size = human.getSelections().size();
-					
-					if(size == 0||galaxy.areAdjacentNodes(human.getSelections().get(size - 1), node)) {
-						if(!human.getSelections().contains(node)) {
+					if(size == 0||galaxy.areAdjacentNodes(human.getSelections().getLast(), node)) {
+						if(!human.getSelections().contains(node) &&(size == 0||
+							!galaxy.hasEdge(human.getSelections().getLast(), node))) {
 							human.getSelections().add(node);
 						}
-						
 						if(size> 2) {
-							
 							if(node == human.getSelections().get(size - 2)) {
 								human.getSelections().removeLast();
 							}
 						}
 					}
-
 				}
 			}
 		});

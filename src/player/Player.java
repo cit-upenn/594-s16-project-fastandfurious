@@ -1,11 +1,8 @@
 package player;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.LinkedList;
-import java.util.List;
-
 import UniversePackage.Node;
 
 /**
@@ -13,17 +10,16 @@ import UniversePackage.Node;
  */
 public interface Player {
 
-    public LinkedList<Node> getSelections();
-    
-    public void buildPath();
 
-    public boolean move() ;
+    public void move() ;
     
     public Color getPlayerColor();
     
     public int getWealth();
     
 	public void setCurrentNode(Node node);
+	
+    public LinkedList<Node> getSelections();
 	
 	public Node getCurrentNode();
 	
@@ -48,9 +44,11 @@ public interface Player {
 	public void setSelected(Node selection);
 	
 	public Node getSelected();
-	/**
-	 * players need to think before they can make move
-	 */
+	
 	public void think();
+	
+    public void buildPath();
+	
+	public boolean inMotion();
 
 }

@@ -141,7 +141,11 @@ public class Galaxy extends Observable{
 			worker.execute();
 		}
     }
- 
+    
+    /**
+     * @param num number of player
+     * @return a player in the galaxy
+     */
     public Player getPlayer(int num) {
     	if (num > 1 || num < 0) 
     		return null;
@@ -155,30 +159,18 @@ public class Galaxy extends Observable{
 	 * @return true if operation is successful
 	 */
     public boolean buildEdge(Node lhs, Node rhs, Player p) {
-		
-    	if(lhs == null || rhs == null ||Math.abs(lhs.getX() - rhs.getX()) > 50 
-		   || Math.abs(lhs.getY() - rhs.getY()) > 50
-		   ) {
-    		System.out.println("Impossible to build edge between un-adjacent nodes");
-			return false;
-		}
     	
-    	if(StarCluster.find(lhs) == StarCluster.find(rhs)) {
+    	if(lhs.getNeighbors().contains(rhs) || rhs.getNeighbors().contains(lhs)) {
     		System.out.println("Edge already in existance");
     		return false;
     	}
-    	
 		lhs.getNeighbors().add(rhs);
 		rhs.getNeighbors().add(lhs);
-		
 		Edge edge = new Edge(lhs, rhs, p);
 		edges.add(edge);
-		
     	this.setChanged();
     	this.notifyObservers();
-    	
     	StarCluster.union(lhs, rhs);
-		
 		return true;
 	}
     
@@ -218,7 +210,7 @@ public class Galaxy extends Observable{
      * @param node
      * @return
      */
-    private Set<Node> getNeighboringNodes(Node node) {
+    public Set<Node> getNeighboringNodes(Node node) {
     	
     	int row = (int)node.getY()/gridLength;
     	int col = (int)node.getX()/gridLength;
@@ -226,7 +218,8 @@ public class Galaxy extends Observable{
     	
     	for(int i = row - 1; i <= row + 1; i++) 
     		for(int j = col - 1; j <= col + 1; j++) 
-    			neighbors.add(starboard[i][j]);
+    			if(starboard[i][j] != null && starboard[i][j] != node)
+    				neighbors.add(starboard[i][j]);
 
     	return neighbors;
     }
@@ -249,6 +242,22 @@ public class Galaxy extends Observable{
      */
     public List<Edge> getEdges() {
     	return this.edges;
+    }
+    
+    /**
+     * check if an edge exists
+     * @param s start node
+     * @param d source node
+     * @return true if edge exists
+     */
+    public boolean hasEdge(Node s, Node d) {
+    	
+    	for(Edge e: edges) {
+    		if(e.containsPoint(s)&&e.containsPoint(d)) {
+    			return true;
+    		}
+    	}
+    	return false;
     }
     
     /**

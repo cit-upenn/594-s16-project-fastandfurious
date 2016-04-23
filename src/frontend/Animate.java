@@ -1,9 +1,6 @@
-package player;
-
-import java.awt.AlphaComposite;
+package frontend;
 import java.awt.Graphics2D;
 import java.awt.Image;
-
 
 /**
  * The animated images to display on the screen.
