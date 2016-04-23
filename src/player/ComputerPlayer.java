@@ -45,9 +45,7 @@ public class ComputerPlayer implements Player {
 	private final float dash1[] = {10.0f};
 	private BasicStroke lineStroke = new BasicStroke(2.0f);
 	private BasicStroke dashStroke = new BasicStroke(2.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER,10.0f, dash1, 0.0f);
-	
 	private LinkedList<Node> candidates;
-	
 	private	Node selected;
 	private Node focus;
 	
@@ -175,7 +173,6 @@ public class ComputerPlayer implements Player {
 	public synchronized void drawHalo(Graphics2D g2, String type) {
 		
 		Node node = null;
-		
 		if(type.equals("selection")) {
 			node = selected;
 			if(node != null) {
@@ -194,9 +191,7 @@ public class ComputerPlayer implements Player {
 			}
 		}
 		else {
-			
 			for(Node candidate: candidates) {
-				
 				double cx = candidate.getInstX();
 				double cy = candidate.getInstY();
 				double radius = 30;
@@ -281,13 +276,8 @@ public class ComputerPlayer implements Player {
 		@Override
 		public void run() {
 			
-			
-				
 			LinkedList<Node> path = breadthFirstSearch();
-				
 			destinations.addAll(path);
-				
-			
 			return;
 		}
 	}
@@ -308,7 +298,7 @@ public class ComputerPlayer implements Player {
 					if(!candidates.contains(discovery)) {
 						discovery.setPredecessor(node);
 						addCandidate(discovery);
-						try { Thread.sleep(80);} catch (InterruptedException e) {}
+						try { Thread.sleep(50);} catch (InterruptedException e) {}
 					}
 				}
 			}
@@ -321,11 +311,10 @@ public class ComputerPlayer implements Player {
 		}
 		
 		Node luckNode = candidates.get(Galaxy.generator.nextInt(candidates.size()));
-		
 		List<Node> path = Navigator.findSimplePath(currentNode, luckNode.getPredecessor());
-		
 		res.addAll(path);
 		res.add(luckNode);
+		
 		setSelected(luckNode);
 		
 		return res;
@@ -338,7 +327,6 @@ public class ComputerPlayer implements Player {
 	
 	@Override
 	public LinkedList<Node> getSelections() {
-		
 		return sequence;
 	}
 	

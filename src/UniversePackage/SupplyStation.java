@@ -44,7 +44,7 @@ public class SupplyStation extends Observable implements Node{
 		this.radius = 10;
 		ruler = null;
 		neighbors = new LinkedList<>();
-		color = Color.white;
+		color = Color.lightGray;
 		instX = this.x;
 		instY = this.y;
 		rank = 0;

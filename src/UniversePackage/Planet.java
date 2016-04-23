@@ -40,7 +40,7 @@ public class Planet extends Observable implements Node  {
 		bound = 10;	
 		dy = ( Galaxy.generator.nextInt(2) == 0 )? 0.15: -0.15;
 		resourceLevel = Galaxy.generator.nextInt(6);
-		this.color = Color.cyan;
+		this.color = generateColor(resourceLevel);
 		bound = 2;
 		rank = 0;
 		neighbors = new LinkedList<>();
@@ -115,12 +115,12 @@ public class Planet extends Observable implements Node  {
 
 		switch(colorNum) {
 
-		case 0: res = Color.gray; break;
-		case 1: res = Color.red; break;
-		case 2: res = Color.blue; break;
-		case 3: res = Color.cyan; break;
-		case 4: res = Color.green; break;
-		case 5: res = Color.yellow;
+		case 0: res = Color.white; break;
+		case 1: res = new Color(255, 51, 0); break;
+		case 2: res = new Color(0, 153, 255); break;
+		case 3: res = new Color(0, 204, 0); break;
+		case 4: res = new Color(102, 102, 255); break;
+		case 5: res = new Color(255, 204, 0);
 		default:
 		}
 
