@@ -60,8 +60,6 @@ public class View extends JPanel implements Observer {
 		Graphics2D g2 = (Graphics2D) g;
 		g2.drawImage(bgImg, 0, 0, null);
 		
-		
-		
 		Node[][] starboard = galaxy.getStarBoard();
 		
 		for (int i = 0; i < starboard.length; i++) {
@@ -77,8 +75,6 @@ public class View extends JPanel implements Observer {
 			edge.draw(g2);
 		}
 		
-		
-		
 		Player p1 = galaxy.getPlayer(0);	
 		Player p2 = galaxy.getPlayer(1);
 		
@@ -87,7 +83,7 @@ public class View extends JPanel implements Observer {
 	}
 
 	@Override
-	public void update(Observable o, Object arg) {
+	public synchronized void update(Observable o, Object arg) {
 		repaint();
 	}
 

@@ -9,11 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.HashSet;
-import java.util.Set;
-
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -26,6 +23,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.border.Border;
 import javax.swing.table.TableColumn;
 
 import UniversePackage.Galaxy;
@@ -117,6 +115,16 @@ public class Controller {
 		}
 		control[0].setBounds(0, 0, 160, 740);
 		control[1].setBounds(1120, 0, 160, 740);
+		
+		control[0].setBackground(Color.BLACK);
+		control[1].setBackground(Color.BLACK);
+		
+		Border border = BorderFactory.createLineBorder(Color.cyan);
+		
+		control[0].setBorder(border);
+		control[1].setBorder(border);
+		
+		
 		frame.getContentPane().add(control[0]);
 		frame.getContentPane().add(control[1]);
 		

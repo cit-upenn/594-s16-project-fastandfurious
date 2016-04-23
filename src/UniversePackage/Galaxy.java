@@ -88,7 +88,11 @@ public class Galaxy extends Observable{
 		
 		/* initialize players */
 		player = new Player[2];
-		player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this); 
+		
+		// player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this); 
+		
+		player[0] = new ComputerPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this);
+		
 		player[0].setCurrentNode(starboard[1][1]);
 		player[1] = new ComputerPlayer(starboard[numRows-2][numCols-2].getX(),starboard[numRows-2][numCols-2].getY(), Color.yellow , this);
 		player[1].setCurrentNode(starboard[starboard.length-2][starboard[0].length-2]);
@@ -98,7 +102,7 @@ public class Galaxy extends Observable{
 
     	init(numPlanets);
     	
-    	timer = new Timer(25, new Strobe());
+    	timer = new Timer(35, new Strobe());
     	timer.start();
     }
     
@@ -157,30 +161,42 @@ public class Galaxy extends Observable{
 	 * @param rhs right-hand-side node
 	 * @return true if operation is successful
 	 */
-    public boolean buildEdge(Node lhs, Node rhs, Player p) {
+    public boolean buildEdge(Node current, Node todo, Player p) {
     	
-    	if( lhs == null 
-        		|| rhs == null 
-        		|| Math.abs(lhs.getX() - rhs.getX()) > 50 
-        		|| Math.abs(lhs.getY() - rhs.getY()) > 50) {
+    	if( current == null 
+        	|| todo == null 
+        	|| Math.abs(current.getX() - todo.getX()) > 50 
+        	|| Math.abs(current.getY() - todo.getY()) > 50) {
 
         		System.out.println("Edge build impossible");
         		return false;
+        		
         	}
     	
-    	if(lhs.getNeighbors().contains(rhs) || rhs.getNeighbors().contains(lhs)) {
+    	if(current.getNeighbors().contains(todo)||todo.getNeighbors().contains(current)) {
     		System.out.println("Edge already in existance");
     		return false;
     	}
-		lhs.getNeighbors().add(rhs);
-		rhs.getNeighbors().add(lhs);
-		Edge edge = new Edge(lhs, rhs, p);
+    	
+    	if(todo.getRuler() != null) {
+    		System.out.println("Endpoint captured by other player");
+    		return false;
+    	}
+    	
+		current.getNeighbors().add(todo);
+		todo.getNeighbors().add(current);
+		
+		Edge edge = new Edge(current, todo, p);
+		
+		todo.setRuler(p);
+		
 		edges.add(edge);
-    	this.setChanged();
+    	
+		this.setChanged();
     	this.notifyObservers();
     	
-    	if(StarCluster.find(lhs) != StarCluster.find(rhs)) {
-        	StarCluster.union(lhs, rhs);
+    	if(StarCluster.find(current) != StarCluster.find(todo)) {
+        	StarCluster.union(current, todo);
     	}
 		
     	return true;
