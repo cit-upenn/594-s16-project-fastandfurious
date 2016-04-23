@@ -202,11 +202,6 @@ public class HumanPlayer implements Player {
 	}
 
 	@Override
-	public Node getFocus() {
-		return this.focus;
-	}
-
-	@Override
 	public void setFocus(Node focus) {
 		this.focus = focus;
 	}

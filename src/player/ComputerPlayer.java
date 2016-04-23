@@ -37,16 +37,19 @@ public class ComputerPlayer implements Player {
 	private Point p3;
 	private int deg;
 	private Node currentNode;
-	private Node focus;
-	private Node selected;
 	private Galaxy galaxy;
-	private LinkedList<Node> selections;
+	private LinkedList<Node> sequence;
 	private Queue<Node> destinations;
 	private Color pColor;	
 	private boolean isThinking;
 	private final float dash1[] = {10.0f};
 	private BasicStroke lineStroke = new BasicStroke(2.0f);
 	private BasicStroke dashStroke = new BasicStroke(2.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER,10.0f, dash1, 0.0f);
+	
+	private LinkedList<Node> candidates;
+	
+	private	Node selected;
+	private Node focus;
 	
 	/**
 	 * Constructor 
@@ -70,7 +73,8 @@ public class ComputerPlayer implements Player {
 		p3 = new Point(x + radius * Math.cos(Math.PI/6), y + radius/2);
 		this.galaxy = galaxy;
 		this.isThinking = false;
-		selections = new LinkedList<>();
+		sequence = new LinkedList<>();
+		candidates = new LinkedList<>();
 	}
 
 	@Override
@@ -158,11 +162,6 @@ public class ComputerPlayer implements Player {
 	}
 
 	@Override
-	public Node getFocus() {
-		return focus;
-	}
-
-	@Override
 	public void setFocus(Node focus) {
 		this.focus = focus;
 	}
@@ -173,27 +172,43 @@ public class ComputerPlayer implements Player {
 	}
 	
 	@Override
-	public void drawHalo(Graphics2D g2, String type) {
+	public synchronized void drawHalo(Graphics2D g2, String type) {
 		
 		Node node = null;
-		if(type.equals("focus")) {
-			node = focus;
-		} else if(type.equals("selection")) {
+		
+		if(type.equals("selection")) {
 			node = selected;
-		}
-		if(node != null) {
-			double cx = node.getInstX();
-			double cy = node.getInstY();
-			double radius = 30;
-			Shape halo = new Ellipse2D.Double(cx - radius/2, cy - radius/2, radius, radius);
-			if(type.equals("focus")) {			
-				g2.setStroke(dashStroke);	
-				
-			}else if(type.equals("selection")) {
-				g2.setStroke(lineStroke);
+			if(node != null) {
+				double cx = node.getInstX();
+				double cy = node.getInstY();
+				double radius = 30;
+				Shape halo = new Ellipse2D.Double(cx - radius/2, cy - radius/2, radius, radius);
+				if(type.equals("focus")) {			
+					g2.setStroke(dashStroke);	
+					
+				}else if(type.equals("selection")) {
+					g2.setStroke(lineStroke);
+				}
+				g2.setColor(pColor);
+				g2.draw(halo);
 			}
-			g2.setColor(pColor);
-			g2.draw(halo);
+		}
+		else {
+			
+			for(Node candidate: candidates) {
+				
+				double cx = candidate.getInstX();
+				double cy = candidate.getInstY();
+				double radius = 30;
+				Shape halo = new Ellipse2D.Double(cx - radius/2, cy - radius/2, radius, radius);
+				if(type.equals("focus")) {			
+					g2.setStroke(dashStroke);		
+				}else if(type.equals("selection")) {
+					g2.setStroke(lineStroke);
+				}
+				g2.setColor(pColor);
+				g2.draw(halo);
+			}
 		}
 	}
 	
@@ -233,6 +248,8 @@ public class ComputerPlayer implements Player {
 					galaxy.buildEdge(currentNode, nextTarget, this);
 				}
 				setVelocity(nextTarget);
+			}else {
+				candidates.clear();
 			}
 		}
 		x += dx;
@@ -263,65 +280,66 @@ public class ComputerPlayer implements Player {
 
 		@Override
 		public void run() {
-			destinations.addAll(bfsProbe());	
 			
-			if(destinations.size() > 2) {
+			
 				
-				Node last = destinations.poll();
-				Node secondToLast = destinations.poll();
+			LinkedList<Node> path = breadthFirstSearch();
 				
-				setFocus(secondToLast);
-				setSelected(last);
+			destinations.addAll(path);
 				
-				destinations.add(secondToLast);
-				destinations.add(last);
-			}
 			
 			return;
 		}
 	}
 	
-	private LinkedList<Node> bfsProbe() {
+	private LinkedList<Node> breadthFirstSearch() {
 		
-		LinkedList<Node> paths = new LinkedList<>();
-		
+		LinkedList<Node> res = new LinkedList<>();
 		Queue<Node> queue = new LinkedList<>();
-		queue.offer(currentNode);
 		HashSet<Node> visited = new HashSet<>();
+		queue.offer(currentNode);
 		
-		outer: while(!queue.isEmpty()) {
-			
+		while(!queue.isEmpty()) {
 			Node node = queue.poll();
-			List<Node> adjList = node.getNeighbors();
+			List<Node> adjList = node.getNeighbors();	
 			Set<Node> neighbors = galaxy.getNeighboringNodes(node);
-			
-			for(Node neighbor: neighbors) {
-				
-				if(!galaxy.hasEdge(neighbor, node)&& StarCluster.find(node) != StarCluster.find(neighbor) ) {
-					
-					paths.add(node);
-					paths.add(neighbor);
-					paths.add(node);
-					
-					break outer;
+			for(Node discovery: neighbors) {
+				if(StarCluster.find(node) != StarCluster.find(discovery)) {
+					if(!candidates.contains(discovery)) {
+						discovery.setPredecessor(node);
+						addCandidate(discovery);
+						try { Thread.sleep(80);} catch (InterruptedException e) {}
+					}
 				}
 			}
-			
 			for(Node connected: adjList) {
-				if(!visited.contains(connected)) {
+				if(!visited.contains(connected) ) {
 					queue.offer(connected);
 				}
 			}
 			visited.add(node);
 		}
 		
-		return paths;
+		Node luckNode = candidates.get(Galaxy.generator.nextInt(candidates.size()));
+		
+		List<Node> path = Navigator.findSimplePath(currentNode, luckNode.getPredecessor());
+		
+		res.addAll(path);
+		res.add(luckNode);
+		setSelected(luckNode);
+		
+		return res;
+	}
+	
+	private synchronized void addCandidate(Node candidate) {
+		
+		candidates.add(candidate);
 	}
 	
 	@Override
 	public LinkedList<Node> getSelections() {
 		
-		return selections;
+		return sequence;
 	}
 	
 	/**
@@ -330,12 +348,12 @@ public class ComputerPlayer implements Player {
 	 */
 	private void drawSelections(Graphics2D g2) {
 
-		for(int i = 1; i < selections.size(); i++) {	
+		for(int i = 1; i < sequence.size(); i++) {	
 			
-			Shape line = new Line2D.Double( selections.get(i - 1).getInstX(), 
-											selections.get(i - 1).getInstY(),
-											selections.get(i).getInstX(), 
-											selections.get(i).getInstY());		
+			Shape line = new Line2D.Double( sequence.get(i - 1).getInstX(), 
+											sequence.get(i - 1).getInstY(),
+											sequence.get(i).getInstX(), 
+											sequence.get(i).getInstY());		
 			g2.setStroke(dashStroke);	
 			g2.setColor(pColor);
 			g2.draw(line);
@@ -344,21 +362,7 @@ public class ComputerPlayer implements Player {
 
 	
 	@Override
-	public void buildPath() {
-
-		if(selections.size() < 1) {
-			System.err.println("Please specify path to build");
-			return;
-		}
-		Node start = selections.getFirst();
-		if(StarCluster.find(start) != StarCluster.find(currentNode)) {
-			System.err.println("Path must be connected to current node");
-			return;
-		}
-		destinations.addAll(Navigator.findSimplePath(currentNode, start));
-		destinations.remove(start);
-		destinations.addAll(selections);
-	}
+	public void buildPath() {}
 	
 	@Override
 	public boolean inMotion() {

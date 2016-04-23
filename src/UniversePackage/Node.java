@@ -95,6 +95,11 @@ public interface Node {
 	public int getRank();
 	
 	/**
+	 * Reset rank of node
+	 */
+	public void setRank(int rank);
+	
+	/**
 	 * increment rank of current node
 	 */
 	public void incrementRank();

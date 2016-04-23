@@ -59,5 +59,6 @@ public class StarCluster {
 	 */
 	public static void seperateNode(Node node) {
 		node.setParentNode(node);
+		node.setRank(0);
 	}
 }

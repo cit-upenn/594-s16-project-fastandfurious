@@ -151,4 +151,8 @@ public class SupplyStation extends Observable implements Node{
 		return "(S " + this.getX() + " " + this.getY() + ")";
 				
 	}
+	
+	public void setRank(int rank) {
+		this.rank = rank;
+	}
 }

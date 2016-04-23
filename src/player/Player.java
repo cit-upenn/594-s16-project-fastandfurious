@@ -38,9 +38,7 @@ public interface Player {
 	public void drawHalo(Graphics2D g2, String type);
 	
 	public void setFocus(Node focus);
-	
-	public Node getFocus();
-	
+
 	public void setSelected(Node selection);
 	
 	public Node getSelected();

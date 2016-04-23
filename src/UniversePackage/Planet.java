@@ -163,4 +163,9 @@ public class Planet extends Observable implements Node  {
 		return "(P " + this.getX() + " " + this.getY() + ")";
 
 	}
+
+	@Override
+	public void setRank(int rank) {
+		this.rank = rank;
+	}
 }
