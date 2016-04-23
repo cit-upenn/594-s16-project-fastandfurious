@@ -94,8 +94,12 @@ public class Galaxy extends Observable{
 		player[0] = new ComputerPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this);
 		
 		player[0].setCurrentNode(starboard[1][1]);
+		starboard[1][1].setRuler(player[0]);
+		
 		player[1] = new ComputerPlayer(starboard[numRows-2][numCols-2].getX(),starboard[numRows-2][numCols-2].getY(), Color.yellow , this);
 		player[1].setCurrentNode(starboard[starboard.length-2][starboard[0].length-2]);
+		
+		starboard[starboard.length-2][starboard[0].length-2].setRuler(player[1]);
     }
     
     public void start() {

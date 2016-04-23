@@ -223,7 +223,7 @@ public class ComputerPlayer implements Player {
 		
 		dx = 0;
 		dy = 0;
-		if(!destinations.isEmpty()) {
+		if(!destinations.isEmpty()&&!isThinking) {
 			Node nextTarget = destinations.peek();
 			if(Math.abs(x - nextTarget.getX()) < 1
 			   && Math.abs(y - nextTarget.getY()) < 1){
@@ -274,10 +274,54 @@ public class ComputerPlayer implements Player {
 
 		@Override
 		public void run() {
-			LinkedList<Node> path = greedySearch(3);
-			destinations.addAll(path);
+			
+			LinkedList<Node> newnodes = new LinkedList<>();
+			
+			int count = 0;
+			
+			int breadth = 5;
+			
+			Node choice = null;
+			
+			while(newnodes.isEmpty() && count < 4) {
+
+				newnodes.addAll(bfs(breadth));
+				breadth *= 2;
+				count++;
+			}
+		
+			
+			for(Node candidate: newnodes) {
+				addCandidate(candidate);
+				try {
+					Thread.sleep(20);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			// if still empty
+			// pick a random node;
+			if(candidates.isEmpty()) {
+				LinkedList<Node> allNodes = new LinkedList<>();
+				allNodes.addAll(nodesRuled);
+				choice = allNodes.get(Galaxy.generator.nextInt(allNodes.size()));	
+			}
+			else {
+				choice = getBestCandidate();
+			}
+			
+			setSelected(choice);
+			List<Node> path = Navigator.findSimplePath(currentNode, choice.getPredecessor());
+			if(path != null) {
+				destinations.addAll(Navigator.findSimplePath(currentNode, choice.getPredecessor()));
+			}
+			destinations.add(choice);
+			
 			return;
 		}
+		
+		
 	}
 	
 	/**
@@ -285,92 +329,49 @@ public class ComputerPlayer implements Player {
 	 * @param breadthLim
 	 * @return
 	 */
-	private LinkedList<Node> greedySearch(int breadthLim) {
+	private LinkedList<Node> bfs(int breadthLim) {
 		
-		LinkedList<Node> res = new LinkedList<>();
 		Queue<Node> queue = new LinkedList<>();
 		HashSet<Node> visited = new HashSet<>();
+		LinkedList<Node> reachable = new LinkedList<>();
+		
 		queue.offer(currentNode);
 		
 		int count = 0;
 		
-		while(!queue.isEmpty()) {
-			
-			Node node = queue.poll();
-			
-			if(node == null) {
-				
+		while(!queue.isEmpty()) {		
+			Node node = queue.poll();	
+			if(node == null) {		
 				count++;
 				if(count <= breadthLim) continue;
 				else break;
 			}
-			
 			List<Node> adjList = node.getNeighbors();	
-			
 			Set<Node> neighbors = galaxy.getNeighboringNodes(node);
-			
 			for(Node discovery: neighbors) {
 				if(StarCluster.find(node) != StarCluster.find(discovery)) {
-					if(!candidates.contains(discovery) && discovery.getRuler() == null) {
+					if(!reachable.contains(discovery) && discovery.getRuler() == null) {
 						discovery.setPredecessor(node);
-						addCandidate(discovery);
-						try { Thread.sleep(20);} catch (InterruptedException e) {}
+						// addCandidate(discovery);
+						reachable.add(discovery);
 					}
 				}
 			}
 			
-			if(adjList == null) continue;
-			
-			// TODO
-			
 			for(Node connected: adjList) {
-				
 				if(connected != null && !visited.contains(connected)) {
 					queue.offer(connected);
 				}
 			}
-			
 			queue.offer(null);
-			
 			visited.add(node);
 		}
 		
-		Node luckNode = null;
-		List<Node> path = null;
-		
-		while(!candidates.isEmpty()) {
-			
-			luckNode =  getBestCandidate();
-			
-			path = Navigator.findSimplePath(currentNode, luckNode.getPredecessor()); // TODO
-			
-			if(path != null) break;
-		}
-		
-		if(candidates.isEmpty()) {
-			
-			LinkedList<Node> allNodes = new LinkedList<>();
-			allNodes.addAll(nodesRuled);
-			
-			luckNode = allNodes.get(Galaxy.generator.nextInt(allNodes.size()));
-			path = Navigator.findSimplePath(currentNode, luckNode.getPredecessor());
-		}
-		
-		if(path != null) {
-			
-			res.addAll(path);
-		}
-		
-		if(luckNode != null) {
-			res.add(luckNode);
-			setSelected(luckNode);
-		}
-		
-		return res;
+		return reachable;
 	}
 	
 	private synchronized void addCandidate(Node candidate) {
-		candidates.add(candidate);
+		candidates.offer(candidate);
 	}
 	
 	private synchronized Node getBestCandidate() {
