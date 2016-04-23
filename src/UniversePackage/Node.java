@@ -103,5 +103,10 @@ public interface Node {
 	 * increment rank of current node
 	 */
 	public void incrementRank();
+	
+	/**
+	 * @return resource level of planet
+	 */
+	public int getResourceLevel();
 }
 

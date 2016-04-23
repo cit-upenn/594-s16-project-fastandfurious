@@ -35,12 +35,12 @@ public class Planet extends Observable implements Node  {
 		instantX = this.x;
 		instantY = this.y;
 		radius = base;
-		resourceLevel = Galaxy.generator.nextInt(6);
+		
+		resourceLevel = 1 + Galaxy.generator.nextInt(6);
 		this.color = generateColor(resourceLevel);
+		
 		bound = 10;	
 		dy = ( Galaxy.generator.nextInt(2) == 0 )? 0.15: -0.15;
-		resourceLevel = Galaxy.generator.nextInt(6);
-		this.color = generateColor(resourceLevel);
 		bound = 2;
 		rank = 0;
 		neighbors = new LinkedList<>();
@@ -115,13 +115,13 @@ public class Planet extends Observable implements Node  {
 
 		switch(colorNum) {
 
-		case 0: res = Color.white; break;
-		case 1: res = new Color(255, 51, 0); break;
-		case 2: res = new Color(0, 153, 255); break;
-		case 3: res = new Color(0, 204, 0); break;
-		case 4: res = new Color(102, 102, 255); break;
-		case 5: res = new Color(255, 204, 0);
-		default:
+		case 1: res = Color.white; break;
+		case 2: res = new Color(255, 51, 0); break;
+		case 3: res = new Color(0, 102, 204); break;
+		case 4: res = new Color(0, 204, 0); break;
+		case 5: res = new Color(102, 102, 255); break;
+		case 6: res = new Color(255, 204, 0);break;
+		default: System.out.println("!");
 		}
 
 		return res;
@@ -167,5 +167,10 @@ public class Planet extends Observable implements Node  {
 	@Override
 	public void setRank(int rank) {
 		this.rank = rank;
+	}
+
+	@Override
+	public int getResourceLevel() {
+		return resourceLevel;
 	}
 }

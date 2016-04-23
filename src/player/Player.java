@@ -13,8 +13,6 @@ public interface Player {
 
     public void move() ;
     
-    public Color getPlayerColor();
-    
     public int getWealth();
     
 	public void setCurrentNode(Node node);
@@ -42,6 +40,8 @@ public interface Player {
 	public void setSelected(Node selection);
 	
 	public Node getSelected();
+	
+    public Color getPlayerColor();
 	
 	public void think();
 	

@@ -54,7 +54,7 @@ public class View extends JPanel implements Observer {
 	}
 
 	@Override
-	public void paint(Graphics g) {	
+	public synchronized void paint(Graphics g) {	
 		
 		super.paintComponent(g);		
 		Graphics2D g2 = (Graphics2D) g;

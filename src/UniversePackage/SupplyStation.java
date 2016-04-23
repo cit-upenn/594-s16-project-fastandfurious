@@ -155,4 +155,9 @@ public class SupplyStation extends Observable implements Node{
 	public void setRank(int rank) {
 		this.rank = rank;
 	}
+
+	@Override
+	public int getResourceLevel() {
+		return 0;
+	}
 }

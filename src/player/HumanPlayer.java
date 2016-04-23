@@ -33,11 +33,10 @@ public class HumanPlayer implements Player {
 	private Node selected;
 	private Color pColor;
 	private Galaxy galaxy;
-	
 	private LinkedList<Node> selections;
-	final float dash1[] = {10.0f};
-	BasicStroke dashStroke = new BasicStroke(2.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f);
-	BasicStroke lineStroke = new BasicStroke(2.0f);
+	private final float dash1[] = {10.0f};
+	private BasicStroke dashStroke = new BasicStroke(2.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f);
+	private BasicStroke lineStroke = new BasicStroke(2.0f);
 	
 	public HumanPlayer(double x, double y, Color pColor, Galaxy galaxy) {
 		
@@ -65,7 +64,7 @@ public class HumanPlayer implements Player {
 		int[] ypoints = new int[]{(int)p1.getY(), (int)p2.getY(), (int)p3.getY()};
 		Shape triangle = new Polygon(xpoints, ypoints, 3);
 		g2.setColor(pColor);
-		g2.setStroke(new BasicStroke(2));
+		g2.setStroke(lineStroke);
 		g2.draw(triangle);
 		
 		drawHalo(g2, "focus");
@@ -89,7 +88,6 @@ public class HumanPlayer implements Player {
 			}
 			if(!destinations.isEmpty()) {		
 				nextTarget = destinations.peek();
-				
 				if(!galaxy.hasEdge(currentNode, nextTarget)) {
 					galaxy.buildEdge(currentNode, nextTarget, this);
 				}
@@ -141,10 +139,8 @@ public class HumanPlayer implements Player {
 		return !destinations.isEmpty();
 	}
 	
-	private void drawSelections(Graphics2D g2) {
-		
+	private void drawSelections(Graphics2D g2) {	
 		for(int i = 1; i < selections.size(); i++) {	
-			
 			Node first = selections.get(i-1);
 			Node second = selections.get(i);
 			Shape line = new Line2D.Double(first.getInstX(), first.getInstY(), second.getInstX(), second.getInstY());

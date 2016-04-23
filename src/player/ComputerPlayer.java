@@ -7,9 +7,11 @@ import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 
@@ -45,9 +47,10 @@ public class ComputerPlayer implements Player {
 	private final float dash1[] = {10.0f};
 	private BasicStroke lineStroke = new BasicStroke(2.0f);
 	private BasicStroke dashStroke = new BasicStroke(2.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER,10.0f, dash1, 0.0f);
-	private LinkedList<Node> candidates;
 	private	Node selected;
 	private Node focus;
+	
+	private Queue<Node> candidates;
 	
 	/**
 	 * Constructor 
@@ -72,7 +75,7 @@ public class ComputerPlayer implements Player {
 		this.galaxy = galaxy;
 		this.isThinking = false;
 		sequence = new LinkedList<>();
-		candidates = new LinkedList<>();
+		candidates = new PriorityQueue<Node>(new NodeComparator());
 	}
 
 	@Override
@@ -116,23 +119,6 @@ public class ComputerPlayer implements Player {
 	@Override
 	public void addTarget(Node target) {
 		destinations.add(target);
-	}
-
-	/**
-	 * Draw everything related to player
-	 * @param g2 graphics to draw upon
-	 */
-	public void draw(Graphics2D g2) {
-		int[] xpoints = new int[]{(int)p1.getX(), (int)p2.getX(), (int)p3.getX()};
-		int[] ypoints = new int[]{(int)p1.getY(), (int)p2.getY(), (int)p3.getY()};
-		Shape triangle = new Polygon(xpoints, ypoints, 3);
-		g2.setStroke(new BasicStroke(2));
-		g2.setColor(pColor);
-		g2.draw(triangle);
-		drawHalo(g2, "focus");
-		drawHalo(g2, "selection");
-		drawSelections(g2);		
-		rotate(5);
 	}
 	
 	/**
@@ -275,22 +261,29 @@ public class ComputerPlayer implements Player {
 
 		@Override
 		public void run() {
-			
-			LinkedList<Node> path = breadthFirstSearch();
+			LinkedList<Node> path = greedySearch(10);
 			destinations.addAll(path);
 			return;
 		}
 	}
 	
-	private LinkedList<Node> breadthFirstSearch() {
+	private LinkedList<Node> greedySearch(int breadthLim) {
 		
 		LinkedList<Node> res = new LinkedList<>();
 		Queue<Node> queue = new LinkedList<>();
 		HashSet<Node> visited = new HashSet<>();
 		queue.offer(currentNode);
+		int count = 0;
 		
 		while(!queue.isEmpty()) {
+			
 			Node node = queue.poll();
+			if(node == null) {
+				count++;
+				if(count >= breadthLim) break;
+				else continue;
+			}
+			
 			List<Node> adjList = node.getNeighbors();	
 			Set<Node> neighbors = galaxy.getNeighboringNodes(node);
 			for(Node discovery: neighbors) {
@@ -303,26 +296,30 @@ public class ComputerPlayer implements Player {
 				}
 			}
 			for(Node connected: adjList) {
-				if(!visited.contains(connected) ) {
+				if(connected != null && !visited.contains(connected) ) {
 					queue.offer(connected);
 				}
 			}
+			queue.offer(null);
 			visited.add(node);
 		}
 		
-		Node luckNode = candidates.get(Galaxy.generator.nextInt(candidates.size()));
+		Node luckNode = getBestCandidate();
 		List<Node> path = Navigator.findSimplePath(currentNode, luckNode.getPredecessor());
 		res.addAll(path);
 		res.add(luckNode);
-		
 		setSelected(luckNode);
 		
 		return res;
 	}
 	
 	private synchronized void addCandidate(Node candidate) {
-		
 		candidates.add(candidate);
+	}
+	
+	private synchronized Node getBestCandidate() {
+		
+		return candidates.poll();
 	}
 	
 	@Override
@@ -335,27 +332,39 @@ public class ComputerPlayer implements Player {
 	 * @param g2
 	 */
 	private void drawSelections(Graphics2D g2) {
-
 		for(int i = 1; i < sequence.size(); i++) {	
-			
-			Shape line = new Line2D.Double( sequence.get(i - 1).getInstX(), 
-											sequence.get(i - 1).getInstY(),
-											sequence.get(i).getInstX(), 
-											sequence.get(i).getInstY());		
+			Shape line = new Line2D.Double(sequence.get(i - 1).getInstX(), sequence.get(i - 1).getInstY(), sequence.get(i).getInstX(),sequence.get(i).getInstY());		
 			g2.setStroke(dashStroke);	
 			g2.setColor(pColor);
 			g2.draw(line);
 		}
 	}
-
 	
-	@Override
-	public void buildPath() {}
+	/**
+	 * Draw everything related to player
+	 * @param g2 graphics to draw upon
+	 */
+	public void draw(Graphics2D g2) {
+		int[] xpoints = new int[]{(int)p1.getX(), (int)p2.getX(), (int)p3.getX()};
+		int[] ypoints = new int[]{(int)p1.getY(), (int)p2.getY(), (int)p3.getY()};
+		Shape triangle = new Polygon(xpoints, ypoints, 3);
+		g2.setStroke(new BasicStroke(2));
+		g2.setColor(pColor);
+		g2.draw(triangle);
+		drawHalo(g2, "focus");
+		drawHalo(g2, "selection");
+		drawSelections(g2);		
+		rotate(5);
+	}
 	
 	@Override
 	public boolean inMotion() {
 		return !destinations.isEmpty();
 	}
+	
+	
+	@Override
+	public void buildPath() {}
 	
 	/**
 	 * Private class in both human and computer player
@@ -380,6 +389,13 @@ public class ComputerPlayer implements Player {
 		}
 		public void setY(double y) {
 			this.y = y;
+		}
+	}
+	
+	public class NodeComparator implements Comparator<Node> {
+		@Override
+		public int compare(Node n1, Node n2) {
+			return n2.getResourceLevel() - n1.getResourceLevel();
 		}
 	}
 }
