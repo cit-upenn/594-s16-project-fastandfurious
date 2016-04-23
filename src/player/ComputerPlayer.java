@@ -229,9 +229,9 @@ public class ComputerPlayer implements Player {
 			}
 			if(!destinations.isEmpty()) {		
 				nextTarget = destinations.peek();
-				if(StarCluster.find(currentNode) != StarCluster.find(nextTarget)) {
+				if(!galaxy.hasEdge(currentNode, nextTarget)) {
 					galaxy.buildEdge(currentNode, nextTarget, this);
-				}			
+				}
 				setVelocity(nextTarget);
 			}
 		}
@@ -297,12 +297,10 @@ public class ComputerPlayer implements Player {
 			
 			for(Node neighbor: neighbors) {
 				
-				if(StarCluster.find(neighbor) != StarCluster.find(node)
-				   && !galaxy.hasEdge(neighbor, node) ) {
+				if(!galaxy.hasEdge(neighbor, node)&& StarCluster.find(node) != StarCluster.find(neighbor) ) {
 					
 					paths.add(node);
 					paths.add(neighbor);
-					if(paths.size() > 2) { buildPath();}
 					paths.add(node);
 					
 					break outer;

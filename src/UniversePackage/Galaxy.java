@@ -160,6 +160,15 @@ public class Galaxy extends Observable{
 	 */
     public boolean buildEdge(Node lhs, Node rhs, Player p) {
     	
+    	if( lhs == null 
+        		|| rhs == null 
+        		|| Math.abs(lhs.getX() - rhs.getX()) > 50 
+        		|| Math.abs(lhs.getY() - rhs.getY()) > 50) {
+
+        		System.out.println("Edge build impossible");
+        		return false;
+        	}
+    	
     	if(lhs.getNeighbors().contains(rhs) || rhs.getNeighbors().contains(lhs)) {
     		System.out.println("Edge already in existance");
     		return false;
@@ -170,8 +179,12 @@ public class Galaxy extends Observable{
 		edges.add(edge);
     	this.setChanged();
     	this.notifyObservers();
-    	StarCluster.union(lhs, rhs);
-		return true;
+    	
+    	if(StarCluster.find(lhs) != StarCluster.find(rhs)) {
+        	StarCluster.union(lhs, rhs);
+    	}
+		
+    	return true;
 	}
     
     /**
