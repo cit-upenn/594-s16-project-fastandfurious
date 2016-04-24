@@ -315,12 +315,13 @@ public class ComputerPlayer implements Player {
 			
 			HashMap<Node, Node> preds = new HashMap<>();
 			
-			while(!candidates.isEmpty() && threshold-- >= 0) {
+			while(!candidates.isEmpty() && threshold-- > 0) {
 				
 				Node bestCandidate = getBestCandidate();
 				sources.add(bestCandidate);
 				preds.put(bestCandidate, bestCandidate.getPredecessor());
 			}
+			
 			
 			while(search_depth >= 0) {
 				dfs(sources, search_depth--, pq);
@@ -564,10 +565,25 @@ public class ComputerPlayer implements Player {
 	public class pathComparator implements Comparator<List<Node>> {
 		@Override
 		public int compare(List<Node> p1, List<Node> p2) {
-			if(p1 != p2) {
-				return evaluatePath(p2) - evaluatePath(p1);
+			
+			int value1 = evaluatePath(p1);
+			int value2 = evaluatePath(p2);
+			
+			if(value1 != value2) {
+				return value2 - value1;
+				
 			}else {
-				return p1.size() - p2.size();
+				if(p1.size() != p2.size()) {
+					return p1.size() - p2.size();
+				}
+				else {
+					Node h1 = p1.get(0);
+					Node h2 = p2.get(0);
+					
+					double dist1 = Math.pow(h1.getX() - currentNode.getX(), h1.getY() - currentNode.getY());
+					double dist2 = Math.pow(h2.getX() - currentNode.getX(), h2.getY() - currentNode.getY());		
+					return (int)dist1 - (int)dist2;
+				}
 			}
 		}
 	}
