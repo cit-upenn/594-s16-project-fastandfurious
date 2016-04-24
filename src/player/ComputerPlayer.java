@@ -18,10 +18,7 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
-import java.util.TreeSet;
-import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.PriorityBlockingQueue;
 
 import UniversePackage.Galaxy;
 import UniversePackage.Navigator;
@@ -56,10 +53,8 @@ public class ComputerPlayer implements Player {
 	private BasicStroke dashStroke = new BasicStroke(2.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER,10.0f, dash1, 0.0f);
 	private	Node selected;
 	
-	private HashSet<Node> nodesRuled;
-	
+	private HashSet<Node> reign;
 	private ConcurrentLinkedQueue<Node> destinations;
-	
 	private Queue<Node> candidates;
 	
 	/**
@@ -89,8 +84,7 @@ public class ComputerPlayer implements Player {
 		
 		sequence = new LinkedList<>();
 		candidates = new PriorityQueue<Node>(new NodeComparator());
-		
-		nodesRuled = new HashSet<Node>();
+		reign = new HashSet<Node>();
 	}
 
 	@Override
@@ -135,20 +129,6 @@ public class ComputerPlayer implements Player {
 	public void addTarget(Node target) {
 		destinations.add(target);
 	}
-	
-	/**
-	 * Set velocity vector for player
-	 * @param dest next target node
-	 */
-	private void setVelocity(Node dest){
-		double deltaX = dest.getX() - x;
-		double deltaY = dest.getY() - y;
-		double mod = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
-		dx = deltaX/mod * speed;
-		dy = deltaY/mod * speed;
-
-	}
-
 
 	@Override
 	public Node getSelected() {
@@ -161,9 +141,7 @@ public class ComputerPlayer implements Player {
 	}
 
 	@Override
-	public void setFocus(Node focus) {
-		//TODO
-	}
+	public void setFocus(Node focus) {}
 	
 	@Override
 	public int getWealth() {		
@@ -228,6 +206,19 @@ public class ComputerPlayer implements Player {
 		p3.setY(y + radius * Math.sin(radians3));
 	}
 	
+	/**
+	 * Set velocity vector for player
+	 * @param dest next target node
+	 */
+	private void setVelocity(Node dest){
+		double deltaX = dest.getX() - x;
+		double deltaY = dest.getY() - y;
+		double mod = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+		dx = deltaX/mod * speed;
+		dy = deltaY/mod * speed;
+
+	}
+	
 	@Override
 	public void move() {
 		
@@ -240,7 +231,7 @@ public class ComputerPlayer implements Player {
 			if(Math.abs(x - nextTarget.getX()) < 1
 			   && Math.abs(y - nextTarget.getY()) < 1){
 				currentNode = destinations.poll();
-				nodesRuled.add(currentNode);
+				reign.add(currentNode);
 			}
 			if(!destinations.isEmpty()) {		
 				nextTarget = destinations.peek();
@@ -280,102 +271,94 @@ public class ComputerPlayer implements Player {
 		if(!isThinking&&!inMotion()) {
 			
 			isThinking = true;
-			analyze();
+			
+			// TODO attack, defend, reinforce if time permits
+			explore();
+			
 			isThinking = false;
 		}
 	}
 	
 	/**
-	 * //TODO
+	 * Basic strategy of a computer player
 	 */
-	private void analyze() {
+	private void explore() {
 		
 		LinkedList<Node> newnodes = new LinkedList<>();
 		int count = 0;
-		int breadth = 5;
-		
+		int bridthLim = 5;
 		while(newnodes.isEmpty() && count < 4) {
-			newnodes.addAll(bfs(breadth));
-			breadth *= 2;
+			newnodes.addAll(bfs(bridthLim));
+			bridthLim *= 2;
 			count++;
 		}
-		
-		
 		for(Node candidate: newnodes) {
 			addCandidate(candidate);
 			try { Thread.sleep(20); } catch (InterruptedException e) {}
 		}
-		
 		// wait a bit for things to catch up
 		try {Thread.sleep(100); } 
 		catch (InterruptedException e1) {}
 		
-			
 		List<Node> sources = new LinkedList<>();
 		PriorityQueue<List<Node>> pq = new PriorityQueue<>(new pathComparator());
-			
-		int threshold = 5;
-		int search_depth = 4;
-			
+		int threshold = 3;
+		int depthLim = 3;
 		HashMap<Node, Node> preds = new HashMap<>();
-			
 		while(!candidates.isEmpty() && threshold-- > 0) {
-				
 			Node bestCandidate = getBestCandidate();
 			sources.add(bestCandidate);
 			preds.put(bestCandidate, bestCandidate.getPredecessor());
 		}
-			
-			
-		while(search_depth >= 0) {
-			dfs(sources, search_depth--, pq);
+		while(depthLim >= 0) {
+			// search all possible paths within range
+			dfs(sources, depthLim--, pq);
 		}
-			
+		
 		try {
+			// pick the best path
 			List<Node> finalpath = pq.poll();
-			
 			Node head = finalpath.get(0);	
-			Node pred = preds.get(head);	
-				
+			Node pred = preds.get(head);		
 			destinations.addAll(Navigator.findSimplePath(currentNode, pred));
 			destinations.addAll(finalpath);
-				
 			addSelection(pred);
 			for(Node n: finalpath) addSelection(n);	
 			setSelected(head);
+			
 		} catch (Exception e) {
 			
+			// if anything odd happens
 			List<Node> all = new ArrayList<>();
-			all.addAll(nodesRuled);
+			all.addAll(reign);
 			Node choice = all.get(Galaxy.generator.nextInt(all.size()));
 			setSelected(choice);
 			destinations.addAll(Navigator.findSimplePath(currentNode, choice));
-		}
-
-				
-		
+		}	
 	}
 	
 	/**
-	 * TODO 
-	 * @param breadthLim
-	 * @return
+	 * Search reachable nodes adjacent to current reign of player
+	 * @param breadthLim set a limit on search area / prevents machine from getting too hot
+	 * @return a collection of candidate nodes
 	 */
 	private synchronized LinkedList<Node> bfs(int breadthLim) {
 		
+		// prepare tools
 		Queue<Node> queue = new LinkedList<>();
 		HashSet<Node> visited = new HashSet<>();
 		LinkedList<Node> reachable = new LinkedList<>();
 		
+		// set starting point
 		queue.offer(currentNode);
+		int hops = 0;
 		
-		int count = 0;
-		
+		// start search
 		while(!queue.isEmpty()) {		
 			Node node = queue.poll();	
 			if(node == null) {		
-				count++;
-				if(count <= breadthLim) continue;
+				hops++;
+				if(hops <= breadthLim) continue;
 				else break;
 			}
 			List<Node> adjList = node.getNeighbors();	
@@ -388,7 +371,6 @@ public class ComputerPlayer implements Player {
 					}
 				}
 			}
-			
 			for(Node connected: adjList) {
 				if(connected != null && !visited.contains(connected)) {
 					queue.offer(connected);
@@ -398,14 +380,16 @@ public class ComputerPlayer implements Player {
 			visited.add(node);
 		}
 		
+		// return result
 		return reachable;
 	}
 	
 	/**
-	 * 
-	 * @param sources
-	 * @param depthLim
-	 * @param pq
+	 * Perform depth first search from multiple sources
+	 * in order to find the best path to explore
+	 * @param sources starting points for depth-first searching
+	 * @param depthLim set a limit on search depth / prevents machine from getting too hot
+	 * @param pq a priority used for storing results
 	 */
 	private synchronized void dfs(List<Node> sources, int depthLim, PriorityQueue<List<Node>> pq) {
 		
@@ -430,7 +414,6 @@ public class ComputerPlayer implements Player {
 					pq.add(ppath);
 					continue;
 				}
-				
 				List<Node> adjList = new LinkedList<>(galaxy.getNeighboringNodes(node));
 				for(Node next: adjList) {
 					if( StarCluster.find(currentNode) != StarCluster.find(next) 
@@ -460,17 +443,31 @@ public class ComputerPlayer implements Player {
 		sequence.add(selection);
 	}
 	
-	private synchronized void removeSelection(Node selection) {
-		sequence.remove(selection);
-	}
 	private synchronized void clearSelection() {
 		sequence.clear();
 	}
 	
-	
+	private synchronized void clearDest() {
+		destinations.clear();
+	}
+		
 	@Override
 	public LinkedList<Node> getSelections() {
 		return sequence;
+	}
+	
+	@Override
+	public boolean inMotion() {
+		return !destinations.isEmpty();
+	}
+	
+	public class NodeComparator implements Comparator<Node> {
+		@Override
+		public int compare(Node n1, Node n2) {
+			int diff =  n2.getResourceLevel() - n1.getResourceLevel();
+			// TODO
+			return diff;
+		}
 	}
 	
 	/**
@@ -484,10 +481,6 @@ public class ComputerPlayer implements Player {
 			g2.setColor(pColor);
 			g2.draw(line);
 		}
-	}
-	
-	private synchronized void clearDest() {
-		destinations.clear();
 	}
 	
 	/**
@@ -505,18 +498,6 @@ public class ComputerPlayer implements Player {
 		drawHalo(g2, "selection");
 		drawSelections(g2);		
 		rotate(10);
-	}
-	
-	@Override
-	public boolean inMotion() {
-		return !destinations.isEmpty();
-	}
-	
-	public class NodeComparator implements Comparator<Node> {
-		@Override
-		public int compare(Node n1, Node n2) {
-			return n2.getResourceLevel() - n1.getResourceLevel();
-		}
 	}
 
 	@Override
@@ -550,8 +531,12 @@ public class ComputerPlayer implements Player {
 		}
 	}
 	
+	/**
+	 * evaluate a given path
+	 * @param path a sequence of nodes
+	 * @return value of the path
+	 */
 	private int evaluatePath(List<Node> path) {
-		
 		int value = 0;
 		for(int i = 0; i < path.size(); i++) {		
 			value += path.get(i).getResourceLevel();
@@ -560,16 +545,16 @@ public class ComputerPlayer implements Player {
 	}
 	
 	/**
-	 * 
-	 *
+	 * Compare values of paths
 	 */
 	public class pathComparator implements Comparator<List<Node>> {
 		@Override
 		public int compare(List<Node> p1, List<Node> p2) {
 			
+			// TODO
+			
 			int value1 = evaluatePath(p1);
 			int value2 = evaluatePath(p2);
-			
 			if(value1 != value2) {
 				return value2 - value1;
 				
@@ -580,7 +565,6 @@ public class ComputerPlayer implements Player {
 				else {
 					Node h1 = p1.get(0);
 					Node h2 = p2.get(0);
-					
 					double dist1 = Math.pow(h1.getX() - currentNode.getX(), h1.getY() - currentNode.getY());
 					double dist2 = Math.pow(h2.getX() - currentNode.getX(), h2.getY() - currentNode.getY());		
 					return (int)dist1 - (int)dist2;
