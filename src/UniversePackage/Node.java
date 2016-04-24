@@ -108,5 +108,22 @@ public interface Node {
 	 * @return resource level of planet
 	 */
 	public int getResourceLevel();
+	
+	/**
+	 * set depth of a node
+	 * will be used for depth-first-search
+	 */
+	public void setDepth(int d);
+	
+	/**
+	 * @return depth of a node
+	 */
+	public int getDepth();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getType();
 }
 

@@ -89,9 +89,9 @@ public class Galaxy extends Observable{
 		/* initialize players */
 		player = new Player[2];
 		
-		// player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this); 
+		 player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this); 
 		
-		player[0] = new ComputerPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this);
+		// player[0] = new ComputerPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this);
 		
 		player[0].setCurrentNode(starboard[1][1]);
 		starboard[1][1].setRuler(player[0]);
@@ -105,7 +105,6 @@ public class Galaxy extends Observable{
     public void start() {
 
     	init(numPlanets);
-    	
     	timer = new Timer(35, new Strobe());
     	timer.start();
     }
@@ -121,6 +120,7 @@ public class Galaxy extends Observable{
     	
     	player[0].think();
     	player[1].think();
+    	
     	player[0].move();
     	player[1].move();
     	
@@ -130,23 +130,6 @@ public class Galaxy extends Observable{
     
     public Node[][] getStarBoard() {
     	return starboard;
-    }
-    
-    /**
-     * Tells the model to advance one "step"
-     */
-    private class Strobe implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-					@Override
-					protected Void doInBackground() throws Exception {
-						makeStep();
-						return null;
-					}
-			};
-			worker.execute();
-		}
     }
     
     /**
@@ -168,32 +151,42 @@ public class Galaxy extends Observable{
     public boolean buildEdge(Node current, Node todo, Player p) {
     	
     	if( current == null 
-        	|| todo == null 
-        	|| Math.abs(current.getX() - todo.getX()) > 50 
-        	|| Math.abs(current.getY() - todo.getY()) > 50) {
+        	|| todo == null ) {
 
         		System.out.println("Edge build impossible");
         		return false;
-        		
         	}
+    	
+    	if( Math.abs(current.getX() - todo.getX()) > 50 
+        	|| Math.abs(current.getY() - todo.getY()) > 50) {
+    		
+    		System.out.println("weird");
+    		
+    		return false;
+    	}
     	
     	if(current.getNeighbors().contains(todo)||todo.getNeighbors().contains(current)) {
     		System.out.println("Edge already in existance");
     		return false;
     	}
     	
-    	if(todo.getRuler() != null) {
+    	if(todo.getRuler() != null && todo.getRuler() != p) {
     		System.out.println("Endpoint captured by other player");
     		return false;
     	}
+		
+    	Edge edge = new Edge(current, todo, p);
+    	
+    	if(p.getWealth() < edge.getCost()) {
+    		System.out.println("Can't afford to build edge");
+    		return false;
+    	}
+		
+		
     	
 		current.getNeighbors().add(todo);
 		todo.getNeighbors().add(current);
-		
-		Edge edge = new Edge(current, todo, p);
-		
 		todo.setRuler(p);
-		
 		edges.add(edge);
     	
 		this.setChanged();
@@ -202,6 +195,8 @@ public class Galaxy extends Observable{
     	if(StarCluster.find(current) != StarCluster.find(todo)) {
         	StarCluster.union(current, todo);
     	}
+    	
+    	p.addWealth(-edge.getCost());
 		
     	return true;
 	}
@@ -309,4 +304,20 @@ public class Galaxy extends Observable{
     	return null;
     }
 
+    /**
+     * Tells the model to advance one "step"
+     */
+    private class Strobe implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+					@Override
+					protected Void doInBackground() throws Exception {
+						makeStep();
+						return null;
+					}
+			};
+			worker.execute();
+		}
+    }
 }

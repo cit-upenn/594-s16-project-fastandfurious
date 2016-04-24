@@ -32,6 +32,7 @@ import UniversePackage.Node;
 import UniversePackage.Planet;
 import UniversePackage.StarCluster;
 import UniversePackage.SupplyStation;
+import player.HumanPlayer;
 import player.Player;
 
 
@@ -57,31 +58,12 @@ public class Controller {
 	private JTable[] table;
 	private JTextArea[] messageBoard;
 
-	
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-            	Controller c = new Controller();
-                c.init();
-                c.display();
-            }
-        });        
-	}
-
 	private void init() {
 
 		galaxy = new Galaxy(940, 720, 50, 70);
-		view = new View(galaxy);		
+		view = new View(galaxy, this);		
 		galaxy.addObserver(view);
-		
 		galaxy.start();
-
-		Timer t = new Timer(100, new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				view.nextStep();
-			}
-		});
-		t.start();
 		
 	}
 	
@@ -167,9 +149,18 @@ public class Controller {
 			wealth[i] = new JLabel();
 			if (i == 0) {
 				
-				playerName[i].setText("Player1");
-				playerName[i].setForeground(Color.GREEN);
+				String player1name = "PLAYER1";
+				if(galaxy.getPlayer(0) instanceof HumanPlayer) {
+					player1name += " (HUMAN) " ;
+				}else {
+					player1name += " (CPU) ";
+				}
+				
+				playerName[i].setText(player1name);				
+				playerName[i].setForeground(galaxy.getPlayer(0).getPlayerColor());
 				playerName[i].setBounds(16, 5, 120, 20);	
+				playerName[i].setFont(new Font("Comic Sans MS", Font.PLAIN, 15));	
+				
 				player[i].setIcon(new ImageIcon(this.getClass().getResource("/resources/rsz_marvel-iron-man-mark-xlvi-sixth-scale-captain-america-civil-war-hot-toys-thumb-902622.jpg")));
 				player[i].setBounds(16, 40, 128, 96);
 				
@@ -189,9 +180,17 @@ public class Controller {
 				control[i].add(readyLabel);
 				
 			} else {
+				
+				String player2name = "PLAYER2";
+				
+				if(galaxy.getPlayer(1) instanceof HumanPlayer) {
+					player2name += " (HUMAN) " ;
+				}else {
+					player2name += " (CPU) ";
+				}
 
-				playerName[i].setText("Player2");
-				playerName[i].setForeground(Color.ORANGE);
+				playerName[i].setText(player2name);
+				playerName[i].setForeground(galaxy.getPlayer(1).getPlayerColor());
 				playerName[i].setBounds(1136, 5, 120, 20);
 				player[i].setIcon(new ImageIcon(this.getClass().getResource("/resources/rsz_captain.jpg")));
 				player[i].setBounds(1136, 40, 128, 96);
@@ -231,7 +230,16 @@ public class Controller {
 			control[i].add(wealth[i]);
 			control[i].add(scrollPane[i]);
 			control[i].add(messageBoard[i]);
-		}	
+		}
+		
+		messageBoard[0].setForeground(Color.GREEN);
+		messageBoard[1].setForeground(Color.GREEN);
+		
+		messageBoard[0].setFont(new Font("Lucida Grande", Font.BOLD, 15));
+		messageBoard[1].setFont(new Font("Lucida Grande", Font.BOLD, 15));
+		
+		messageBoard[0].setText("hello");
+		messageBoard[1].setText("hello");
 	}
 	
 	/**
@@ -272,8 +280,8 @@ public class Controller {
 		buildPath.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-            	galaxy.getHumanPlayer().buildPath();
-            	
+            	HumanPlayer hp = (HumanPlayer)galaxy.getHumanPlayer();
+            	hp.buildPath();
             }
         });
 		
@@ -373,5 +381,23 @@ public class Controller {
 		if(remainder2 >= 35) row++;
 		else if(remainder2 > 15) return null;
 		return galaxy.getStarBoard()[row][col];
+	}
+	
+	/**
+	 * provide access to message boards
+	 */
+	public void updateMessageBoard(int i, String msg) {
+		
+		this.messageBoard[i].setText(msg);
+	}
+	
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+            	Controller c = new Controller();
+                c.init();
+                c.display();
+            }
+        });        
 	}
 }

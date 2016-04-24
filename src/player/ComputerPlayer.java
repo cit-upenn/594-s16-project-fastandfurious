@@ -9,12 +9,17 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
+import java.util.Stack;
 import java.util.TreeSet;
+import java.util.Vector;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 import UniversePackage.Galaxy;
 import UniversePackage.Navigator;
@@ -42,16 +47,16 @@ public class ComputerPlayer implements Player {
 	private Node currentNode;
 	private Galaxy galaxy;
 	private LinkedList<Node> sequence;
-	private Queue<Node> destinations;
 	private Color pColor;	
 	private boolean isThinking;
 	private final float dash1[] = {10.0f};
 	private BasicStroke lineStroke = new BasicStroke(2.0f);
 	private BasicStroke dashStroke = new BasicStroke(2.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER,10.0f, dash1, 0.0f);
 	private	Node selected;
-	private Node focus;
 	
 	private HashSet<Node> nodesRuled;
+	
+	private ConcurrentLinkedQueue<Node> destinations;
 	
 	private Queue<Node> candidates;
 	
@@ -67,7 +72,7 @@ public class ComputerPlayer implements Player {
 		
 		this.pColor = pColor;
 		wealth = 100;
-		destinations = new LinkedList<>();
+
 		this.x = x;
 		this.y = y;
 		this.radius = 15;
@@ -77,6 +82,9 @@ public class ComputerPlayer implements Player {
 		p3 = new Point(x + radius * Math.cos(Math.PI/6), y + radius/2);
 		this.galaxy = galaxy;
 		this.isThinking = false;
+		
+		destinations = new ConcurrentLinkedQueue<>();
+		
 		sequence = new LinkedList<>();
 		candidates = new PriorityQueue<Node>(new NodeComparator());
 		
@@ -152,7 +160,7 @@ public class ComputerPlayer implements Player {
 
 	@Override
 	public void setFocus(Node focus) {
-		this.focus = focus;
+		//TODO
 	}
 	
 	@Override
@@ -221,9 +229,11 @@ public class ComputerPlayer implements Player {
 	@Override
 	public void move() {
 		
+		// System.out.println(destinations);
+		
 		dx = 0;
 		dy = 0;
-		if(!destinations.isEmpty()&&!isThinking) {
+		if(!isThinking) {
 			Node nextTarget = destinations.peek();
 			if(Math.abs(x - nextTarget.getX()) < 1
 			   && Math.abs(y - nextTarget.getY()) < 1){
@@ -232,18 +242,21 @@ public class ComputerPlayer implements Player {
 			}
 			if(!destinations.isEmpty()) {		
 				nextTarget = destinations.peek();
+				
 				if(!galaxy.hasEdge(currentNode, nextTarget)) {	
 					
 					if(!galaxy.buildEdge(currentNode, nextTarget, this)) {	
+						
 						clearDest();
 					}
-					
 					return;
 				}
+				
 				setVelocity(nextTarget);
 				
 			}else {
 				candidates.clear();
+				sequence.clear();
 			}
 		}
 		x += dx;
@@ -253,75 +266,74 @@ public class ComputerPlayer implements Player {
 	@Override
 	public void think() {
 		
-		if(!isThinking &&!inMotion()) {
+		if(!isThinking&&!inMotion()) {
 			
 			isThinking = true;
-			Analyzer a = new Analyzer();
-			Thread thinking = new Thread(a);
-			thinking.start();
-			
-			try {
-				thinking.join();
-				isThinking = false;
-				
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			analyze();
+			isThinking = false;
 		}
 	}
 	
-	private class Analyzer implements Runnable {
-
-		@Override
-		public void run() {
-			
-			LinkedList<Node> newnodes = new LinkedList<>();
-			
-			int count = 0;
-			
-			int breadth = 5;
-			
-			Node choice = null;
-			
-			while(newnodes.isEmpty() && count < 4) {
-
-				newnodes.addAll(bfs(breadth));
-				breadth *= 2;
-				count++;
-			}
+	private void analyze() {
 		
-			
-			for(Node candidate: newnodes) {
-				addCandidate(candidate);
-				try {
-					Thread.sleep(20);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			
-			// if still empty
-			// pick a random node;
-			if(candidates.isEmpty()) {
-				LinkedList<Node> allNodes = new LinkedList<>();
-				allNodes.addAll(nodesRuled);
-				choice = allNodes.get(Galaxy.generator.nextInt(allNodes.size()));	
-			}
-			else {
-				choice = getBestCandidate();
-			}
-			
-			setSelected(choice);
-			List<Node> path = Navigator.findSimplePath(currentNode, choice.getPredecessor());
-			if(path != null) {
-				destinations.addAll(Navigator.findSimplePath(currentNode, choice.getPredecessor()));
-			}
-			destinations.add(choice);
-			
-			return;
+		LinkedList<Node> newnodes = new LinkedList<>();
+		int count = 0;
+		int breadth = 5;
+		Node choice = null;
+		
+		while(newnodes.isEmpty() && count < 4) {
+			newnodes.addAll(bfs(breadth));
+			breadth *= 2;
+			count++;
 		}
 		
 		
+		for(Node candidate: newnodes) {
+			addCandidate(candidate);
+			try { Thread.sleep(20); } catch (InterruptedException e) {}
+		}
+		
+		// wait a bit for things to catch up
+		try {Thread.sleep(100); } 
+		catch (InterruptedException e1) {}
+		
+		// if still empty
+		// pick a random node;
+		if(candidates.isEmpty()) {
+			LinkedList<Node> allNodes = new LinkedList<>();
+			allNodes.addAll(nodesRuled);
+			choice = allNodes.get(Galaxy.generator.nextInt(allNodes.size()));	
+		}
+		else { choice = getBestCandidate(); }
+		
+		setSelected(choice);
+		List<Node> path = Navigator.findSimplePath(currentNode, choice.getPredecessor());
+		if(path != null) {
+			destinations.addAll(Navigator.findSimplePath(currentNode, choice.getPredecessor()));
+		}
+		
+		PriorityQueue<List<Node>> pq = new PriorityQueue<>(new pathComparator());
+		List<Node> sources = new LinkedList<>();
+		
+		sources.add(choice);
+		int search_depth = 4;
+		
+		while(search_depth >= 0) {
+			dfs(sources, search_depth--, pq);
+		}
+		
+		List<Node> finalpath = pq.poll();
+		
+		if(!finalpath.isEmpty()) {
+			sequence.addAll(finalpath);
+			destinations.addAll(finalpath);
+		}
+		else {
+			destinations.add(choice);
+		}
+
+	
+		return;
 	}
 	
 	/**
@@ -329,7 +341,7 @@ public class ComputerPlayer implements Player {
 	 * @param breadthLim
 	 * @return
 	 */
-	private LinkedList<Node> bfs(int breadthLim) {
+	private synchronized LinkedList<Node> bfs(int breadthLim) {
 		
 		Queue<Node> queue = new LinkedList<>();
 		HashSet<Node> visited = new HashSet<>();
@@ -352,7 +364,6 @@ public class ComputerPlayer implements Player {
 				if(StarCluster.find(node) != StarCluster.find(discovery)) {
 					if(!reachable.contains(discovery) && discovery.getRuler() == null) {
 						discovery.setPredecessor(node);
-						// addCandidate(discovery);
 						reachable.add(discovery);
 					}
 				}
@@ -370,14 +381,82 @@ public class ComputerPlayer implements Player {
 		return reachable;
 	}
 	
+	/**
+	 * 
+	 * @param sources
+	 * @param depthLim
+	 * @param pq
+	 */
+	private synchronized void dfs(List<Node> sources, int depthLim, PriorityQueue<List<Node>> pq) {
+		
+		Iterator<Node> it = sources.iterator();
+		
+		while(it.hasNext()) {
+			
+			Node source = it.next();
+			Stack<Node> stack = new Stack<Node>();
+			HashSet<Node> visited = new HashSet<>();
+			source.setDepth(0);
+			source.setPredecessor(null);
+			stack.push(source);
+			while(!stack.isEmpty()) {
+				
+				Node node = stack.pop();
+				
+				if(node.getDepth() >= depthLim) {
+					
+					LinkedList<Node> ppath = new LinkedList<>();
+					
+					while(node != null) {
+						ppath.addFirst(node);
+						node = node.getPredecessor();
+					}
+					
+					pq.add(ppath);
+					
+					continue;
+				}
+				
+				
+				List<Node> adjList = new LinkedList<>(galaxy.getNeighboringNodes(node));
+				
+				for(Node next: adjList) {
+					if( StarCluster.find(currentNode) != StarCluster.find(next) 
+						&& !visited.contains(next)
+						&& !candidates.contains(next)
+						&& next.getRuler() == null) {
+						
+						next.setDepth(node.getDepth() + 1);
+						next.setPredecessor(node);
+						
+						stack.push(next);
+					}
+				}
+				visited.add(node);
+			}
+			
+		}
+	}
+	
 	private synchronized void addCandidate(Node candidate) {
 		candidates.offer(candidate);
 	}
 	
 	private synchronized Node getBestCandidate() {
-		
 		return candidates.poll();
 	}
+	
+	private synchronized void addSelection(Node selection) {
+		sequence.add(selection);
+	}
+	
+	private synchronized void removeSelection(Node selection) {
+		sequence.remove(selection);
+	}
+	private synchronized void clearSelection() {
+		sequence.clear();
+	}
+	
 	
 	@Override
 	public LinkedList<Node> getSelections() {
@@ -416,8 +495,6 @@ public class ComputerPlayer implements Player {
 		drawHalo(g2, "selection");
 		drawSelections(g2);		
 		rotate(9);
-		
-		// System.out.println(this + " " + nodesRuled.size());
 	}
 	
 	@Override
@@ -425,9 +502,17 @@ public class ComputerPlayer implements Player {
 		return !destinations.isEmpty();
 	}
 	
-	
+	public class NodeComparator implements Comparator<Node> {
+		@Override
+		public int compare(Node n1, Node n2) {
+			return n2.getResourceLevel() - n1.getResourceLevel();
+		}
+	}
+
 	@Override
-	public void buildPath() {}
+	public synchronized void addWealth(int change) {
+		wealth += change;
+	}
 	
 	/**
 	 * Private class in both human and computer player
@@ -454,12 +539,23 @@ public class ComputerPlayer implements Player {
 			this.y = y;
 		}
 	}
-
 	
-	public class NodeComparator implements Comparator<Node> {
+	private int evaluatePath(List<Node> path) {
+		
+		int value = 0;
+		for(int i = 0; i < path.size(); i++) {
+			
+			if(path.get(i).getType().equals("p")) {
+				value++;
+			}
+		}
+		return value;
+	}
+	
+	public class pathComparator implements Comparator<List<Node>> {
 		@Override
-		public int compare(Node n1, Node n2) {
-			return n2.getResourceLevel() - n1.getResourceLevel();
+		public int compare(List<Node> p1, List<Node> p2) {
+			return evaluatePath(p2) - evaluatePath(p1);
 		}
 	}
 }

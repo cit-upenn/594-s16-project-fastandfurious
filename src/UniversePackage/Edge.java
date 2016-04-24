@@ -27,7 +27,7 @@ public class Edge {
 		this.p1 = p1;
 		this.p2 = p2;
 		this.ruler = builtBy;
-		this.cost = 1;
+		this.cost = 0;
 	}
 	
 	/**

@@ -9,6 +9,8 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.TreeSet;
+
 import UniversePackage.Galaxy;
 import UniversePackage.Navigator;
 import UniversePackage.Node;
@@ -37,6 +39,7 @@ public class HumanPlayer implements Player {
 	private final float dash1[] = {10.0f};
 	private BasicStroke dashStroke = new BasicStroke(2.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f);
 	private BasicStroke lineStroke = new BasicStroke(2.0f);
+	private TreeSet<Node> reign;
 	
 	public HumanPlayer(double x, double y, Color pColor, Galaxy galaxy) {
 		
@@ -49,12 +52,13 @@ public class HumanPlayer implements Player {
 		this.focus = null;
 		this.selected = null;
 		this.galaxy = galaxy;
-		speed = 1.5; 
+		speed = 2.0; 
 		radius = 15;
 		p1 = new Point(x, y - radius);
 		p2 = new Point(x - radius * Math.cos(Math.PI/6), y + radius/2);
 		p3 = new Point(x + radius * Math.cos(Math.PI/6), y + radius/2);
 		selections = new LinkedList<>();
+		reign = new TreeSet<Node>();
 	}
 
 	@Override
@@ -71,7 +75,7 @@ public class HumanPlayer implements Player {
 		drawHalo(g2, "selection");
 		drawSelections(g2);
 		
-		rotate(5);
+		rotate(9);
 	}
 	
 	@Override
@@ -79,27 +83,32 @@ public class HumanPlayer implements Player {
 		
 		dx = 0;
 		dy = 0;
-		
 		if(!destinations.isEmpty()) {
 			Node nextTarget = destinations.peek();
 			if(Math.abs(x - nextTarget.getX()) < 1
 			   && Math.abs(y - nextTarget.getY()) < 1){
 				currentNode = destinations.poll();
+				reign.add(currentNode);
 			}
 			if(!destinations.isEmpty()) {		
 				nextTarget = destinations.peek();
-				if(!galaxy.hasEdge(currentNode, nextTarget)) {
-					galaxy.buildEdge(currentNode, nextTarget, this);
+				if(!galaxy.hasEdge(currentNode, nextTarget)) {			
+					if(!galaxy.buildEdge(currentNode, nextTarget, this)) {	
+						clearDest();
+					}
+					return;
 				}
 				setVelocity(nextTarget);
 			}
-			else selections.clear();	
-		}		
-		
+		}
 		x += dx;
 		y += dy;
 	}
 	
+	private synchronized void clearDest() {
+		destinations.clear();
+	}
+
 	private void setVelocity(Node dest){	
 		double deltaX = dest.getX() - x;
 		double deltaY = dest.getY() - y;
@@ -165,7 +174,6 @@ public class HumanPlayer implements Player {
 		p3.setY(y + radius * Math.sin(radians3));
 	}
 
-	@Override
 	public void buildPath() {
 		
 		if(selections.size() < 1) {
@@ -269,5 +277,10 @@ public class HumanPlayer implements Player {
 		public void setY(double y) {
 			this.y = y;
 		}
+	}
+
+	@Override
+	public  synchronized void addWealth(int change) {
+		wealth += change;
 	}
 }

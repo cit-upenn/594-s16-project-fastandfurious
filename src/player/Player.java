@@ -13,8 +13,6 @@ public interface Player {
 
     public void move() ;
     
-    public int getWealth();
-    
 	public void setCurrentNode(Node node);
 	
     public LinkedList<Node> getSelections();
@@ -45,8 +43,10 @@ public interface Player {
 	
 	public void think();
 	
-    public void buildPath();
-	
 	public boolean inMotion();
+	
+    public int getWealth();
+    
+    public void addWealth(int change);
 
 }

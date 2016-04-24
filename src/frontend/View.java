@@ -27,9 +27,10 @@ public class View extends JPanel implements Observer {
 	private Image bgImg;
 	private Image[] planets;
 	private Image station;
+	private Controller control;
 	
-	public View(Galaxy galaxy) {
-		
+	public View(Galaxy galaxy, Controller control) {
+	
 		this.galaxy = galaxy;
 		this.bgImg = new ImageIcon("resources/universe960x720.jpg").getImage();
 		Dimension size = new Dimension(bgImg.getWidth(null), bgImg.getHeight(null));
@@ -39,6 +40,7 @@ public class View extends JPanel implements Observer {
 		setMaximumSize(size);
 		setSize(size);
 		setLayout(null);
+		this.control = control;
 	}
 
 	/*
@@ -56,30 +58,37 @@ public class View extends JPanel implements Observer {
 	@Override
 	public synchronized void paint(Graphics g) {	
 		
-		super.paintComponent(g);		
-		Graphics2D g2 = (Graphics2D) g;
-		g2.drawImage(bgImg, 0, 0, null);
-		
-		Node[][] starboard = galaxy.getStarBoard();
-		
-		for (int i = 0; i < starboard.length; i++) {
-			for (int j = 0; j < starboard[0].length; j++) {
-				Node node = starboard[i][j];
-				if (node != null) {
-					node.draw(g2);
-				}			
+		try {
+			
+			Graphics2D g2 = (Graphics2D) g;
+			g2.drawImage(bgImg, 0, 0, null);
+			
+			Node[][] starboard = galaxy.getStarBoard();
+			
+			for (int i = 0; i < starboard.length; i++) {
+				for (int j = 0; j < starboard[0].length; j++) {
+					Node node = starboard[i][j];
+					if (node != null) 
+						node.draw(g2);	
+				}
 			}
-		}
-		
-		for(Edge edge: galaxy.getEdges()) {
-			edge.draw(g2);
-		}
-		
-		Player p1 = galaxy.getPlayer(0);	
-		Player p2 = galaxy.getPlayer(1);
-		
-		p1.draw(g2);
-		p2.draw(g2);
+			
+			for(Edge edge: galaxy.getEdges()) 
+				edge.draw(g2);
+			
+			Player p1 = galaxy.getPlayer(0);	
+			Player p2 = galaxy.getPlayer(1);
+			
+			p1.draw(g2);
+			p2.draw(g2);
+			
+			int p1Wealth = galaxy.getPlayer(0).getWealth();
+			int p2Wealth = galaxy.getPlayer(1).getWealth();
+			
+			control.updateMessageBoard(0, p1Wealth + "");
+			control.updateMessageBoard(1, p2Wealth + "");
+			
+		}catch(Exception e){};
 	}
 
 	@Override

@@ -31,6 +31,8 @@ public class SupplyStation extends Observable implements Node{
 	private Node parentNode;
 	private Node pred;
 	private List<Node> neighbors;
+	
+	private int depth;
 
 	/**
 	 * Constructor
@@ -51,6 +53,8 @@ public class SupplyStation extends Observable implements Node{
 		bound = 2;
 		dy = (Galaxy.generator.nextInt(2) == 1) ? 0.05 : -0.05;
 		parentNode = null;
+		
+		depth = 0;
 		
 	}
 	
@@ -159,5 +163,20 @@ public class SupplyStation extends Observable implements Node{
 	@Override
 	public int getResourceLevel() {
 		return 0;
+	}
+	
+	@Override
+	public void setDepth(int d) {
+		depth = d;
+	}
+
+	@Override
+	public int getDepth() {
+		return depth;
+	}
+
+	@Override
+	public String getType() {
+		return "s";
 	}
 }

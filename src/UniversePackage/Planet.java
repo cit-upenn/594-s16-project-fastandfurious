@@ -27,6 +27,8 @@ public class Planet extends Observable implements Node  {
 	private int rank;
 	private Node parentNode;
 	private Node predecessor;
+	
+	private int depth;
 
 	public Planet(double x, double y) {
 
@@ -47,6 +49,8 @@ public class Planet extends Observable implements Node  {
 		parentNode = null;
 		predecessor = null;
 		ruler = null;
+		
+		depth = 0;
 	}
 
 	@Override
@@ -172,5 +176,21 @@ public class Planet extends Observable implements Node  {
 	@Override
 	public int getResourceLevel() {
 		return resourceLevel;
+	}
+
+	@Override
+	public void setDepth(int d) {
+		depth = d;
+	}
+
+	@Override
+	public int getDepth() {
+		return depth;
+	}
+
+	@Override
+	public String getType() {
+		// TODO Auto-generated method stub
+		return "p";
 	}
 }
