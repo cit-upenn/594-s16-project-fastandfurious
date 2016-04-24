@@ -8,6 +8,7 @@ import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -304,36 +305,43 @@ public class ComputerPlayer implements Player {
 			allNodes.addAll(nodesRuled);
 			choice = allNodes.get(Galaxy.generator.nextInt(allNodes.size()));	
 		}
-		else { choice = getBestCandidate(); }
-		
-		setSelected(choice);
-		List<Node> path = Navigator.findSimplePath(currentNode, choice.getPredecessor());
-		if(path != null) {
-			destinations.addAll(Navigator.findSimplePath(currentNode, choice.getPredecessor()));
+		else { 
+			
+			List<Node> sources = new LinkedList<>();
+			PriorityQueue<List<Node>> pq = new PriorityQueue<>(new pathComparator());
+			
+			int threshold = 5;
+			int search_depth = 4;
+			
+			HashMap<Node, Node> preds = new HashMap<>();
+			
+			while(!candidates.isEmpty() && threshold-- >= 0) {
+				
+				Node bestCandidate = getBestCandidate();
+				sources.add(bestCandidate);
+				preds.put(bestCandidate, bestCandidate.getPredecessor());
+			}
+			
+			while(search_depth >= 0) {
+				dfs(sources, search_depth--, pq);
+			}
+			
+			List<Node> finalpath = pq.poll();
+			
+			if(!finalpath.isEmpty()) {
+				
+				Node head = finalpath.get(0);	
+				Node pred = preds.get(head);	
+				
+				destinations.addAll(Navigator.findSimplePath(currentNode, pred));
+				destinations.addAll(finalpath);
+				
+				addSelection(pred);
+				for(Node n: finalpath) addSelection(n);
+				
+				setSelected(head);
+			}
 		}
-		
-		PriorityQueue<List<Node>> pq = new PriorityQueue<>(new pathComparator());
-		List<Node> sources = new LinkedList<>();
-		
-		sources.add(choice);
-		int search_depth = 4;
-		
-		while(search_depth >= 0) {
-			dfs(sources, search_depth--, pq);
-		}
-		
-		List<Node> finalpath = pq.poll();
-		
-		if(!finalpath.isEmpty()) {
-			sequence.addAll(finalpath);
-			destinations.addAll(finalpath);
-		}
-		else {
-			destinations.add(choice);
-		}
-
-	
-		return;
 	}
 	
 	/**
@@ -494,7 +502,7 @@ public class ComputerPlayer implements Player {
 		drawHalo(g2, "focus");
 		drawHalo(g2, "selection");
 		drawSelections(g2);		
-		rotate(9);
+		rotate(10);
 	}
 	
 	@Override
@@ -543,19 +551,24 @@ public class ComputerPlayer implements Player {
 	private int evaluatePath(List<Node> path) {
 		
 		int value = 0;
-		for(int i = 0; i < path.size(); i++) {
-			
-			if(path.get(i).getType().equals("p")) {
-				value++;
-			}
+		for(int i = 0; i < path.size(); i++) {		
+			value += path.get(i).getResourceLevel();
 		}
 		return value;
 	}
 	
+	/**
+	 * 
+	 *
+	 */
 	public class pathComparator implements Comparator<List<Node>> {
 		@Override
 		public int compare(List<Node> p1, List<Node> p2) {
-			return evaluatePath(p2) - evaluatePath(p1);
+			if(p1 != p2) {
+				return evaluatePath(p2) - evaluatePath(p1);
+			}else {
+				return p1.size() - p2.size();
+			}
 		}
 	}
 }
