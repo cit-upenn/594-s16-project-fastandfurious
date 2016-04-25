@@ -88,9 +88,9 @@ public class Galaxy extends Observable{
 		
 		/* initialize players */
 		player = new Player[2];
-		// player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this); 
+		 player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony"); 
 		
-		player[0] = new ComputerPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony");
+		// player[0] = new ComputerPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony");
 		
 		player[0].setCurrentNode(starboard[1][1]);
 		
@@ -180,9 +180,15 @@ public class Galaxy extends Observable{
     	Edge edge = new Edge(current, todo, p);
     	
     	if(!p.addWealth(-edge.getCost())) {
-    		System.out.println("Can't afford to build edge");
     		return false;
     	}
+    	
+		if(!captureNode(p, todo)) {
+			
+			p.addWealth(edge.getCost());
+			return false;
+		}
+		
     	
 		current.getNeighbors().add(todo);
 		todo.getNeighbors().add(current);
@@ -214,7 +220,7 @@ public class Galaxy extends Observable{
     	return true;
     }
     
-    public synchronized boolean captureNode(Player p, Node node) {
+    public boolean captureNode(Player p, Node node) {
 		
     	if(!(p.addWealth(-node.getCost()))) {
     		return false;

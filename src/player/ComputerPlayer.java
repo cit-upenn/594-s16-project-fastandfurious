@@ -168,54 +168,62 @@ public class ComputerPlayer implements Player {
 		
 		dx = 0;
 		dy = 0;
-		try {
-			if(!isThinking) {
+		
+		
+		if(!isThinking && inMotion()) {
+			
+			Node position = locateNode(x, y);
+			
+			if(position != null) {
+				currentNode = position;
+			}
+			
+			Node dest = destinations.peek();
+			
+			if(currentNode == dest) {	
+
+				destinations.poll();
 				
-				status = "In Motion";
+				if(destinations.isEmpty()) {
+					
+					dx = 0;
+					dy = 0;
+					clearStuffs();
+				}
 				
-				Node nextTarget = destinations.peek();
-				if(Math.abs(x - nextTarget.getX()) < 1
-				   && Math.abs(y - nextTarget.getY()) < 1){
-					
-					currentNode = nextTarget;
-					
-					if(nextTarget.getRuler() == null) {
+				return;
+			} 
+			else {
+				
+				if(!galaxy.hasEdge(currentNode, dest)&&galaxy.areAdjacentNodes(currentNode, dest)) {		
 						
-						if(galaxy.captureNode(this, nextTarget)){
-							reign.add(nextTarget);
-						}else {
+					if(dest.getRuler() == null) {						
+								
+						boolean success = galaxy.buildEdge(currentNode, dest, this);
+								
+						if(!success) {				
+						
+							
 							clearStuffs();
+							
+							generateRandomPath();
+							
 							return;
 						}
-					}
-					
-					destinations.poll();
-					
-					
-				}
-				if(inMotion()) {	
-					nextTarget = destinations.peek();
-					if(galaxy.areAdjacentNodes(currentNode, nextTarget) && !galaxy.hasEdge(currentNode, nextTarget)) {
-						if(!galaxy.buildEdge(currentNode, nextTarget, this)) { clearStuffs();}
-					}
-					else if(galaxy.areAdjacentNodes(currentNode, nextTarget) 
-							&& (nextTarget.getRuler() == this || nextTarget.getRuler() == null)) {
-						setVelocity(nextTarget);
-						x += dx;
-						y += dy;
-					}
-					else {
-						clearStuffs();
-						return;
+						
+						else {
+							reign.add(dest);
+						}
 					}
 				}
+					
+				setVelocity(dest);
 			}
 		}
-		catch (Exception e) {
-			clearStuffs();
-		}
 		
-		if(!isThinking&&!inMotion()) clearStuffs();
+		
+		x += dx;
+		y += dy;
 	}
 	
 	private synchronized void clearStuffs() {
@@ -223,6 +231,13 @@ public class ComputerPlayer implements Player {
 		clearDest();
 		clearSelection();
 		candidates.clear();
+	}
+	
+	private synchronized Node getNextDest() {
+		
+		try {
+			return destinations.poll();
+		}catch (Exception e) {return null;}
 	}
 	
 	@Override
@@ -299,16 +314,20 @@ public class ComputerPlayer implements Player {
 			for(Node n: finalpath) addSelection(n);	
 			setSelected(head);
 			
-		} catch (Exception e) {
-			
+		} catch (Exception e) {	
 			clearStuffs();
-			// if anything odd happens
-			List<Node> all = new ArrayList<>();
-			all.addAll(reign);
-			Node choice = all.get(Galaxy.generator.nextInt(all.size()));
-			setSelected(choice);
-			destinations.addAll(Navigator.findSimplePath(currentNode, choice));
+			generateRandomPath();
 		}	
+	}
+	
+	private void generateRandomPath() {
+	
+		// if anything odd happens
+		List<Node> all = new ArrayList<>();
+		all.addAll(reign);
+		Node choice = all.get(Galaxy.generator.nextInt(all.size()));
+		setSelected(choice);
+		destinations.addAll(Navigator.findSimplePath(currentNode, choice));
 	}
 	
 	/**
@@ -617,5 +636,18 @@ public class ComputerPlayer implements Player {
 	@Override
 	public String getStatus() {
 		return status;
+	}
+	
+	private Node locateNode(double x, double y) {
+		
+		int col = (int)(x/galaxy.getGridLength());
+		double remainder1 = x % galaxy.getGridLength();	
+		if(remainder1 >= 48) col++;
+		else if(remainder1 > 2) return null;
+		int row = (int)(y/galaxy.getGridLength());
+		double remainder2 = y % galaxy.getGridLength();
+		if(remainder2 >= 48) row++;
+		else if(remainder2 > 2) return null;
+		return galaxy.getStarBoard()[row][col];
 	}
 }

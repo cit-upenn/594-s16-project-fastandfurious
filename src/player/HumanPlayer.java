@@ -103,6 +103,7 @@ public class HumanPlayer implements Player {
 		
 		dx = 0;
 		dy = 0;
+		
 		if(!destinations.isEmpty()) {
 			Node nextTarget = destinations.peek();
 			if(Math.abs(x - nextTarget.getX()) < 1
@@ -121,6 +122,7 @@ public class HumanPlayer implements Player {
 				setVelocity(nextTarget);
 			}
 		}
+		
 		x += dx;
 		y += dy;
 	}
