@@ -9,6 +9,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Set;
 import java.util.TreeSet;
 
 import UniversePackage.Galaxy;
@@ -40,8 +41,18 @@ public class HumanPlayer implements Player {
 	private BasicStroke dashStroke = new BasicStroke(2.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f);
 	private BasicStroke lineStroke = new BasicStroke(2.0f);
 	private TreeSet<Node> reign;
+	private String name;
 	
-	public HumanPlayer(double x, double y, Color pColor, Galaxy galaxy) {
+	/**
+	 * constructor
+	 * creates new human player instance
+	 * @param x horizontal position of player
+	 * @param y vertical position of player
+	 * @param pColor player color
+	 * @param galaxy reference to galaxy model
+	 * @param name of the player
+	 */
+	public HumanPlayer(double x, double y, Color pColor, Galaxy galaxy, String name) {
 		
 		this.setX(x);
 		this.setY(y);
@@ -59,6 +70,15 @@ public class HumanPlayer implements Player {
 		p3 = new Point(x + radius * Math.cos(Math.PI/6), y + radius/2);
 		selections = new LinkedList<>();
 		reign = new TreeSet<Node>();
+		
+		this.name = name;
+	}
+	
+	/**
+	 * @return name of player as string
+	 */
+	public String getName() {
+		return name;
 	}
 
 	@Override
@@ -257,30 +277,47 @@ public class HumanPlayer implements Player {
 	
 	@Override
 	public void think() {}
-	
-	private class Point {
+
+	@Override
+	public  synchronized boolean addWealth(int change) {
+		if(wealth + change > 100000) {
+			return true;
+		}
+		else if(wealth + change < 0) {		
+			System.out.println("Can't afford");
+			return false;
+		}
 		
+		wealth += change;
+		return true;
+	}
+	
+	@Override
+	public String toString() {
+		return this.name + "(human)";
+	}
+	
+	public Set<Node> getPlanetsControlled() {
+		
+		return reign;	
+	}
+	
+	/**
+	 * Inner class
+	 * Container of position data
+	 */
+	private class Point {
 		private double x, y;		
-		public Point(double x, double y) {
-			this.x = x;
-			this.y = y;
-		}
-		public double getX() {
-			return x;
-		}
-		public double getY() {
-			return y;
-		}
-		public void setX(double x) {
-			this.x = x;
-		}
-		public void setY(double y) {
-			this.y = y;
-		}
+		public Point(double x, double y) {this.x = x;this.y = y;}
+		public double getX() {return x;}
+		public double getY() {return y;}
+		public void setX(double x) {this.x = x;}
+		public void setY(double y) {this.y = y;}
 	}
 
 	@Override
-	public  synchronized void addWealth(int change) {
-		wealth += change;
+	public String getStatus() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

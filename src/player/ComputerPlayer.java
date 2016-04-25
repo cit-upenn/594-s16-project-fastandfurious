@@ -52,10 +52,12 @@ public class ComputerPlayer implements Player {
 	private BasicStroke lineStroke = new BasicStroke(2.0f);
 	private BasicStroke dashStroke = new BasicStroke(2.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER,10.0f, dash1, 0.0f);
 	private	Node selected;
-	
 	private HashSet<Node> reign;
 	private ConcurrentLinkedQueue<Node> destinations;
 	private Queue<Node> candidates;
+	private String name;
+	
+	private String status;
 	
 	/**
 	 * Constructor 
@@ -65,7 +67,7 @@ public class ComputerPlayer implements Player {
 	 * @param pColor representative color of the player
 	 * @param galaxy a reference to the galaxy (game environment)
 	 */
-	public ComputerPlayer(double x, double y, Color pColor, Galaxy galaxy) {		
+	public ComputerPlayer(double x, double y, Color pColor, Galaxy galaxy, String name) {		
 		
 		this.pColor = pColor;
 		wealth = 100;
@@ -85,67 +87,9 @@ public class ComputerPlayer implements Player {
 		sequence = new LinkedList<>();
 		candidates = new PriorityQueue<Node>(new NodeComparator());
 		reign = new HashSet<Node>();
-	}
-
-	@Override
-	/**
-	 * Get representative color of the player
-	 */
-	public Color getPlayerColor() {
-		return pColor;
-	}
-
-	@Override
-	public void setCurrentNode(Node node) {
-		currentNode = node;
-	}
-
-	@Override
-	public Node getCurrentNode() {
-		return currentNode;
-	}
-
-	@Override
-	public double getX() {
-		return this.x;
-	}
-
-	@Override
-	public void setX(double x) {
-		this.x = x;
-	}
-
-	@Override
-	public double getY() {
-		return this.y;
-	}
-
-	@Override
-	public void setY(double y) {
-		this.y = y;
-	}
-
-	@Override
-	public void addTarget(Node target) {
-		destinations.add(target);
-	}
-
-	@Override
-	public Node getSelected() {
-		return selected;
-	}
-
-	@Override
-	public void setSelected(Node selection) {
-		this.selected = selection;
-	}
-
-	@Override
-	public void setFocus(Node focus) {}
-	
-	@Override
-	public int getWealth() {		
-		return wealth;
+		
+		this.name = name;
+		this.status = "Standby";
 	}
 	
 	@Override
@@ -224,27 +168,54 @@ public class ComputerPlayer implements Player {
 		
 		dx = 0;
 		dy = 0;
-		if(!isThinking) {
-			Node nextTarget = destinations.peek();
-			if(Math.abs(x - nextTarget.getX()) < 1
-			   && Math.abs(y - nextTarget.getY()) < 1){
-				currentNode = destinations.poll();
-				reign.add(currentNode);
-			}	
-			if(inMotion()) {	
-				nextTarget = destinations.peek();
-				if(galaxy.areAdjacentNodes(currentNode, nextTarget) && !galaxy.hasEdge(currentNode, nextTarget)) {
-					if(!galaxy.buildEdge(currentNode, nextTarget, this)) { clearStuffs();}
+		try {
+			if(!isThinking) {
+				
+				status = "In Motion";
+				
+				Node nextTarget = destinations.peek();
+				if(Math.abs(x - nextTarget.getX()) < 1
+				   && Math.abs(y - nextTarget.getY()) < 1){
+					
+					currentNode = nextTarget;
+					
+					if(nextTarget.getRuler() == null) {
+						
+						if(galaxy.captureNode(this, nextTarget)){
+							reign.add(nextTarget);
+						}else {
+							clearStuffs();
+							return;
+						}
+					}
+					
+					destinations.poll();
+					
+					
 				}
-				else if(galaxy.areAdjacentNodes(currentNode, nextTarget)) {
-					setVelocity(nextTarget);
-					x += dx;
-					y += dy;
+				if(inMotion()) {	
+					nextTarget = destinations.peek();
+					if(galaxy.areAdjacentNodes(currentNode, nextTarget) && !galaxy.hasEdge(currentNode, nextTarget)) {
+						if(!galaxy.buildEdge(currentNode, nextTarget, this)) { clearStuffs();}
+					}
+					else if(galaxy.areAdjacentNodes(currentNode, nextTarget) 
+							&& (nextTarget.getRuler() == this || nextTarget.getRuler() == null)) {
+						setVelocity(nextTarget);
+						x += dx;
+						y += dy;
+					}
+					else {
+						clearStuffs();
+						return;
+					}
 				}
 			}
 		}
-		// if motions is done
-		if(!isThinking && destinations.isEmpty()) clearStuffs();
+		catch (Exception e) {
+			clearStuffs();
+		}
+		
+		if(!isThinking&&!inMotion()) clearStuffs();
 	}
 	
 	private synchronized void clearStuffs() {
@@ -261,8 +232,16 @@ public class ComputerPlayer implements Player {
 			
 			isThinking = true;
 			
+			status = "Thinking";
+			
+			// long tStart = System.currentTimeMillis();
+			
 			// TODO attack, defend, reinforce if time permits
 			explore();
+			
+			// long tEnd = System.currentTimeMillis();
+			
+			// System.out.println(this + " took " + (tEnd - tStart) + "ms to think.");
 			
 			isThinking = false;
 		}
@@ -273,41 +252,42 @@ public class ComputerPlayer implements Player {
 	 */
 	private void explore() {
 		
-		LinkedList<Node> newnodes = new LinkedList<>();
-		int count = 0;
-		int bridthLim = 5;
-		while(newnodes.isEmpty() && count < 4) {
-			newnodes.addAll(bfs(bridthLim));
-			bridthLim *= 2;
-			count++;
-		}
-		for(Node candidate: newnodes) {
-			addCandidate(candidate);
-			try { Thread.sleep(20); } catch (InterruptedException e) {}
-		}
-		// wait a bit for things to catch up
-		try {Thread.sleep(100); } 
-		catch (InterruptedException e1) {}
-		
-		List<Node> sources = new LinkedList<>();
-		
-		PriorityQueue<List<Node>> pq = new PriorityQueue<>(new pathComparator());
-		HashMap<Node, Node> preds = new HashMap<>();
-		
-		int threshold = 3;
-		int depthLim = 3;
-		
-		while(!candidates.isEmpty() && threshold-- > 0) {
-			Node bestCandidate = getBestCandidate();
-			sources.add(bestCandidate);
-			preds.put(bestCandidate, bestCandidate.getPredecessor());
-		}
-		while(depthLim >= 0) {
-			// search all possible paths within ranges
-			dfs(sources, depthLim--, pq);
-		}
-		
 		try {
+			
+			LinkedList<Node> newnodes = new LinkedList<>();
+			int count = 0;
+			int bridthLim = 5;
+			while(newnodes.isEmpty() && count < 4) {
+				newnodes.addAll(bfs(bridthLim));
+				bridthLim *= 2;
+				count++;
+			}
+			for(Node candidate: newnodes) {
+				addCandidate(candidate);
+				try { Thread.sleep(20); } catch (InterruptedException e) {}
+			}
+			
+			// wait a bit for things to catch up
+			try {Thread.sleep(100); } 
+			catch (InterruptedException e1) {}
+			
+			List<Node> sources = new LinkedList<>();
+			
+			PriorityQueue<List<Node>> pq = new PriorityQueue<>(new pathComparator());
+			HashMap<Node, Node> preds = new HashMap<>();
+			
+			int threshold = 3;
+			int depthLim = 3;
+			
+			while(!candidates.isEmpty() && threshold-- > 0) {
+				Node bestCandidate = getBestCandidate();
+				sources.add(bestCandidate);
+				preds.put(bestCandidate, bestCandidate.getPredecessor());
+			}
+			while(depthLim >= 0) {
+				// search all possible paths within ranges
+				dfs(sources, depthLim--, pq);
+			}
 			
 			// pick the best path
 			List<Node> finalpath = pq.poll();
@@ -321,6 +301,7 @@ public class ComputerPlayer implements Player {
 			
 		} catch (Exception e) {
 			
+			clearStuffs();
 			// if anything odd happens
 			List<Node> all = new ArrayList<>();
 			all.addAll(reign);
@@ -454,6 +435,67 @@ public class ComputerPlayer implements Player {
 		return !destinations.isEmpty();
 	}
 	
+	@Override
+	/**
+	 * Get representative color of the player
+	 */
+	public Color getPlayerColor() {
+		return pColor;
+	}
+
+	@Override
+	public void setCurrentNode(Node node) {
+		currentNode = node;
+	}
+
+	@Override
+	public Node getCurrentNode() {
+		return currentNode;
+	}
+
+	@Override
+	public double getX() {
+		return this.x;
+	}
+
+	@Override
+	public void setX(double x) {
+		this.x = x;
+	}
+
+	@Override
+	public double getY() {
+		return this.y;
+	}
+
+	@Override
+	public void setY(double y) {
+		this.y = y;
+	}
+
+	@Override
+	public void addTarget(Node target) {
+		destinations.add(target);
+	}
+
+	@Override
+	public Node getSelected() {
+		return selected;
+	}
+
+	@Override
+	public void setSelected(Node selection) {
+		this.selected = selection;
+	}
+
+	@Override
+	public void setFocus(Node focus) {}
+	
+	@Override
+	public int getWealth() {		
+		return wealth;
+	}
+	
 	public class NodeComparator implements Comparator<Node> {
 		@Override
 		public int compare(Node n1, Node n2) {
@@ -481,6 +523,7 @@ public class ComputerPlayer implements Player {
 	 * @param g2 graphics to draw upon
 	 */
 	public void draw(Graphics2D g2) {
+		
 		int[] xpoints = new int[]{(int)p1.getX(), (int)p2.getX(), (int)p3.getX()};
 		int[] ypoints = new int[]{(int)p1.getY(), (int)p2.getY(), (int)p3.getY()};
 		Shape triangle = new Polygon(xpoints, ypoints, 3);
@@ -494,34 +537,17 @@ public class ComputerPlayer implements Player {
 	}
 
 	@Override
-	public synchronized void addWealth(int change) {
-		wealth += change;
-	}
-	
-	/**
-	 * Private class in both human and computer player
-	 * Stores locations of the small triangle used to
-	 * represent player
-	 */
-	private class Point {
+	public synchronized boolean addWealth(int change) {
 		
-		private double x, y;
-		public Point(double x, double y) {
-			this.x = x;
-			this.y = y;
+		if(wealth + change > 100000) {
+			return true;
 		}
-		public double getX() {
-			return x;
+		else if(wealth + change < 0) {		
+			return false;
 		}
-		public double getY() {
-			return y;
-		}
-		public void setX(double x) {
-			this.x = x;
-		}
-		public void setY(double y) {
-			this.y = y;
-		}
+		
+		wealth += change;
+		return true;
 	}
 	
 	/**
@@ -548,9 +574,7 @@ public class ComputerPlayer implements Player {
 			int value1 = evaluatePath(p1);
 			int value2 = evaluatePath(p2);
 			if(value1 != value2) {
-				
 				return value2 - value1;
-				
 			}else {
 				if(p1.size() != p2.size()) {
 					return p1.size() - p2.size();
@@ -564,5 +588,34 @@ public class ComputerPlayer implements Player {
 				}
 			}
 		}
+	}
+	
+	public Set<Node> getPlanetsControlled() {
+		
+		return reign;
+	}
+	
+	@Override
+	public String toString() {
+		return this.name + "(computer)";
+	}
+	
+	/**
+	 * Private class in both human and computer player
+	 * Stores locations of the small triangle used to
+	 * represent player
+	 */
+	private class Point {
+		private double x, y;	
+		public Point(double x, double y) {this.x = x;this.y = y;}
+		public double getX() {return x;}
+		public double getY() {return y;}
+		public void setX(double x) {this.x = x;}
+		public void setY(double y) {this.y = y;}
+	}
+
+	@Override
+	public String getStatus() {
+		return status;
 	}
 }

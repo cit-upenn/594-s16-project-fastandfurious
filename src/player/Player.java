@@ -3,6 +3,8 @@ package player;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.LinkedList;
+import java.util.Set;
+
 import UniversePackage.Node;
 
 /**
@@ -47,6 +49,10 @@ public interface Player {
 	
     public int getWealth();
     
-    public void addWealth(int change);
+    public boolean addWealth(int change);
+    
+    public Set<Node> getPlanetsControlled();
+    
+    public String getStatus();
 
 }

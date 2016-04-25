@@ -24,10 +24,11 @@ public class Edge {
 	 * @param builtBy owner of the edge
 	 */
 	public Edge(Node p1, Node p2, Player builtBy) {
+		
 		this.p1 = p1;
 		this.p2 = p2;
 		this.ruler = builtBy;
-		this.cost = 0;
+		this.cost = 2;
 	}
 	
 	/**

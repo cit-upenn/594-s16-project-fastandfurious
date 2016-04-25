@@ -123,5 +123,15 @@ public interface Node {
 	 * set current predecessor of a node
 	 */
 	public void setPredecessor(Node pred);
+	
+	/**
+	 * @return cost to capture the planet
+	 */
+	public int getCost();
+	
+	/**
+	 * @return defense level of a node
+	 */
+	public int getDefenseLevel();
 }
 

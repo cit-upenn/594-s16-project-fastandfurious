@@ -82,15 +82,39 @@ public class View extends JPanel implements Observer {
 			p1.draw(g2);
 			p2.draw(g2);
 			
-			int p1Wealth = galaxy.getPlayer(0).getWealth();
-			int p2Wealth = galaxy.getPlayer(1).getWealth();
-			
-			control.updateMessageBoard(0, p1Wealth + "");
-			control.updateMessageBoard(1, p2Wealth + "");
+			control.updateMessageBoard(0, processMessage(p1));
+			control.updateMessageBoard(1, processMessage(p2));
 			
 		}catch(Exception e){};
 	}
 
+	public String processMessage(Player p){
+		
+		String status = "Status: " + p.getStatus();
+		
+		String wealthStr = "Wealth: " + p.getWealth();
+		int numPlanets = 0;
+		int numStations = 0;
+		
+		for(Node node: p.getPlanetsControlled()) {
+			
+			if(node.getType().equals("p")) {
+				numPlanets++;
+			}
+			else if(node.getType().equals("s")) {
+				numStations++;
+			}
+		}
+		
+		
+		String numPlanetsStr = "# Planets: " + numPlanets;
+		String numStationsStr = "# Stations: " + numStations;
+		
+		String output = String.format("%s\n%s\n%s\n%s\n", status, wealthStr, numPlanetsStr, numStationsStr);
+		
+		return output;
+	}
+	
 	@Override
 	public synchronized void update(Observable o, Object arg) {
 		repaint();

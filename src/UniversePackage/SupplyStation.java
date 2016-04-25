@@ -30,9 +30,8 @@ public class SupplyStation extends Observable implements Node{
 	private int rank;
 	private Node parentNode;
 	private Node pred;
-	private List<Node> neighbors;
-	
 	private int depth;
+	private List<Node> neighbors;
 
 	/**
 	 * Constructor
@@ -41,11 +40,11 @@ public class SupplyStation extends Observable implements Node{
 	 * @param y initial vertical location of a SS
 	 */
 	public SupplyStation (double x, double y) {
+		
 		this.x = x;
 		this.y = y;
-		this.radius = 10;
+		this.radius = 12;
 		ruler = null;
-		neighbors = new LinkedList<>();
 		color = Color.lightGray;
 		instX = this.x;
 		instY = this.y;
@@ -53,9 +52,8 @@ public class SupplyStation extends Observable implements Node{
 		bound = 2;
 		dy = (Galaxy.generator.nextInt(2) == 1) ? 0.05 : -0.05;
 		parentNode = null;
-		
 		depth = 0;
-		
+		neighbors = new LinkedList<>();
 	}
 	
 	@Override
@@ -66,6 +64,12 @@ public class SupplyStation extends Observable implements Node{
 		g2.setStroke(new BasicStroke(2));
 		g2.draw(rect);	
 		
+		if(ruler != null) {
+			
+			g2.setColor(ruler.getPlayerColor());
+			Shape core = new Rectangle2D.Double(instX - radius/2 + 3, instY - radius/2 + 3, 6, 6);
+			g2.fill(core);
+		}
 	}
 
 	@Override
@@ -178,5 +182,16 @@ public class SupplyStation extends Observable implements Node{
 	@Override
 	public String getType() {
 		return "s";
+	}
+
+	@Override
+	public int getCost() {
+		return getResourceLevel() * 10;
+	}
+
+	@Override
+	public int getDefenseLevel() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

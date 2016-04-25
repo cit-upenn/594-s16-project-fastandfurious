@@ -32,6 +32,7 @@ public class Galaxy extends Observable{
     public static Random generator;
     private Node[][] starboard;
     private Timer timer;
+    private Timer moneyMachine;
     private Player[] player;
     private List<Edge> edges;
     private int numPlanets;
@@ -45,7 +46,6 @@ public class Galaxy extends Observable{
         generator = new Random();
         edges = new LinkedList<>();
         this.numPlanets = numPlanets;
-        
     }
 
     /**
@@ -88,25 +88,28 @@ public class Galaxy extends Observable{
 		
 		/* initialize players */
 		player = new Player[2];
-		
 		// player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this); 
 		
-		player[0] = new ComputerPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this);
+		player[0] = new ComputerPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony");
 		
 		player[0].setCurrentNode(starboard[1][1]);
-		starboard[1][1].setRuler(player[0]);
 		
-		player[1] = new ComputerPlayer(starboard[numRows-2][numCols-2].getX(),starboard[numRows-2][numCols-2].getY(), Color.yellow , this);
+		// starboard[1][1].setRuler(player[0]);
+		
+		player[1] = new ComputerPlayer(starboard[numRows-2][numCols-2].getX(),starboard[numRows-2][numCols-2].getY(), Color.yellow , this, "Steve");
 		player[1].setCurrentNode(starboard[starboard.length-2][starboard[0].length-2]);
 		
-		starboard[starboard.length-2][starboard[0].length-2].setRuler(player[1]);
+		// starboard[starboard.length-2][starboard[0].length-2].setRuler(player[1]);
     }
     
     public void start() {
 
     	init(numPlanets);
-    	timer = new Timer(35, new Strobe());
+    	timer = new Timer(40, new Strobe());
     	timer.start();
+    	
+    	moneyMachine = new Timer(2000, new MoneyMaker());
+    	moneyMachine.start();
     }
     
     /**
@@ -117,10 +120,9 @@ public class Galaxy extends Observable{
     	for(int i = 1; i < starboard.length - 1; i++) 
     		for(int j = 1; j < starboard[0].length - 1; j++) 
     			starboard[i][j].move();	
-    	
+    	  	
     	player[0].think();
     	player[1].think();
-    	
     	player[0].move();
     	player[1].move();
     	
@@ -148,7 +150,7 @@ public class Galaxy extends Observable{
 	 * @param rhs right-hand-side node
 	 * @return true if operation is successful
 	 */
-    public boolean buildEdge(Node current, Node todo, Player p) {
+    public synchronized boolean buildEdge(Node current, Node todo, Player p) {
     	
     	if( current == null 
         	|| todo == null ) {
@@ -177,16 +179,14 @@ public class Galaxy extends Observable{
 		
     	Edge edge = new Edge(current, todo, p);
     	
-    	if(p.getWealth() < edge.getCost()) {
+    	if(!p.addWealth(-edge.getCost())) {
     		System.out.println("Can't afford to build edge");
     		return false;
     	}
-		
-		
     	
 		current.getNeighbors().add(todo);
 		todo.getNeighbors().add(current);
-		todo.setRuler(p);
+		
 		edges.add(edge);
     	
 		this.setChanged();
@@ -196,8 +196,6 @@ public class Galaxy extends Observable{
         	StarCluster.union(current, todo);
     	}
     	
-    	p.addWealth(-edge.getCost());
-		
     	return true;
 	}
     
@@ -207,27 +205,22 @@ public class Galaxy extends Observable{
      * @param rhs end point of edge
      * @return true if destruction successful
      */
-    public boolean destroyEdge(Node lhs, Node rhs) {
+    public boolean destroyNodeDefense(Node target) {
     	
-    	if( lhs == null 
-    		|| rhs == null 
-    		|| Math.abs(lhs.getX() - rhs.getX()) > 50 
-    		|| Math.abs(lhs.getY() - rhs.getY()) > 50
-    		|| StarCluster.find(lhs) != StarCluster.find(rhs)) {
-
-    		System.out.println("Edge does not exist");
+    	// TODO remove all edges connect to the node
+    	// TODO set the node 
+    	
+    	
+    	return true;
+    }
+    
+    public synchronized boolean captureNode(Player p, Node node) {
+		
+    	if(!(p.addWealth(-node.getCost()))) {
     		return false;
     	}
-    	lhs.getNeighbors().remove(rhs);
-    	rhs.getNeighbors().remove(lhs);
-    	Iterator<Edge> edgeIterator = edges.iterator(); 
-    	while(edgeIterator.hasNext()) {
-    		Edge edge = edgeIterator.next();
-    		if(edge.containsPoint(lhs) || edge.containsPoint(rhs)) {
-    			edgeIterator.remove();
-    			break;
-    		}
-    	}
+    	
+    	node.setRuler(p);
     	return true;
     }
     		
@@ -318,6 +311,34 @@ public class Galaxy extends Observable{
 					}
 			};
 			worker.execute();
+		}
+    }
+    
+    private class MoneyMaker implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			
+			SwingWorker<Void, Void> maker = new SwingWorker<Void, Void>() {
+				@Override
+				protected Void doInBackground() throws Exception {
+					
+					for(int i = 0; i < starboard.length; i++) {
+						for(int j = 0; j < starboard[0].length; j++) {
+							Node  node = starboard[i][j];
+							if(node != null) {
+								Player ruler = node.getRuler();
+								if(ruler != null) {
+									ruler.addWealth(node.getResourceLevel());
+								}
+							}
+						}
+					}
+					
+					return null;
+				}
+		};
+		maker.execute();
 		}
     }
 }
