@@ -26,11 +26,6 @@ public interface Node {
 	public double getRadius();
 	
 	/**
-	 * @return neighbors of the node
-	 */
-	public List<Node> getNeighbors();
-	
-	/**
 	 * @return ruler of the node
 	 */
 	public Player getRuler();
@@ -61,27 +56,6 @@ public interface Node {
 	 * @return instantaneous y coordinates of node center
 	 */
 	public double getInstY();
-	
-	
-	/**
-	 * @return parent node of the current node
-	 */
-	public Node getParentNode();
-	
-	/**
-	 * @param parent Node that is to be set as parent
-	 */
-	public void setParentNode(Node parent);
-	
-	/**
-	 * @return current predecessor of node
-	 */
-	public Node getPredecessor();
-	
-	/**
-	 * set current predecessor of a node
-	 */
-	public void setPredecessor(Node pred);
 	
 	/**
 	 * general method for draw a shape
@@ -121,9 +95,33 @@ public interface Node {
 	public int getDepth();
 	
 	/**
-	 * 
-	 * @return
+	 * @return neighbors of the node
+	 */
+	public List<Node> getNeighbors();
+	
+	/**
+	 * @return type of the node
 	 */
 	public String getType();
+	
+	/**
+	 * @return parent node of the current node
+	 */
+	public Node getParentNode();
+	
+	/**
+	 * @param parent Node that is to be set as parent
+	 */
+	public void setParentNode(Node parent);
+	
+	/**
+	 * @return current predecessor of node
+	 */
+	public Node getPredecessor();
+	
+	/**
+	 * set current predecessor of a node
+	 */
+	public void setPredecessor(Node pred);
 }
 

@@ -222,8 +222,6 @@ public class ComputerPlayer implements Player {
 	@Override
 	public void move() {
 		
-		// System.out.println(destinations);
-		
 		dx = 0;
 		dy = 0;
 		if(!isThinking) {
@@ -232,37 +230,28 @@ public class ComputerPlayer implements Player {
 			   && Math.abs(y - nextTarget.getY()) < 1){
 				currentNode = destinations.poll();
 				reign.add(currentNode);
-			}
-			if(!destinations.isEmpty()) {		
+			}	
+			if(inMotion()) {	
 				nextTarget = destinations.peek();
-				
-				if(!galaxy.hasEdge(currentNode, nextTarget)) {	
-					
-					if(!galaxy.buildEdge(currentNode, nextTarget, this)) {	
-					
-						clearDest();
-						clearSelection();
-					}
-					return;
+				if(galaxy.areAdjacentNodes(currentNode, nextTarget) && !galaxy.hasEdge(currentNode, nextTarget)) {
+					if(!galaxy.buildEdge(currentNode, nextTarget, this)) { clearStuffs();}
 				}
-				
-				setVelocity(nextTarget);
-				
-			}else {
-				candidates.clear();
-				clearSelection();
-			}
-			
-			if(selected != null && !inMotion()) {
-				
-				clearDest();
-				clearSelection();
-				candidates.clear();
-				return;
+				else if(galaxy.areAdjacentNodes(currentNode, nextTarget)) {
+					setVelocity(nextTarget);
+					x += dx;
+					y += dy;
+				}
 			}
 		}
-		x += dx;
-		y += dy;
+		// if motions is done
+		if(!isThinking && destinations.isEmpty()) clearStuffs();
+	}
+	
+	private synchronized void clearStuffs() {
+		
+		clearDest();
+		clearSelection();
+		candidates.clear();
 	}
 	
 	@Override
@@ -301,21 +290,25 @@ public class ComputerPlayer implements Player {
 		catch (InterruptedException e1) {}
 		
 		List<Node> sources = new LinkedList<>();
+		
 		PriorityQueue<List<Node>> pq = new PriorityQueue<>(new pathComparator());
+		HashMap<Node, Node> preds = new HashMap<>();
+		
 		int threshold = 3;
 		int depthLim = 3;
-		HashMap<Node, Node> preds = new HashMap<>();
+		
 		while(!candidates.isEmpty() && threshold-- > 0) {
 			Node bestCandidate = getBestCandidate();
 			sources.add(bestCandidate);
 			preds.put(bestCandidate, bestCandidate.getPredecessor());
 		}
 		while(depthLim >= 0) {
-			// search all possible paths within range
+			// search all possible paths within ranges
 			dfs(sources, depthLim--, pq);
 		}
 		
 		try {
+			
 			// pick the best path
 			List<Node> finalpath = pq.poll();
 			Node head = finalpath.get(0);	
@@ -552,10 +545,10 @@ public class ComputerPlayer implements Player {
 		public int compare(List<Node> p1, List<Node> p2) {
 			
 			// TODO
-			
 			int value1 = evaluatePath(p1);
 			int value2 = evaluatePath(p2);
 			if(value1 != value2) {
+				
 				return value2 - value1;
 				
 			}else {
