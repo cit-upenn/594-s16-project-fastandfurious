@@ -2,12 +2,14 @@ package UniversePackage;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Random;
 import java.util.Set;
+import java.util.Stack;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -110,7 +112,6 @@ public class Galaxy extends Observable{
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     }
@@ -228,8 +229,61 @@ public class Galaxy extends Observable{
     	adjList.get(target).clear();
     	
     	// TODO re-organize connection for other player
+    	otherPlayer.loseNode(target);
     	
+    	
+    	SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+			@Override
+			protected Void doInBackground() throws Exception {
+				// TODO Auto-generated method stub
+        		refactor(otherPlayer);
+				return null;
+			}
+    	};
+    	worker.execute();
     	return true;
+    }
+    
+    public void refactor(Player p) {
+    	
+    	List<Node> all = new LinkedList<>(p.getNodesControlled());
+    	Iterator<Node> it = all.iterator();
+    	
+    	// Separate all nodes
+    	while(it.hasNext()) {
+    		StarCluster.seperateNode(it.next());
+    	}
+    	
+    	it = all.iterator();
+    	HashSet<Node> visited = new HashSet<>();
+    	
+    	while(it.hasNext()) {
+    		Node u = it.next();
+    		if(!visited.contains(u)) {
+    			depthFirstCluster(u, visited);
+    		}
+    	}
+    }
+    
+    public void depthFirstCluster(Node source, Set<Node> visited) {
+    	
+    	Stack<Node> stack = new Stack<>();
+    	
+    	stack.push(source);
+    	
+    	while(!stack.isEmpty()) {
+    		Node u = stack.pop();
+    		for(Edge e: adjList.get(u)) {
+    			Node v = e.getEnd();
+    			if(!visited.contains(v)) {
+    				stack.push(v);
+    				if(StarCluster.find(u) != StarCluster.find(v)) {
+    					StarCluster.union(u, v);
+    				}
+    			}
+    		}
+    		visited.add(u);
+    	}
     }
     
     /**

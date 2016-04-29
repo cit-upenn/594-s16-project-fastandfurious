@@ -374,25 +374,25 @@ public class ComputerPlayer implements Player {
 				Node endpoint1 = candidate;
 				Node endpoint2 = pool.get(Galaxy.generator.nextInt(pool.size()));
 
-				double dist1 = Math.pow(endpoint1.getX() - currentNode.getX(), 2) +  Math.pow(endpoint1.getY() - currentNode.getY(), 2);
-				double dist2 = Math.pow(endpoint2.getX() - currentNode.getX(), 2) +  Math.pow(endpoint2.getY() - currentNode.getY(), 2);
+				List<Node> path1 = Navigator.findSimplePath(currentNode, endpoint1, galaxy);
+				List<Node> path2 = Navigator.findSimplePath(currentNode, endpoint2, galaxy);
+				List<Node> thePath = path1;
 				
-				if(dist2 < dist1) {
+				if(path2.size() < path1.size()) {
 					Node temp = endpoint2;
 					endpoint2 = endpoint1;
 					endpoint1 = temp;
+					thePath = path2;
 				}
 				
 				setSelected(endpoint1);
 				
-				destinations.addAll(Navigator.dijkstra(currentNode, endpoint1, galaxy));
+				destinations.addAll(thePath);
 				destinations.add(endpoint2);
 				
 				sequence.add(endpoint1);
 				sequence.add(endpoint2);
 			}
-			
-			
 		
 		}finally{
 			
@@ -693,7 +693,7 @@ public class ComputerPlayer implements Player {
 		}
 	}
 	
-	public Set<Node> getPlanetsControlled() {
+	public Set<Node> getNodesControlled() {
 		
 		return nodesControlled;
 	}

@@ -305,7 +305,7 @@ public class HumanPlayer implements Player {
 		return this.name + "(human)";
 	}
 	
-	public Set<Node> getPlanetsControlled() {
+	public Set<Node> getNodesControlled() {
 		return reign;	
 	}
 

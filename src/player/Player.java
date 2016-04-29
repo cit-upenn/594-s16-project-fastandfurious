@@ -48,7 +48,7 @@ public interface Player {
 
 	public double getY();
     
-    public Set<Node> getPlanetsControlled();
+    public Set<Node> getNodesControlled();
     
     public String getStatus();
     

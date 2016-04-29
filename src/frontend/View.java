@@ -100,7 +100,7 @@ public class View extends JPanel implements Observer {
 		int numPlanets = 0;
 		int numStations = 0;
 		
-		for(Node node: p.getPlanetsControlled()) {
+		for(Node node: p.getNodesControlled()) {
 			
 			if(node.getType().equals("p")) {
 				numPlanets++;
