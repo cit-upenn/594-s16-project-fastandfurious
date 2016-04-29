@@ -11,10 +11,11 @@ import player.Player;
 public class Edge {
 	
 	// declare instance variables
-	private Node p1;
+	private Node p1; // start source
 	private Node p2;
 	private Player ruler;
 	private int cost;
+	private double len;
 	
 	/**
 	 * Constructor
@@ -29,6 +30,7 @@ public class Edge {
 		this.p2 = p2;
 		this.ruler = builtBy;
 		this.cost = 2;
+		this.len = Math.sqrt(Math.pow(p1.getX() - p2.getX(), 2) + Math.pow(p1.getY() - p2.getY(), 2));
 	}
 	
 	/**
@@ -55,10 +57,22 @@ public class Edge {
 		this.cost = cost;
 	}
 	
+	
+	public double getLength() {		
+		return len;
+	}
+	
 	/**
-	 * determines if an edge contains an end-point
+	 * @return start point of the edge
 	 */
-	public boolean containsPoint(Node node) {
-		return p1 == node || p2 == node;
+	public Node getStart() {
+		return p1;
+	}
+	
+	/**
+	 * @return end point of the edge
+	 */
+	public Node getEnd() {
+		return p2;
 	}
 }

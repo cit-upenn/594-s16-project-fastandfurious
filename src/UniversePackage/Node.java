@@ -1,5 +1,4 @@
 package UniversePackage;
-import java.util.List;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
@@ -95,11 +94,6 @@ public interface Node {
 	public int getDepth();
 	
 	/**
-	 * @return neighbors of the node
-	 */
-	public List<Node> getNeighbors();
-	
-	/**
 	 * @return type of the node
 	 */
 	public String getType();
@@ -133,5 +127,16 @@ public interface Node {
 	 * @return defense level of a node
 	 */
 	public int getDefenseLevel();
+	
+	/**
+	 * @return get current shortest distance to the nodes
+	 */
+	public double getShortest();
+	
+	/**
+	 * @param dist new shortest distance
+	 */
+	public void setShortest(double dist);
+
 }
 

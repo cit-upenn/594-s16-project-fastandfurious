@@ -304,7 +304,7 @@ public class Controller {
             		System.out.println("Target and source not connected");
             		return;
             	}
-            	List<Node> targets = Navigator.findSimplePath(source, dest);
+            	List<Node> targets = Navigator.dijkstra(source, dest, galaxy);
             	for(Node target: targets) {
             		humanPlayer.addTarget(target);
             	}

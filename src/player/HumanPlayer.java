@@ -7,6 +7,7 @@ import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
@@ -40,7 +41,7 @@ public class HumanPlayer implements Player {
 	private final float dash1[] = {10.0f};
 	private BasicStroke dashStroke = new BasicStroke(2.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f);
 	private BasicStroke lineStroke = new BasicStroke(2.0f);
-	private TreeSet<Node> reign;
+	private HashSet<Node> reign;
 	private String name;
 	
 	/**
@@ -69,7 +70,7 @@ public class HumanPlayer implements Player {
 		p2 = new Point(x - radius * Math.cos(Math.PI/6), y + radius/2);
 		p3 = new Point(x + radius * Math.cos(Math.PI/6), y + radius/2);
 		selections = new LinkedList<>();
-		reign = new TreeSet<Node>();
+		reign = new HashSet<Node>();
 		
 		this.name = name;
 	}
@@ -112,10 +113,12 @@ public class HumanPlayer implements Player {
 				reign.add(currentNode);
 			}
 			if(!destinations.isEmpty()) {		
+				
 				nextTarget = destinations.peek();
 				if(!galaxy.hasEdge(currentNode, nextTarget)) {			
 					if(!galaxy.buildEdge(currentNode, nextTarget, this)) {	
 						clearDest();
+						selections.clear();
 					}
 					return;
 				}
@@ -197,17 +200,20 @@ public class HumanPlayer implements Player {
 	}
 
 	public void buildPath() {
-		
+
 		if(selections.size() < 1) {
 			System.err.println("Please specify path to build");
 			return;
-		}	
+		}
+
 		Node start = selections.getFirst();
+
 		if(StarCluster.find(start) != StarCluster.find(currentNode)) {
 			System.err.println("Path must be connected to current node");
 			return;
 		}
-		destinations.addAll(Navigator.findSimplePath(currentNode, start));
+
+		destinations.addAll(Navigator.dijkstra(currentNode, start, galaxy));
 		destinations.remove(start);
 		destinations.addAll(selections);	
 	}
@@ -300,26 +306,22 @@ public class HumanPlayer implements Player {
 	}
 	
 	public Set<Node> getPlanetsControlled() {
-		
 		return reign;	
-	}
-	
-	/**
-	 * Inner class
-	 * Container of position data
-	 */
-	private class Point {
-		private double x, y;		
-		public Point(double x, double y) {this.x = x;this.y = y;}
-		public double getX() {return x;}
-		public double getY() {return y;}
-		public void setX(double x) {this.x = x;}
-		public void setY(double y) {this.y = y;}
 	}
 
 	@Override
 	public String getStatus() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public synchronized void controlNode(Node node) {
+		reign.add(node);
+	}
+
+	@Override
+	public synchronized void loseNode(Node node) {
+		reign.remove(node);
 	}
 }

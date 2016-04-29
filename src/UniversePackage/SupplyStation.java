@@ -5,10 +5,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Observable;
-
 import player.Player;
 
 /**
@@ -31,7 +28,7 @@ public class SupplyStation extends Observable implements Node{
 	private Node parentNode;
 	private Node pred;
 	private int depth;
-	private List<Node> neighbors;
+	private double shortest;
 
 	/**
 	 * Constructor
@@ -53,7 +50,8 @@ public class SupplyStation extends Observable implements Node{
 		dy = (Galaxy.generator.nextInt(2) == 1) ? 0.05 : -0.05;
 		parentNode = null;
 		depth = 0;
-		neighbors = new LinkedList<>();
+		
+		shortest =  Integer.MAX_VALUE;
 	}
 	
 	@Override
@@ -146,11 +144,6 @@ public class SupplyStation extends Observable implements Node{
 	}
 
 	@Override
-	public List<Node> getNeighbors() {
-		return neighbors;
-	}
-
-	@Override
 	public Player getRuler() {
 		return ruler;
 	}
@@ -191,7 +184,25 @@ public class SupplyStation extends Observable implements Node{
 
 	@Override
 	public int getDefenseLevel() {
-		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	@Override
+	public double getShortest() {
+		return shortest;
+	}
+
+	@Override
+	public void setShortest(double dist) {
+		this.shortest = dist;
+	}
+	
+	@Override
+	public boolean equals(Object other){
+		if(!(other instanceof SupplyStation)) {
+			return false;
+		}
+		SupplyStation otherS = (SupplyStation)other;
+		return x == otherS.getX() && y == otherS.getY();
 	}
 }

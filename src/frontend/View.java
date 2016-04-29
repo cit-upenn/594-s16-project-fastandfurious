@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.util.List;
 import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
@@ -73,8 +74,11 @@ public class View extends JPanel implements Observer {
 				}
 			}
 			
-			for(Edge edge: galaxy.getEdges()) 
-				edge.draw(g2);
+			for(List<Edge> edges: galaxy.getAdjList().values())  {
+				for(Edge edge: edges) {
+					edge.draw(g2);
+				}
+			}
 			
 			Player p1 = galaxy.getPlayer(0);	
 			Player p2 = galaxy.getPlayer(1);
@@ -105,7 +109,6 @@ public class View extends JPanel implements Observer {
 				numStations++;
 			}
 		}
-		
 		
 		String numPlanetsStr = "# Planets: " + numPlanets;
 		String numStationsStr = "# Stations: " + numStations;

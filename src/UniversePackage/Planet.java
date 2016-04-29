@@ -1,6 +1,5 @@
 package UniversePackage;
 
-import java.util.List;
 import java.util.Observable;
 import player.Player;
 import java.awt.BasicStroke;
@@ -8,14 +7,12 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
-import java.util.LinkedList;
 
 public class Planet extends Observable implements Node  {
 
 	private double x;
 	private double y;
 	private double radius;
-	private List<Node> neighbors;
 	private Player ruler;
 	private Color color;
 	private double dy;
@@ -26,6 +23,8 @@ public class Planet extends Observable implements Node  {
 	private int rank;
 	private Node parentNode;
 	private Node predecessor;
+	
+	private double shortest;
 	
 	private int depth;
 
@@ -44,12 +43,12 @@ public class Planet extends Observable implements Node  {
 		dy = ( Galaxy.generator.nextInt(2) == 0 )? 0.15: -0.15;
 		bound = 2;
 		rank = 0;
-		neighbors = new LinkedList<>();
 		parentNode = null;
 		predecessor = null;
 		ruler = null;
 		
 		depth = 0;
+		shortest = Integer.MAX_VALUE;
 	}
 
 	@Override
@@ -65,11 +64,6 @@ public class Planet extends Observable implements Node  {
 	@Override
 	public double getRadius() {
 		return radius;
-	}
-
-	@Override
-	public List<Node> getNeighbors() {
-		return neighbors;
 	}
 
 	@Override
@@ -133,7 +127,6 @@ public class Planet extends Observable implements Node  {
 			case 6: res = new Color(255, 204, 0);break;
 			default: 
 		}
-
 		return res;
 	}
 	
@@ -208,5 +201,26 @@ public class Planet extends Observable implements Node  {
 	@Override
 	public int getDefenseLevel() {
 		return 0;
+	}
+	
+	@Override
+	public double getShortest() {
+		
+		return shortest;
+	}
+	
+	@Override
+	public void setShortest(double dist) {
+		this.shortest = dist;
+	}
+	
+	@Override
+	public boolean equals(Object other){
+		
+		if(!(other instanceof Planet)) {
+			return false;
+		}
+		Planet otherP = (Planet)other;
+		return x == otherP.getX() && y == otherP.getY();
 	}
 }

@@ -8,6 +8,7 @@ import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,10 +17,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
+import UniversePackage.Edge;
 import UniversePackage.Galaxy;
 import UniversePackage.Navigator;
 import UniversePackage.Node;
@@ -52,10 +58,12 @@ public class ComputerPlayer implements Player {
 	private BasicStroke lineStroke = new BasicStroke(2.0f);
 	private BasicStroke dashStroke = new BasicStroke(2.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER,10.0f, dash1, 0.0f);
 	private	Node selected;
-	private HashSet<Node> reign;
+	private Set<Node> nodesControlled;
 	private ConcurrentLinkedQueue<Node> destinations;
 	private Queue<Node> candidates;
 	private String name;
+	
+	private Lock lock;
 	
 	private String status;
 	
@@ -83,13 +91,16 @@ public class ComputerPlayer implements Player {
 		this.isThinking = false;
 		
 		destinations = new ConcurrentLinkedQueue<>();
+		candidates = new PriorityQueue<Node>(new NodeComparator());	
+		
+		nodesControlled = new HashSet<Node>();
 		
 		sequence = new LinkedList<>();
-		candidates = new PriorityQueue<Node>(new NodeComparator());
-		reign = new HashSet<Node>();
 		
 		this.name = name;
 		this.status = "Standby";
+		
+		lock = new ReentrantLock();
 	}
 	
 	@Override
@@ -169,59 +180,46 @@ public class ComputerPlayer implements Player {
 		dx = 0;
 		dy = 0;
 		
-		
 		if(!isThinking && inMotion()) {
 			
-			Node position = locateNode(x, y);
+			status = "moving";
 			
+			Node position = locateNode(x, y);
 			if(position != null) {
 				currentNode = position;
 			}
-			
 			Node dest = destinations.peek();
 			
 			if(currentNode == dest) {	
-
 				destinations.poll();
-				
 				if(destinations.isEmpty()) {
-					
-					dx = 0;
-					dy = 0;
 					clearStuffs();
 				}
-				
 				return;
 			} 
 			else {
-				
-				if(!galaxy.hasEdge(currentNode, dest)&&galaxy.areAdjacentNodes(currentNode, dest)) {		
-						
+				if(!galaxy.hasEdge(currentNode, dest)&&galaxy.areAdjacentNodes(currentNode, dest)) {			
 					if(dest.getRuler() == null) {						
-								
 						boolean success = galaxy.buildEdge(currentNode, dest, this);
-								
 						if(!success) {				
-						
-							
-							clearStuffs();
-							
+							clearStuffs();	
 							generateRandomPath();
-							
 							return;
 						}
-						
-						else {
-							reign.add(dest);
-						}
+					}
+					else if(dest.getRuler() == this){
+						galaxy.buildEdge(currentNode, dest, this);
+						clearStuffs();
+						return;
+					}
+					else {
+						clearStuffs();
+						return;
 					}
 				}
-					
 				setVelocity(dest);
 			}
 		}
-		
-		
 		x += dx;
 		y += dy;
 	}
@@ -233,32 +231,53 @@ public class ComputerPlayer implements Player {
 		candidates.clear();
 	}
 	
-	private synchronized Node getNextDest() {
-		
-		try {
-			return destinations.poll();
-		}catch (Exception e) {return null;}
-	}
-	
 	@Override
 	public void think() {
 		
 		if(!isThinking&&!inMotion()) {
 			
-			isThinking = true;
+			try {
+				lock.lock();
+				isThinking = true;	
+			}finally{
+				lock.unlock();
+			}
+			
 			
 			status = "Thinking";
 			
 			// long tStart = System.currentTimeMillis();
 			
 			// TODO attack, defend, reinforce if time permits
-			explore();
+			
+			int dice = Galaxy.generator.nextInt(100)%10;
+			
+			switch(dice) {
+			
+				case 0: 
+				case 1:
+				case 2:
+				case 3:maintain();break;
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+				case 9:explore(); break;
+				default:
+			}
+			
 			
 			// long tEnd = System.currentTimeMillis();
 			
 			// System.out.println(this + " took " + (tEnd - tStart) + "ms to think.");
 			
-			isThinking = false;
+			try {
+				lock.lock();
+				isThinking = false;	
+			}finally{
+				lock.unlock();
+			}
 		}
 	}
 	
@@ -269,22 +288,25 @@ public class ComputerPlayer implements Player {
 		
 		try {
 			
-			LinkedList<Node> newnodes = new LinkedList<>();
+			LinkedList<Node> borderNodes = new LinkedList<>();
 			int count = 0;
 			int bridthLim = 5;
-			while(newnodes.isEmpty() && count < 4) {
-				newnodes.addAll(bfs(bridthLim));
+			while(borderNodes.isEmpty() && count < 4) {
+				borderNodes.addAll(bfs(bridthLim));
 				bridthLim *= 2;
 				count++;
 			}
-			for(Node candidate: newnodes) {
+			
+			for(Node candidate: borderNodes) {
 				addCandidate(candidate);
 				try { Thread.sleep(20); } catch (InterruptedException e) {}
 			}
 			
-			// wait a bit for things to catch up
+			// wait a bit for human eyes to catch up
 			try {Thread.sleep(100); } 
-			catch (InterruptedException e1) {}
+			catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
 			
 			List<Node> sources = new LinkedList<>();
 			
@@ -292,7 +314,7 @@ public class ComputerPlayer implements Player {
 			HashMap<Node, Node> preds = new HashMap<>();
 			
 			int threshold = 3;
-			int depthLim = 3;
+			int depthLim = 4;
 			
 			while(!candidates.isEmpty() && threshold-- > 0) {
 				Node bestCandidate = getBestCandidate();
@@ -308,7 +330,7 @@ public class ComputerPlayer implements Player {
 			List<Node> finalpath = pq.poll();
 			Node head = finalpath.get(0);	
 			Node pred = preds.get(head);		
-			destinations.addAll(Navigator.findSimplePath(currentNode, pred));
+			destinations.addAll(Navigator.dijkstra(currentNode, pred, galaxy));
 			destinations.addAll(finalpath);
 			addSelection(pred);
 			for(Node n: finalpath) addSelection(n);	
@@ -320,14 +342,78 @@ public class ComputerPlayer implements Player {
 		}	
 	}
 	
-	private void generateRandomPath() {
+	/**
+	 * Maintain existing grid
+	 */
+	private void maintain() {
+		
+		try{	
+			lock.lock();
+			List<Node> pool = new LinkedList<>();
+			outer: for(Node candidate: nodesControlled) {
+				Set<Node> neighbors = galaxy.getNeighboringNodes(candidate);
+				for(Node neighbor: neighbors) {
+					if(nodesControlled.contains(neighbor) && !galaxy.hasEdge(candidate, neighbor)) {
+						pool.add(candidate);
+						continue outer;
+					}
+				}
+			}
+			if(!pool.isEmpty()) {
+				
+				Collections.shuffle(pool); 	
+				Node candidate = pool.get(Galaxy.generator.nextInt(pool.size()));
+				pool.clear();
+				Set<Node> neighbors = galaxy.getNeighboringNodes(candidate);
+				for(Node neighbor: neighbors) {
+					if(nodesControlled.contains(neighbor) && !galaxy.hasEdge(candidate, neighbor)) {
+						pool.add(neighbor);
+					}
+				}
+				
+				Node endpoint1 = candidate;
+				Node endpoint2 = pool.get(Galaxy.generator.nextInt(pool.size()));
+
+				double dist1 = Math.pow(endpoint1.getX() - currentNode.getX(), 2) +  Math.pow(endpoint1.getY() - currentNode.getY(), 2);
+				double dist2 = Math.pow(endpoint2.getX() - currentNode.getX(), 2) +  Math.pow(endpoint2.getY() - currentNode.getY(), 2);
+				
+				if(dist2 < dist1) {
+					Node temp = endpoint2;
+					endpoint2 = endpoint1;
+					endpoint1 = temp;
+				}
+				
+				setSelected(endpoint1);
+				
+				destinations.addAll(Navigator.dijkstra(currentNode, endpoint1, galaxy));
+				destinations.add(endpoint2);
+				
+				sequence.add(endpoint1);
+				sequence.add(endpoint2);
+			}
+			
+			
+		
+		}finally{
+			
+			lock.unlock();
+		}
+	}
 	
-		// if anything odd happens
-		List<Node> all = new ArrayList<>();
-		all.addAll(reign);
-		Node choice = all.get(Galaxy.generator.nextInt(all.size()));
+	/**
+	 * Randomly pick a node other than the
+	 * current node and generate path to
+	 * that node
+	 */
+	private void generateRandomPath() {
+		Node choice = currentNode;	
+		while(choice == currentNode) {
+			List<Node> all = new ArrayList<>();
+			all.addAll(nodesControlled);
+			choice = all.get(Galaxy.generator.nextInt(all.size()));
+		}
 		setSelected(choice);
-		destinations.addAll(Navigator.findSimplePath(currentNode, choice));
+		destinations.addAll(Navigator.dijkstra(currentNode, choice, galaxy));
 	}
 	
 	/**
@@ -354,7 +440,7 @@ public class ComputerPlayer implements Player {
 				if(hops <= breadthLim) continue;
 				else break;
 			}
-			List<Node> adjList = node.getNeighbors();	
+			List<Edge> adjList = galaxy.getAdjList().get(node);
 			Set<Node> neighbors = galaxy.getNeighboringNodes(node);
 			for(Node discovery: neighbors) {
 				if(StarCluster.find(node) != StarCluster.find(discovery)) {
@@ -364,9 +450,9 @@ public class ComputerPlayer implements Player {
 					}
 				}
 			}
-			for(Node connected: adjList) {
-				if(connected != null && !visited.contains(connected)) {
-					queue.offer(connected);
+			for(Edge edge: adjList) {
+				if(!visited.contains(edge.getEnd())) {
+					queue.offer(edge.getEnd());
 				}
 			}
 			queue.offer(null);
@@ -519,7 +605,6 @@ public class ComputerPlayer implements Player {
 		@Override
 		public int compare(Node n1, Node n2) {
 			int diff =  n2.getResourceLevel() - n1.getResourceLevel();
-			// TODO
 			return diff;
 		}
 	}
@@ -589,7 +674,6 @@ public class ComputerPlayer implements Player {
 		@Override
 		public int compare(List<Node> p1, List<Node> p2) {
 			
-			// TODO
 			int value1 = evaluatePath(p1);
 			int value2 = evaluatePath(p2);
 			if(value1 != value2) {
@@ -611,26 +695,12 @@ public class ComputerPlayer implements Player {
 	
 	public Set<Node> getPlanetsControlled() {
 		
-		return reign;
+		return nodesControlled;
 	}
 	
 	@Override
 	public String toString() {
 		return this.name + "(computer)";
-	}
-	
-	/**
-	 * Private class in both human and computer player
-	 * Stores locations of the small triangle used to
-	 * represent player
-	 */
-	private class Point {
-		private double x, y;	
-		public Point(double x, double y) {this.x = x;this.y = y;}
-		public double getX() {return x;}
-		public double getY() {return y;}
-		public void setX(double x) {this.x = x;}
-		public void setY(double y) {this.y = y;}
 	}
 
 	@Override
@@ -642,12 +712,22 @@ public class ComputerPlayer implements Player {
 		
 		int col = (int)(x/galaxy.getGridLength());
 		double remainder1 = x % galaxy.getGridLength();	
-		if(remainder1 >= 48) col++;
-		else if(remainder1 > 2) return null;
+		if(remainder1 >= 49) col++;
+		else if(remainder1 > 1) return null;
 		int row = (int)(y/galaxy.getGridLength());
 		double remainder2 = y % galaxy.getGridLength();
-		if(remainder2 >= 48) row++;
-		else if(remainder2 > 2) return null;
+		if(remainder2 >= 49) row++;
+		else if(remainder2 > 1) return null;
 		return galaxy.getStarBoard()[row][col];
+	}
+
+	@Override
+	public synchronized void controlNode(Node node) {
+		nodesControlled.add(node);
+	}
+
+	@Override
+	public synchronized void loseNode(Node node) {
+		nodesControlled.remove(node);
 	}
 }

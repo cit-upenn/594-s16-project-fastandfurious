@@ -3,6 +3,7 @@ package player;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 import java.util.Set;
 
 import UniversePackage.Node;
@@ -17,15 +18,7 @@ public interface Player {
     
 	public void setCurrentNode(Node node);
 	
-    public LinkedList<Node> getSelections();
-	
-	public Node getCurrentNode();
-	
-	public double getX();
-
 	public void setX(double x);
-
-	public double getY();
 	
 	public void setY(double y) ;
 	
@@ -39,20 +32,33 @@ public interface Player {
 
 	public void setSelected(Node selection);
 	
-	public Node getSelected();
+	public void controlNode(Node node);
 	
-    public Color getPlayerColor();
+	public void loseNode(Node node);
 	
 	public void think();
 	
-	public boolean inMotion();
-	
     public int getWealth();
+	
+	public boolean inMotion();
     
     public boolean addWealth(int change);
+    
+	public double getX();
+
+	public double getY();
     
     public Set<Node> getPlanetsControlled();
     
     public String getStatus();
+    
+	public Node getSelected();
+	
+    public Color getPlayerColor();
+    
+    public LinkedList<Node> getSelections();
+	
+	public Node getCurrentNode();
+	
 
 }
