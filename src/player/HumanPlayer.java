@@ -63,7 +63,7 @@ public class HumanPlayer implements Player {
 		this.setX(x);
 		this.setY(y);
 		this.pColor = pColor;
-		this.wealth = 100;
+		this.wealth = 300;
 		this.pColor = pColor;
 		destinations = new LinkedList<>();
 		this.focus = null;
@@ -110,60 +110,47 @@ public class HumanPlayer implements Player {
 			if(!inMotion()) return;
 			Node position = galaxy.locateNode(x, y);
 			if(position != null) currentNode = position;
-			else {
-				if(dx == 0 && dy == 0) {	
-					clearStuffs();
-					List<Node> all = new ArrayList<>();
-					all.addAll(reign);
-					Node choice = all.get(Galaxy.generator.nextInt(all.size()));
-					currentNode = choice;
-					x = choice.getX();
-					y = choice.getY();
-					return;
-				}
-			}
 			Node dest = destinations.peek();
 			
 			if(currentNode == dest) {	
 				destinations.poll();
 				if(destinations.isEmpty()) {
-					clearStuffs();
-					dx = 0;
-					dy = 0;
+					clearStuffs(); dx = 0; dy = 0;
 				}
-			}
-			
-			else if(galaxy.areAdjacentNodes(currentNode, dest)) {
-				if(!galaxy.hasEdge(currentNode, dest)) {			
-					if(galaxy.locateNode(x, y) != null) {
-						if(dest.getRuler() == null) {	
-							boolean success = galaxy.buildEdge(currentNode, dest, this);
-							if(!success) {				
-								clearStuffs();	
-							}
-						}
-						else if(dest.getRuler() == this){
-							boolean success = galaxy.buildEdge(currentNode, dest, this);
-							if(!success) {				
-								clearStuffs();	
-							}
-						} else {	
-							clearStuffs();
-						}	
+			} 
+			else if(galaxy.areAdjacentNodes(currentNode, dest)&&!galaxy.hasEdge(currentNode, dest)&&position != null) {
+									
+				if(dest.getRuler() == null) {	
+					boolean success = galaxy.buildEdge(currentNode, dest, this);
+					if(!success) { clearStuffs();}					
+				}
+				else if(dest.getRuler() == this){
+					boolean success = galaxy.buildEdge(currentNode, dest, this);
+					if(!success) { clearStuffs(); }
+				} 
+				else {	
+					try{ 
+						lock.lock(); 
+						galaxy.neutralizeNode(this, dest);
 					}
-					return;
+					finally{ clearStuffs(); lock.unlock();}
+				}	
+			}
+			else{			
+				if(galaxy.hasEdge(currentNode, dest)){
+					setVelocity(dest);
+					x += dx;
+					y += dy;
+					rotate(20);
+				}else{
+					clearStuffs();
+					List<Node> all = new LinkedList<>(reign);
+					Node choice = all.get(Galaxy.generator.nextInt(all.size()));
+					x = choice.getX();
+					y = choice.getY();
+					currentNode = choice;
 				}
-				setVelocity(dest);
-				x += dx;
-				y += dy;
 			}
-			else{
-				clearStuffs();
-				x = currentNode.getX();
-				y = currentNode.getY();
-				return;
-			}
-		rotate(10);
 	}
 
 	private void clearStuffs() {

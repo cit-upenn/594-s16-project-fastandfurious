@@ -174,7 +174,7 @@ public class Planet extends Observable implements Node  {
 
 	@Override
 	public int getResourceLevel() {
-		return resourceLevel + rank;
+		return resourceLevel * 2 + rank;
 	}
 
 	@Override

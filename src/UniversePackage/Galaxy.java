@@ -184,7 +184,7 @@ public class Galaxy extends Observable{
         	Edge out = new Edge(current, togo, p);
         	Edge in = new Edge(togo, current, p);
         	
-        	if(!p.addWealth(-out.getCost())) {
+        	if(!p.addWealth(-1 * out.getCost())) {
         		return false;
         	}
     		
@@ -217,13 +217,20 @@ public class Galaxy extends Observable{
      */
     public boolean neutralizeNode(Player p, Node target) {
     		
-    	try {  		
-        	lock.lock();  		
+    	try {  		  		
         	if(target.getRuler() == null || target.getRuler() == p) {
         		System.out.println("No target to neutralize");
         		return false;
         	}
         	Player otherPlayer = target.getRuler();
+        	
+        	int cost = target.getResourceLevel() * 2;
+        	
+        	if(!otherPlayer.addWealth(-1 * cost)) {
+        		System.out.println("can't afford to launch missle");
+        		return false;
+        	}
+        	
         	target.setRuler(null);
         	for(Edge e1: adjList.get(target)) {
         		Node otherEnd = e1.getEnd();
@@ -236,7 +243,7 @@ public class Galaxy extends Observable{
         	}
         	adjList.get(target).clear();
         	otherPlayer.loseNode(target);
-
+        	lock.lock();
     		refactor(otherPlayer);
         	return true;
     		
@@ -461,12 +468,12 @@ public class Galaxy extends Observable{
 		
 		int col = (int)(x/getGridLength());
 		double remainder1 = x % getGridLength();	
-		if(remainder1 >= 49) col++;
-		else if(remainder1 >= 1) return null;
+		if(remainder1 > 48) col++;
+		else if(remainder1 > 2) return null;
 		int row = (int)(y/getGridLength());
 		double remainder2 = y %getGridLength();
-		if(remainder2 >= 49) row++;
-		else if(remainder2 >= 1) return null;
+		if(remainder2 > 48) row++;
+		else if(remainder2 > 2) return null;
 		return getStarBoard()[row][col];
 	}
 
