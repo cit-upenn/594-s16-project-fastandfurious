@@ -1,6 +1,7 @@
 package UniversePackage;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import player.Player;
@@ -37,8 +38,17 @@ public class Edge {
 	 * Draw the edge on 2D graphics
 	 */
 	public void draw(Graphics2D g) {
+		
 		Line2D.Double line = new Line2D.Double(p1.getInstX(), p1.getInstY(), p2.getInstX(), p2.getInstY());
-		g.setColor(ruler.getPlayerColor());
+		
+
+		if(StarCluster.find(p1) == StarCluster.find(p2) && StarCluster.find(p1) == StarCluster.find(ruler.getCurrentNode())  ) {
+			g.setColor(ruler.getPlayerColor());
+		}else {
+			g.setColor(Color.gray);
+		}
+		
+		
 		g.setStroke(new BasicStroke(2.0f));
 		g.draw(line);
 	}

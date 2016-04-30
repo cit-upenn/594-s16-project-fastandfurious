@@ -26,6 +26,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.swing.SwingWorker;
+
 import UniversePackage.Edge;
 import UniversePackage.Galaxy;
 import UniversePackage.Navigator;
@@ -66,7 +68,6 @@ public class ComputerPlayer implements Player {
 	private String name;
 	private Lock lock;
 	private String status;
-	private int prevWealth;
 	
 	/**
 	 * Constructor 
@@ -81,8 +82,6 @@ public class ComputerPlayer implements Player {
 		this.pColor = pColor;
 		
 		wealth = 300;
-		prevWealth = 0;
-
 		this.x = x;
 		this.y = y;
 		this.radius = 15;
@@ -149,6 +148,7 @@ public class ComputerPlayer implements Player {
 			
 			if(currentNode == dest) {	
 				destinations.poll();
+		    	galaxy.refactor(this);
 				if(destinations.isEmpty()) {
 					clearStuffs(); dx = 0; dy = 0;
 				}
@@ -263,8 +263,7 @@ public class ComputerPlayer implements Player {
 				case 10: offensive();break;
 				default: explore();
 			}
-			
-			try {lock.lock();Thread.sleep(100);isThinking = false;	prevWealth = wealth;} catch (InterruptedException e) { e.printStackTrace();}finally{lock.unlock();}
+			try {lock.lock();Thread.sleep(100);isThinking = false;} catch (InterruptedException e) { e.printStackTrace();}finally{lock.unlock();}
 		}
 	}
 	

@@ -114,6 +114,7 @@ public class HumanPlayer implements Player {
 			
 			if(currentNode == dest) {	
 				destinations.poll();
+	        	galaxy.refactor(this);
 				if(destinations.isEmpty()) {
 					clearStuffs(); dx = 0; dy = 0;
 				}

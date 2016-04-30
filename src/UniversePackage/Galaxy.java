@@ -101,9 +101,9 @@ public class Galaxy extends Observable{
 		
 		/* initialize players */
 		player = new Player[2];
-		player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony"); 
+		// player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony"); 
 		
-		// player[0] = new ComputerPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony");
+		player[0] = new ComputerPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony");
 		
 		player[0].setCurrentNode(starboard[1][1]);
 		starboard[1][1].setRuler(player[0]);
@@ -243,12 +243,19 @@ public class Galaxy extends Observable{
         	}
         	adjList.get(target).clear();
         	otherPlayer.loseNode(target);
-        	lock.lock();
-    		refactor(otherPlayer);
-        	return true;
+        	
+        	SwingWorker<Void, Void> worker1 = new SwingWorker<Void, Void>(){
+				@Override
+				protected Void doInBackground() throws Exception {
+		    		refactor(otherPlayer);
+					return null;
+				}
+        	};
+        	worker1.execute();
+   		
+    		return true;
     		
     	}finally {		
-    		lock.unlock();
     	}
     	
     }
@@ -256,7 +263,6 @@ public class Galaxy extends Observable{
     public void refactor(Player p) {
     	
     	try{
-    		
     		lock.lock();
     		List<Node> all = new LinkedList<>(p.getNodesControlled());
         	Iterator<Node> it = all.iterator();
@@ -275,16 +281,12 @@ public class Galaxy extends Observable{
     	}finally{
     		lock.unlock();
     	}
-    	
-    	
     }
     
     public void depthFirstCluster(Node source, Set<Node> visited) {
     	
     	Stack<Node> stack = new Stack<>();
     	stack.push(source);
-    	
-    	
     	while(!stack.isEmpty()) {
     		Node u = stack.pop();
     		for(Edge e: adjList.get(u)) {
@@ -421,16 +423,12 @@ public class Galaxy extends Observable{
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			
 			SwingWorker<Void, Void> maker = new SwingWorker<Void, Void>() {
 				@Override
 				protected Void doInBackground() throws Exception {
-					
 					HashMap<Player, Integer> incomeMapping = new HashMap<>();
-					
 					incomeMapping.put(player[0], 0);
 					incomeMapping.put(player[1], 0);
-					
 					for(int i = 0; i < starboard.length; i++) {
 						for(int j = 0; j < starboard[0].length; j++) {
 							Node  node = starboard[i][j];
@@ -443,7 +441,6 @@ public class Galaxy extends Observable{
 							}
 						}
 					}
-					
 					for(List<Edge> list: adjList.values()) {
 						for(Edge e: list) {
 							Player ruler = e.getRuler();
@@ -453,10 +450,8 @@ public class Galaxy extends Observable{
 							}
 						}
 					}
-					
 					player[0].addWealth(incomeMapping.get(player[0]));
 					player[1].addWealth(incomeMapping.get(player[1]));
-					
 					return null;
 				}
 			};
@@ -464,16 +459,14 @@ public class Galaxy extends Observable{
 		}
     }
     
-	public Node locateNode(double x, double y) {
-		
-		int col = (int)(x/getGridLength());
-		double remainder1 = x % getGridLength();	
-		if(remainder1 > 48) col++;
-		else if(remainder1 > 2) return null;
-		int row = (int)(y/getGridLength());
-		double remainder2 = y %getGridLength();
-		if(remainder2 > 48) row++;
-		else if(remainder2 > 2) return null;
+    /**
+     * Locate node based on coordinates
+     */
+	public Node locateNode(double x, double y) {	
+		int col = (int)(x/getGridLength()); double remainder1 = x % getGridLength();	
+		if(remainder1 >= 48) col++;else if(remainder1 > 2) return null;
+		int row = (int)(y/getGridLength());double remainder2 = y %getGridLength();
+		if(remainder2 >= 48) row++;else if(remainder2 > 2) return null;
 		return getStarBoard()[row][col];
 	}
 

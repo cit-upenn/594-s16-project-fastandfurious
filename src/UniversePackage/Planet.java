@@ -107,7 +107,6 @@ public class Planet extends Observable implements Node  {
 		g2.draw(circle);
 		
 		if(ruler != null) {
-			
 			Shape core = new Ellipse2D.Double(instantX - radius/2 + 7, instantY - radius/2 + 7, radius - 15, radius - 15);
 			g2.setColor(ruler.getPlayerColor());
 			g2.fill(core);
