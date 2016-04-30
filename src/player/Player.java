@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
 
 import UniversePackage.Node;
@@ -21,8 +22,6 @@ public interface Player {
 	public void setX(double x);
 	
 	public void setY(double y) ;
-	
-	public void addTarget(Node target);
 	
 	public void draw(Graphics2D g2);
 	
@@ -57,6 +56,8 @@ public interface Player {
     public Color getPlayerColor();
     
     public LinkedList<Node> getSelections();
+    
+    public Queue<Node> getDestinations();
 	
 	public Node getCurrentNode();
 	

@@ -50,9 +50,9 @@ public class Controller {
 	private JLabel readyLabel;
 	private JComboBox<String> selectList;
 	
-	private JButton buildPath;
-	private JButton capture;
-	private JButton travel;
+	private JButton Build;
+	private JButton Attack;
+	private JButton Move;
 	
 	private JScrollPane[] scrollPane;
 	private JTable[] table;
@@ -121,12 +121,12 @@ public class Controller {
 		readyLabel = new JLabel();
 		
 		// a bunch of buttons for human players 
-		buildPath = new JButton("Build Path");
-		buildPath.setEnabled(false);
-		capture = new JButton("Capture");
-		capture.setEnabled(false);
-		travel = new JButton("Travel");
-		travel.setEnabled(false);
+		Build = new JButton("Build");
+		Build.setEnabled(false);
+		Attack = new JButton("Attack");
+		Attack.setEnabled(false);
+		Move = new JButton("Move");
+		Move.setEnabled(false);
 		
 		// setup a table to display the statistics
 		String[] columnNames = {"Name", "Status"};
@@ -199,9 +199,9 @@ public class Controller {
 				wealth[i].setFont(new Font("Comic Sans MS", Font.PLAIN, 15));
 				wealth[i].setText("Current Wealth: \n");
 				
-				buildPath.setBounds(1140, 450, 120, 30);
-				capture.setBounds(1140, 480, 120, 30);
-				travel.setBounds(1140, 510, 120, 30);
+				Build.setBounds(1140, 450, 120, 30);
+				Attack.setBounds(1140, 480, 120, 30);
+				Move.setBounds(1140, 510, 120, 30);
 				
 				scrollPane[i].setBounds(1130, 550, 140, 60);
 				messageBoard[i].setBounds(1130, 250, 140, 180);
@@ -209,9 +209,9 @@ public class Controller {
 				ready.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 
 				control[i].add(ready);
-				control[i].add(buildPath);
-				control[i].add(capture);
-				control[i].add(travel);
+				control[i].add(Build);
+				control[i].add(Attack);
+				control[i].add(Move);
 			}
 			playerName[i].setHorizontalAlignment(SwingConstants.CENTER);
 			playerName[i].setFont(new Font("Lucida Grande", Font.BOLD, 20));
@@ -253,17 +253,13 @@ public class Controller {
 			public void mousePressed(MouseEvent event) {
 				Point mousePoint = event.getPoint();		
 				Node node = click(mousePoint);
-				
 				if(galaxy.getHumanPlayer() != null) {
-					
-					if(!galaxy.getHumanPlayer().inMotion()) {
-						galaxy.getHumanPlayer().getSelections().clear();
-					}
+					if(!galaxy.getHumanPlayer().inMotion()) { galaxy.getHumanPlayer().getSelections().clear(); }
 					galaxy.getHumanPlayer().setSelected(node);			
 					if (node != null) {		
-						buildPath.setEnabled(true);
-						capture.setEnabled(true);
-						travel.setEnabled(true);	
+						Build.setEnabled(true);
+						Attack.setEnabled(true);
+						Move.setEnabled(true);	
 					}
 				}
 			}
@@ -277,7 +273,7 @@ public class Controller {
         });
 		
 		
-		buildPath.addActionListener(new ActionListener() {
+		Build.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
             	HumanPlayer hp = (HumanPlayer)galaxy.getHumanPlayer();
@@ -285,29 +281,36 @@ public class Controller {
             }
         });
 		
-		capture.addActionListener(new ActionListener() {
+		Attack.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                
+                Player human = galaxy.getHumanPlayer();
+                if(human != null) {
+                	Node target = human.getSelected();
+                	Node cur = human.getCurrentNode();
+                	if(galaxy.areAdjacentNodes(cur, target)&&target.getRuler()!=human&&target.getRuler()!=null){
+                		human.getDestinations().add(target);
+                		human.getSelections().add(cur);
+                		human.getSelections().add(target);
+                	}
+                }
             }
         });
 		
-		travel.addActionListener(new ActionListener() {
+		Move.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent event) {
-            	
+            public void actionPerformed(ActionEvent event) {     	
             	Player humanPlayer = galaxy.getHumanPlayer();
             	if(humanPlayer == null) return;
             	Node source = humanPlayer.getCurrentNode();
             	Node dest = humanPlayer.getSelected();
             	if(StarCluster.find(source) != StarCluster.find(dest)) {
-            		System.out.println("Target and source not connected");
+            		System.err.println("Path must be atttached to current reign");
             		return;
             	}
-            	List<Node> targets = Navigator.dijkstra(source, dest, galaxy);
-            	for(Node target: targets) {
-            		humanPlayer.addTarget(target);
-            	}
+            	List<Node> path = Navigator.dijkstra(source, dest, galaxy);
+            	if(path == null) return;	
+            	else humanPlayer.getDestinations().addAll(path);
             }
         });
 		
@@ -317,23 +320,20 @@ public class Controller {
 		view.addMouseMotionListener(new MouseAdapter() {
 			@Override
 			public void mouseMoved(MouseEvent event) {
-				Point p = event.getPoint();
-				Node cursor = locateNode(p.getX(), p.getY());
 				Player human = galaxy.getHumanPlayer();
-				if(human != null) {
-					human.setFocus(cursor);
-				}
+				if(human != null) { human.setFocus(click(event.getPoint()));}
 			}
 		});
 		
+		// drag to select a sequence of nodes
 		view.addMouseMotionListener(new MouseAdapter() {
 			@Override
 			public void mouseDragged(MouseEvent event) {
 				
-				Point mousePoint = event.getPoint();	
-				Node node = locateNode(mousePoint.getX(), mousePoint.getY());
 				Player human = galaxy.getHumanPlayer();
-				if(node != null) {
+				if(human == null) return;
+				Node node = click(event.getPoint());
+				if(node != null&&(node.getRuler() == null||node.getRuler()==human)) {
 					int size = human.getSelections().size();
 					if(size == 0||galaxy.areAdjacentNodes(human.getSelections().getLast(), node)) {
 						if(!human.getSelections().contains(node) &&(size == 0||
@@ -341,9 +341,7 @@ public class Controller {
 							human.getSelections().add(node);
 						}
 						if(size> 2) {
-							if(node == human.getSelections().get(size - 2)) {
-								human.getSelections().removeLast();
-							}
+							if(node == human.getSelections().get(size - 2)) { human.getSelections().removeLast();}
 						}
 					}
 				}

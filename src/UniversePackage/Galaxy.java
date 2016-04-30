@@ -101,9 +101,9 @@ public class Galaxy extends Observable{
 		
 		/* initialize players */
 		player = new Player[2];
-		// player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony"); 
+		player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony"); 
 		
-		player[0] = new ComputerPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony");
+		// player[0] = new ComputerPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony");
 		
 		player[0].setCurrentNode(starboard[1][1]);
 		starboard[1][1].setRuler(player[0]);

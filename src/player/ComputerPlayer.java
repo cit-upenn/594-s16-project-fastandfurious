@@ -41,32 +41,37 @@ import UniversePackage.StarCluster;
 public class ComputerPlayer implements Player {
 
 	// declare instance variables
-	private double x;
-	private double y;
-	private int wealth;
-	private double dx;
-	private double dy;
-	private double speed;
-	private double radius;
-	private Point p1;
-	private Point p2;
-	private Point p3;
-	private int deg;
-	private Node currentNode;
 	private Galaxy galaxy;
+	private Node currentNode;
 	private LinkedList<Node> sequence;
 	private Color pColor;	
-	private boolean isThinking;
-	private final float dash1[] = {10.0f};
-	private BasicStroke lineStroke = new BasicStroke(2.0f);
-	private BasicStroke dashStroke = new BasicStroke(2.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER,10.0f, dash1, 0.0f);
 	private	Node selected;
 	private Set<Node> nodesControlled;
-	private ConcurrentLinkedQueue<Node> destinations;
+	private Queue<Node> destinations;
 	private Queue<Node> candidates;
 	private Set<Node> targetNodes;
 	private String name;
 	private Lock lock;
+	
+	private double x;
+	private double y;
+	private double dx;
+	private double dy;
+	private double speed;
+	private double radius;
+	
+	private Point p1;
+	private Point p2;
+	private Point p3;
+	
+	private int wealth;
+	private int deg;
+	
+	private boolean isThinking;
+	private final float dash1[] = {10.0f};
+	private BasicStroke lineStroke = new BasicStroke(2.0f);
+	private BasicStroke dashStroke = new BasicStroke(2.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER,10.0f, dash1, 0.0f);
+	
 	private String status;
 	
 	/**
@@ -79,30 +84,25 @@ public class ComputerPlayer implements Player {
 	 */
 	public ComputerPlayer(double x, double y, Color pColor, Galaxy galaxy, String name) {		
 		
-		this.pColor = pColor;
-		
-		wealth = 300;
+		// initialize instance variables
+		this.pColor = pColor;	
+		this.wealth = 300;
 		this.x = x;
 		this.y = y;
 		this.radius = 15;
 		this.speed = 2;
-		p1 = new Point(x, y - radius);
-		p2 = new Point(x - radius * Math.cos(Math.PI/6), y + radius/2);
-		p3 = new Point(x + radius * Math.cos(Math.PI/6), y + radius/2);
+		this.p1 = new Point(x, y - radius);
+		this.p2 = new Point(x - radius * Math.cos(Math.PI/6), y + radius/2);
+		this.p3 = new Point(x + radius * Math.cos(Math.PI/6), y + radius/2);
 		this.galaxy = galaxy;
-		this.isThinking = false;
-		
-		nodesControlled = new HashSet<Node>();
-		destinations = new ConcurrentLinkedQueue<>();
-		candidates = new PriorityQueue<Node>(new NodeComparator());	
-		targetNodes = new HashSet<>();
-		
-		sequence = new LinkedList<>();
-		
+		this.isThinking = false;	
+		this.nodesControlled = new HashSet<Node>();
+		this.candidates = new PriorityQueue<Node>(new NodeComparator());	
+		this.targetNodes = new HashSet<>();
+		this.sequence = new LinkedList<>();
+		this.destinations = new LinkedList<>();
 		this.name = name;
-		this.status = "Standby";
-		
-		lock = new ReentrantLock();
+		this.lock = new ReentrantLock();
 	}
 	
 	/**
@@ -111,6 +111,7 @@ public class ComputerPlayer implements Player {
 	 */
 	private void rotate(double increment) {
 		
+		// some mathematical operations
 		this.deg += increment;
 		this.deg %= 360;
 		double radians1 = (double)this.deg/180;
@@ -129,12 +130,12 @@ public class ComputerPlayer implements Player {
 	 * @param dest next target node
 	 */
 	private void setVelocity(Node dest){
+		// normalize and re-direct unit-vel vector
 		double deltaX = dest.getX() - x;
 		double deltaY = dest.getY() - y;
 		double mod = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
 		dx = deltaX/mod * speed;
 		dy = deltaY/mod * speed;
-
 	}
 	
 	@Override
@@ -142,16 +143,17 @@ public class ComputerPlayer implements Player {
 		
 		if(!isThinking && inMotion()) {
 			Node position = galaxy.locateNode(x, y);
-			status = "moving";
+			
+			if(!targetNodes.isEmpty()) { status = "attacking";}
+			else { status = "exploring"; }
+			
 			if(position != null) currentNode = position;
 			Node dest = destinations.peek();
 			
 			if(currentNode == dest) {	
 				destinations.poll();
+				if(destinations.isEmpty()) { clearStuffs(); dx = 0; dy = 0; }
 		    	galaxy.refactor(this);
-				if(destinations.isEmpty()) {
-					clearStuffs(); dx = 0; dy = 0;
-				}
 			} 
 			else if(galaxy.areAdjacentNodes(currentNode, dest)&&!galaxy.hasEdge(currentNode, dest)&&position != null) {
 									
@@ -195,6 +197,9 @@ public class ComputerPlayer implements Player {
 		}
 	}
 	
+	/**
+	 * Clear every thing and restart
+	 */
 	private synchronized void clearStuffs() {
 		
 		destinations.clear();
@@ -626,27 +631,18 @@ public class ComputerPlayer implements Player {
 	}
 
 	@Override
-	public void addTarget(Node target) {
-		destinations.add(target);
-	}
-
-	@Override
 	public Node getSelected() {
 		return selected;
 	}
 
 	@Override
-	public void setSelected(Node selection) {
-		this.selected = selection;
-	}
+	public void setSelected(Node selection) { this.selected = selection; }
 
 	@Override
 	public void setFocus(Node focus) {}
 	
 	@Override
-	public int getWealth() {		
-		return wealth;
-	}
+	public int getWealth() {return wealth;}
 	
 	public class NodeComparator implements Comparator<Node> {
 		@Override
@@ -740,7 +736,6 @@ public class ComputerPlayer implements Player {
 	}
 	
 	public Set<Node> getNodesControlled() {
-		
 		return nodesControlled;
 	}
 	
@@ -767,5 +762,10 @@ public class ComputerPlayer implements Player {
 	@Override
 	public boolean isThinking() {
 		return isThinking;
+	}
+
+	@Override
+	public Queue<Node> getDestinations() {
+		return destinations;
 	}
 }

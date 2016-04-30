@@ -251,11 +251,6 @@ public class HumanPlayer implements Player {
 	}
 	
 	@Override
-	public void addTarget(Node target) {	
-		destinations.offer(target);
-	}
-
-	@Override
 	public Node getSelected() {
 		return selected;
 	}
@@ -359,5 +354,10 @@ public class HumanPlayer implements Player {
 	@Override
 	public boolean isThinking() {
 		return !inMotion();
+	}
+
+	@Override
+	public Queue<Node> getDestinations() {
+		return destinations;
 	}
 }
