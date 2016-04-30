@@ -10,6 +10,8 @@ import java.util.Observable;
 import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -38,6 +40,7 @@ public class Galaxy extends Observable{
     private Timer moneyMachine;
     public static Random generator;
     private Map<Node, List<Edge>> adjList;
+    private Lock lock;
     
     public Galaxy(int width, int height, int gridLength, int numPlanets) {
 
@@ -48,6 +51,8 @@ public class Galaxy extends Observable{
         generator = new Random();
         adjList = new HashMap<>();
         this.numPlanets = numPlanets;
+        
+        lock = new ReentrantLock();
     }
 
     /**
@@ -96,24 +101,17 @@ public class Galaxy extends Observable{
 		
 		/* initialize players */
 		player = new Player[2];
-		// player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony"); 
+		player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony"); 
 		
-		player[0] = new ComputerPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony");
+		// player[0] = new ComputerPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony");
 		
 		player[0].setCurrentNode(starboard[1][1]);
-		
 		starboard[1][1].setRuler(player[0]);
 		
 		player[1] = new ComputerPlayer(starboard[numRows-2][numCols-2].getX(),starboard[numRows-2][numCols-2].getY(), Color.yellow , this, "Steve");
 		player[1].setCurrentNode(starboard[starboard.length-2][starboard[0].length-2]);
-		
 		starboard[starboard.length-2][starboard[0].length-2].setRuler(player[1]);
-		
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+	
     }
     
     public void start() {
@@ -165,42 +163,50 @@ public class Galaxy extends Observable{
 	 * @param rhs right-hand-side node
 	 * @return true if operation is successful
 	 */
-    public synchronized boolean buildEdge(Node current, Node togo, Player p) {
-    	
-    	// detects invalid input
-    	if(current == null||togo == null) { System.err.println("Null pointer"); return false; }
-    	
-    	// check for adjacency
-    	if(!areAdjacentNodes(current, togo)) {
-    		System.out.println("weird");
-    		return false;
+    public boolean buildEdge(Node current, Node togo, Player p) {
+    	try{
+    		lock.lock();
+    		
+        	// detects invalid input
+        	if(current == null||togo == null) { System.err.println("Null pointer"); return false; }
+        	
+        	// check for adjacency
+        	if(!areAdjacentNodes(current, togo)) {
+        		System.out.println("weird");
+        		return false;
+        	}
+        	// check existence
+        	if(hasEdge(current, togo)) {
+            	System.err.println("Edge already in existence");
+            	return false;
+        	}
+        	
+        	Edge out = new Edge(current, togo, p);
+        	Edge in = new Edge(togo, current, p);
+        	
+        	if(!p.addWealth(-out.getCost())) {
+        		return false;
+        	}
+    		
+    		if(togo.getRuler() != p) {	
+    			if(!captureNode(p, togo)) {
+    				p.addWealth(out.getCost());
+    				return false;
+    			}
+    		}
+    		
+    		adjList.get(current).add(out);
+    		adjList.get(togo).add(in);
+        	// union nodes if edge build was successful
+        	if(StarCluster.find(current) != StarCluster.find(togo)) StarCluster.union(current, togo);
+        	
+        	return true;
+    		
+    	}finally{
+    		lock.unlock();
     	}
-    	// check existence
-    	if(hasEdge(current, togo)) {
-        	System.err.println("Edge already in existence");
-        	return false;
-    	}
     	
-    	Edge out = new Edge(current, togo, p);
-    	Edge in = new Edge(togo, current, p);
-    	
-    	if(!p.addWealth(-out.getCost())) {
-    		return false;
-    	}
-		
-		if(togo.getRuler() != p) {	
-			if(!captureNode(p, togo)) {
-				p.addWealth(out.getCost());
-				return false;
-			}
-		}
-		
-		adjList.get(current).add(out);
-		adjList.get(togo).add(in);
-    	// union nodes if edge build was successful
-    	if(StarCluster.find(current) != StarCluster.find(togo)) StarCluster.union(current, togo);
-    	
-    	return true;
+
 	}
     
     /**
@@ -209,67 +215,68 @@ public class Galaxy extends Observable{
      * @param rhs end point of edge
      * @return true if destruction successful
      */
-    public synchronized boolean neutralizeNode(Player p, Node target) {
-    	
-    	if(target.getRuler() == null || target.getRuler() == p) {
-    		System.out.println("No target to neutralize");
-    		return false;
+    public boolean neutralizeNode(Player p, Node target) {
+    		
+    	try {  		
+        	lock.lock();  		
+        	if(target.getRuler() == null || target.getRuler() == p) {
+        		System.out.println("No target to neutralize");
+        		return false;
+        	}
+        	Player otherPlayer = target.getRuler();
+        	target.setRuler(null);
+        	for(Edge e1: adjList.get(target)) {
+        		Node otherEnd = e1.getEnd();
+        		for(Edge e2: adjList.get(otherEnd)) {
+        			if(e2.getEnd() == target) {
+        				adjList.get(otherEnd).remove(e2);
+        				break;
+        			}
+        		}
+        	}
+        	adjList.get(target).clear();
+        	otherPlayer.loseNode(target);
+
+    		refactor(otherPlayer);
+        	return true;
+    		
+    	}finally {		
+    		lock.unlock();
     	}
-    	Player otherPlayer = target.getRuler();
-    	target.setRuler(null);
-    	for(Edge e1: adjList.get(target)) {
-    		Node otherEnd = e1.getEnd();
-    		for(Edge e2: adjList.get(otherEnd)) {
-    			if(e2.getEnd() == target) {
-    				adjList.get(otherEnd).remove(e2);
-    				break;
-    			}
-    		}
-    	}
-    	adjList.get(target).clear();
     	
-    	// TODO re-organize connection for other player
-    	otherPlayer.loseNode(target);
-    	
-    	
-    	SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-			@Override
-			protected Void doInBackground() throws Exception {
-				// TODO Auto-generated method stub
-        		refactor(otherPlayer);
-				return null;
-			}
-    	};
-    	worker.execute();
-    	return true;
     }
     
     public void refactor(Player p) {
     	
-    	List<Node> all = new LinkedList<>(p.getNodesControlled());
-    	Iterator<Node> it = all.iterator();
-    	
-    	// Separate all nodes
-    	while(it.hasNext()) {
-    		StarCluster.seperateNode(it.next());
+    	try{
+    		
+    		lock.lock();
+    		List<Node> all = new LinkedList<>(p.getNodesControlled());
+        	Iterator<Node> it = all.iterator();
+        	// Separate all nodes
+        	while(it.hasNext()) {
+        		StarCluster.seperateNode(it.next());
+        	}
+        	it = all.iterator();
+        	HashSet<Node> visited = new HashSet<>();	
+        	while(it.hasNext()) {
+        		Node u = it.next();
+        		if(!visited.contains(u)) {
+        			depthFirstCluster(u, visited);
+        		}
+        	}
+    	}finally{
+    		lock.unlock();
     	}
     	
-    	it = all.iterator();
-    	HashSet<Node> visited = new HashSet<>();
     	
-    	while(it.hasNext()) {
-    		Node u = it.next();
-    		if(!visited.contains(u)) {
-    			depthFirstCluster(u, visited);
-    		}
-    	}
     }
     
     public void depthFirstCluster(Node source, Set<Node> visited) {
     	
     	Stack<Node> stack = new Stack<>();
-    	
     	stack.push(source);
+    	
     	
     	while(!stack.isEmpty()) {
     		Node u = stack.pop();
@@ -277,9 +284,7 @@ public class Galaxy extends Observable{
     			Node v = e.getEnd();
     			if(!visited.contains(v)) {
     				stack.push(v);
-    				if(StarCluster.find(u) != StarCluster.find(v)) {
-    					StarCluster.union(u, v);
-    				}
+    				StarCluster.union(u, v);
     			}
     		}
     		visited.add(u);
@@ -292,19 +297,25 @@ public class Galaxy extends Observable{
      * @param node
      * @return
      */
-    public synchronized boolean captureNode(Player p, Node node) {
-		
-    	if(!(p.addWealth(-node.getCost()))) {
-    		return false;
-    	}
+    public boolean captureNode(Player p, Node node) {
     	
-    	if(node.getRuler() != null) {
-    		return false;
+    	try{
+    		lock.lock();
+        	if(!(p.addWealth(-node.getCost()))) {
+        		return false;
+        	}
+        	
+        	if(node.getRuler() != null) {
+        		return false;
+        	}
+        	
+        	node.setRuler(p);
+        	p.controlNode(node);
+        	return true;
+    		
+    	}finally{
+    		lock.unlock();
     	}
-    	
-    	node.setRuler(p);
-    	p.controlNode(node);
-    	return true;
     }
     		
     
@@ -407,21 +418,56 @@ public class Galaxy extends Observable{
 			SwingWorker<Void, Void> maker = new SwingWorker<Void, Void>() {
 				@Override
 				protected Void doInBackground() throws Exception {
+					
+					HashMap<Player, Integer> incomeMapping = new HashMap<>();
+					
+					incomeMapping.put(player[0], 0);
+					incomeMapping.put(player[1], 0);
+					
 					for(int i = 0; i < starboard.length; i++) {
 						for(int j = 0; j < starboard[0].length; j++) {
 							Node  node = starboard[i][j];
 							if(node != null) {
 								Player ruler = node.getRuler();
-								if(ruler != null) {
-									ruler.addWealth(node.getResourceLevel());
+								if(ruler != null && StarCluster.find(node) == StarCluster.find(ruler.getCurrentNode())) {
+									int val = incomeMapping.get(ruler);
+									incomeMapping.put(ruler, val + node.getResourceLevel());
 								}
 							}
 						}
 					}
+					
+					for(List<Edge> list: adjList.values()) {
+						for(Edge e: list) {
+							Player ruler = e.getRuler();
+							int val = incomeMapping.get(ruler);
+							if(val - 1 > 0) {
+								incomeMapping.put(ruler, val - 1);
+							}
+						}
+					}
+					
+					player[0].addWealth(incomeMapping.get(player[0]));
+					player[1].addWealth(incomeMapping.get(player[1]));
+					
 					return null;
 				}
 			};
 			maker.execute();
 		}
     }
+    
+	public Node locateNode(double x, double y) {
+		
+		int col = (int)(x/getGridLength());
+		double remainder1 = x % getGridLength();	
+		if(remainder1 >= 49) col++;
+		else if(remainder1 >= 1) return null;
+		int row = (int)(y/getGridLength());
+		double remainder2 = y %getGridLength();
+		if(remainder2 >= 49) row++;
+		else if(remainder2 >= 1) return null;
+		return getStarBoard()[row][col];
+	}
+
 }

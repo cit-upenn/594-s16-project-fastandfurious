@@ -75,4 +75,8 @@ public class Edge {
 	public Node getEnd() {
 		return p2;
 	}
+	
+	public Player getRuler() {
+		return ruler;
+	}
 }

@@ -99,12 +99,12 @@ public class SupplyStation extends Observable implements Node{
 	}
 
 	@Override
-	public Node getParentNode() {
+	public synchronized Node getParentNode() {
 		return this.parentNode;
 	}
 
 	@Override
-	public void setParentNode(Node parent) {
+	public synchronized void setParentNode(Node parent) {
 		this.parentNode = parent;
 	}
 
@@ -202,7 +202,6 @@ public class SupplyStation extends Observable implements Node{
 		if(!(other instanceof SupplyStation)) {
 			return false;
 		}
-		SupplyStation otherS = (SupplyStation)other;
-		return x == otherS.getX() && y == otherS.getY();
+		return this.hashCode() == other.hashCode();
 	}
 }

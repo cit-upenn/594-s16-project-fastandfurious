@@ -7,11 +7,15 @@ import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import UniversePackage.Galaxy;
 import UniversePackage.Navigator;
@@ -43,6 +47,7 @@ public class HumanPlayer implements Player {
 	private BasicStroke lineStroke = new BasicStroke(2.0f);
 	private HashSet<Node> reign;
 	private String name;
+	private Lock lock;
 	
 	/**
 	 * constructor
@@ -64,15 +69,15 @@ public class HumanPlayer implements Player {
 		this.focus = null;
 		this.selected = null;
 		this.galaxy = galaxy;
-		speed = 2.0; 
+		speed = 2; 
 		radius = 15;
 		p1 = new Point(x, y - radius);
 		p2 = new Point(x - radius * Math.cos(Math.PI/6), y + radius/2);
 		p3 = new Point(x + radius * Math.cos(Math.PI/6), y + radius/2);
 		selections = new LinkedList<>();
 		reign = new HashSet<Node>();
-		
 		this.name = name;
+		lock = new ReentrantLock();
 	}
 	
 	/**
@@ -96,42 +101,81 @@ public class HumanPlayer implements Player {
 		drawHalo(g2, "selection");
 		drawSelections(g2);
 		
-		rotate(9);
+		rotate(10);
 	}
 	
 	@Override
 	public void move() {
 		
-		dx = 0;
-		dy = 0;
-		
-		if(!destinations.isEmpty()) {
-			Node nextTarget = destinations.peek();
-			if(Math.abs(x - nextTarget.getX()) < 1
-			   && Math.abs(y - nextTarget.getY()) < 1){
-				currentNode = destinations.poll();
-				reign.add(currentNode);
+			if(!inMotion()) return;
+			Node position = galaxy.locateNode(x, y);
+			if(position != null) currentNode = position;
+			else {
+				if(dx == 0 && dy == 0) {	
+					clearStuffs();
+					List<Node> all = new ArrayList<>();
+					all.addAll(reign);
+					Node choice = all.get(Galaxy.generator.nextInt(all.size()));
+					currentNode = choice;
+					x = choice.getX();
+					y = choice.getY();
+					return;
+				}
 			}
-			if(!destinations.isEmpty()) {		
-				
-				nextTarget = destinations.peek();
-				if(!galaxy.hasEdge(currentNode, nextTarget)) {			
-					if(!galaxy.buildEdge(currentNode, nextTarget, this)) {	
-						clearDest();
-						selections.clear();
+			Node dest = destinations.peek();
+			
+			if(currentNode == dest) {	
+				destinations.poll();
+				if(destinations.isEmpty()) {
+					clearStuffs();
+					dx = 0;
+					dy = 0;
+				}
+			}
+			
+			else if(galaxy.areAdjacentNodes(currentNode, dest)) {
+				if(!galaxy.hasEdge(currentNode, dest)) {			
+					if(galaxy.locateNode(x, y) != null) {
+						if(dest.getRuler() == null) {	
+							boolean success = galaxy.buildEdge(currentNode, dest, this);
+							if(!success) {				
+								clearStuffs();	
+							}
+						}
+						else if(dest.getRuler() == this){
+							boolean success = galaxy.buildEdge(currentNode, dest, this);
+							if(!success) {				
+								clearStuffs();	
+							}
+						} else {	
+							clearStuffs();
+						}	
 					}
 					return;
 				}
-				setVelocity(nextTarget);
+				setVelocity(dest);
+				x += dx;
+				y += dy;
 			}
-		}
-		
-		x += dx;
-		y += dy;
+			else{
+				clearStuffs();
+				x = currentNode.getX();
+				y = currentNode.getY();
+				return;
+			}
+		rotate(10);
 	}
-	
-	private synchronized void clearDest() {
-		destinations.clear();
+
+	private void clearStuffs() {
+		
+		try{
+			lock.lock();
+			destinations.clear();
+			selections.clear();
+			setSelected(null);
+		}finally{
+			lock.unlock();
+		}
 	}
 
 	private void setVelocity(Node dest){	
@@ -311,8 +355,7 @@ public class HumanPlayer implements Player {
 
 	@Override
 	public String getStatus() {
-		// TODO Auto-generated method stub
-		return null;
+		return inMotion()? "moving": "thinking";
 	}
 	
 	@Override
@@ -323,5 +366,10 @@ public class HumanPlayer implements Player {
 	@Override
 	public synchronized void loseNode(Node node) {
 		reign.remove(node);
+	}
+
+	@Override
+	public boolean isThinking() {
+		return !inMotion();
 	}
 }

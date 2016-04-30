@@ -60,5 +60,7 @@ public interface Player {
 	
 	public Node getCurrentNode();
 	
+	public boolean isThinking();
+	
 
 }

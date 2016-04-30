@@ -138,7 +138,7 @@ public class Planet extends Observable implements Node  {
 	}
 
 	@Override
-	public void setParentNode(Node parent) {	
+	public synchronized void setParentNode(Node parent) {	
 		this.parentNode = parent;
 	}
 
@@ -174,7 +174,7 @@ public class Planet extends Observable implements Node  {
 
 	@Override
 	public int getResourceLevel() {
-		return resourceLevel;
+		return resourceLevel + rank;
 	}
 
 	@Override
@@ -220,7 +220,6 @@ public class Planet extends Observable implements Node  {
 		if(!(other instanceof Planet)) {
 			return false;
 		}
-		Planet otherP = (Planet)other;
-		return x == otherP.getX() && y == otherP.getY();
+		return this.hashCode() == other.hashCode();
 	}
 }
