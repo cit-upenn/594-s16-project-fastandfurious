@@ -7,8 +7,6 @@ import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -18,15 +16,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import javax.swing.SwingWorker;
 
 import UniversePackage.Edge;
 import UniversePackage.Galaxy;
@@ -172,10 +165,19 @@ public class ComputerPlayer implements Player {
 							boolean success = galaxy.neutralizeNode(this, dest);
 							if(!success) {
 								generateRandomPath(5);
+							}else{
+								targetNodes.remove(dest);
 							}
 						}
+						else {
+							targetNodes.add(dest);
+						}
+						
+						if(targetNodes.isEmpty()){
+							clearStuffs();
+						}
 					}
-					finally{ clearStuffs(); lock.unlock(); }
+					finally{lock.unlock(); }
 
 				}	
 			}
@@ -258,13 +260,13 @@ public class ComputerPlayer implements Player {
 				case 0: 
 				case 1:
 				case 2:
-				case 3:reinforce();break;
+				case 3: reinforce();break;
 				case 4:
 				case 5:
 				case 6:
 				case 7:
 				case 8:
-				case 9:
+				case 9: 
 				case 10: offensive();break;
 				default: explore();
 			}
@@ -278,59 +280,65 @@ public class ComputerPlayer implements Player {
 	private void explore() {
 		
 		try {
+	
+			try{lock.lock();candidates.clear();}finally{lock.unlock();}
 			
-			LinkedList<Node> borderNodes = new LinkedList<>();
+			HashMap<Node, Node> preds = new HashMap<>();
 			int count = 0;
-			int bridthLim = 5;
-			while(borderNodes.isEmpty() && count < 4) {
-				borderNodes.addAll(bfs(bridthLim));
-				bridthLim *= 2;
-				count++;
-			}
+			int lim = 10;
 			
-			for(Node candidate: borderNodes) {
-				lock.lock();
-				candidates.add(candidate);
-				lock.unlock();
-				try { Thread.sleep(20); } catch (InterruptedException e) {}
+			while(candidates.isEmpty() && count < 4) {
+				
+				List<Node> connected = Navigator.BFS(currentNode, lim, galaxy);
+				Iterator<Node> it = connected.iterator();	
+				while(it.hasNext()) {	
+					Node node = it.next();
+					Set<Node> neighbors = galaxy.getNeighboringNodes(node);
+					Iterator<Node> neighborIt = neighbors.iterator();
+					while(neighborIt.hasNext()) {
+						Node neighbor = neighborIt.next();
+						if(neighbor.getRuler() == null&&!candidates.contains(neighbor)) {
+							try{
+								candidates.add(neighbor);
+								preds.put(neighbor, node);
+								Thread.sleep(20);
+							}catch(Exception e){};
+						}
+					}
+				}	
+				lim *= 2;
+				count++;
 			}
 			
 			// wait a bit for human eyes to catch up
 			try {Thread.sleep(100); } 
-			catch (InterruptedException e1) {
-				e1.printStackTrace();
-			}
-			
+			catch (InterruptedException e1) {e1.printStackTrace();}
+			int threshold = 5;
+			int depthLim = 5;
 			List<Node> sources = new LinkedList<>();
-			
-			PriorityQueue<List<Node>> pq = new PriorityQueue<>(new pathComparator());
-			HashMap<Node, Node> preds = new HashMap<>();
-			
-			int threshold = 3;
-			int depthLim = 3;
-			
 			while(!candidates.isEmpty() && threshold-- > 0) {
-				Node bestCandidate = candidates.poll();
-				sources.add(bestCandidate);
-				preds.put(bestCandidate, bestCandidate.getPredecessor());
+				sources.add(candidates.poll());
 			}
+			PriorityQueue<List<Node>> pq = new PriorityQueue<>(new pathComparator());
 			while(depthLim >= 0) {
 				// search all possible paths within ranges
-				dfs(sources, depthLim--, pq);
+				List<List<Node>> paths = Navigator.DFS(sources, this, depthLim--, galaxy, false);
+				pq.addAll(paths);
 			}
-			
 			// pick the best path
 			List<Node> finalpath = pq.poll();
 			Node head = finalpath.get(0);	
-			Node pred = preds.get(head);		
-			destinations.addAll(Navigator.dijkstra(currentNode, pred, galaxy));
-			destinations.addAll(finalpath);
-			sequence.add(pred);
-			for(Node n: finalpath){
-				sequence.add(n);
-			}
-			setSelected(head);
-			
+			Node pred = preds.get(head);
+			try{
+				lock.lock();
+				destinations.addAll(Navigator.buildBFSPath(currentNode, pred, galaxy));
+				destinations.addAll(finalpath);
+				sequence.add(pred);
+				sequence.addAll(finalpath);
+				setSelected(head);
+			}finally{
+				lock.unlock();
+			}		
 		} catch (Exception e) {	
 			clearStuffs();
 			generateRandomPath(3);
@@ -343,7 +351,7 @@ public class ComputerPlayer implements Player {
 	private void reinforce() {
 		
 		try{	
-			
+			lock.lock();
 			List<Node> pool = new LinkedList<>();
 			outer: for(Node candidate: nodesControlled) {
 				Set<Node> neighbors = galaxy.getNeighboringNodes(candidate);
@@ -369,8 +377,8 @@ public class ComputerPlayer implements Player {
 				Node endpoint1 = candidate;
 				Node endpoint2 = pool.get(Galaxy.generator.nextInt(pool.size()));
 
-				List<Node> path1 = Navigator.findSimplePath(currentNode, endpoint1, galaxy);
-				List<Node> path2 = Navigator.findSimplePath(currentNode, endpoint2, galaxy);
+				List<Node> path1 = Navigator.buildBFSPath(currentNode, endpoint1, galaxy);
+				List<Node> path2 = Navigator.buildBFSPath(currentNode, endpoint2, galaxy);
 				List<Node> thePath = path1;
 				
 				if(path1 == null || path2 == null) return;
@@ -383,15 +391,14 @@ public class ComputerPlayer implements Player {
 				}
 				
 				setSelected(endpoint1);
-				
 				destinations.addAll(thePath);
-				destinations.add(endpoint2);
-				
+				destinations.add(endpoint2);			
 				sequence.add(endpoint1);
 				sequence.add(endpoint2);
 			}
 		
 		}finally{
+			lock.unlock();
 		}
 	}
 	
@@ -402,53 +409,43 @@ public class ComputerPlayer implements Player {
 	private void offensive() {
 		
 		try{
+			lock.lock();
+			HashMap<Node, Node> preds = new HashMap<>();
+			List<Node> connected = Navigator.BFS(currentNode, 50, galaxy);
+			List<Node> borders = new LinkedList<>();
+			Iterator<Node> it = connected.iterator();	
 			
-			// to keep track of nodes that have been visited
-			HashSet<Node> visited = new HashSet<>();
-			HashMap<Node, Node> mapping = new HashMap<>();
-			// FIFO queue for BFS
-			Queue<Node> Q = new LinkedList<>();	
-			// start point of search
-			Node start = currentNode;
-			
-			PriorityQueue<Node> targets = new PriorityQueue<>(new NodeComparator());
-			
-			Q.offer(start);
-			
-			while(!Q.isEmpty()) {
-				
-				Node u = Q.poll();
-				List<Edge> adjNodes = galaxy.getAdjList().get(u);
-				Iterator<Edge> edgeIt = adjNodes.iterator();
-				while(edgeIt.hasNext()) {
-					Node v = edgeIt.next().getEnd();
-					if(!visited.contains(v)) {		
-						Q.offer(v);
+			while(it.hasNext()) {	
+				Node node = it.next();
+				Set<Node> neighbors = galaxy.getNeighboringNodes(node);
+				Iterator<Node> neighborIt = neighbors.iterator();
+				while(neighborIt.hasNext()) {
+					Node neighbor = neighborIt.next();
+					if(neighbor.getRuler() != null&&neighbor.getRuler()!=this && !borders.contains(neighbor)) {
+						borders.add(neighbor);
+						preds.put(neighbor, node);
 					}
 				}
-				Set<Node> neighboringNodes = galaxy.getNeighboringNodes(u);
-				Iterator<Node> nodeIt = neighboringNodes.iterator();	
-				while(nodeIt.hasNext()) {	
-					Node neighbor = nodeIt.next();
-					if(neighbor.getRuler() != null && neighbor.getRuler() != this) {				
-						targets.offer(neighbor);
-						mapping.put(neighbor, u);
-					}
-				}
-				visited.add(u);			
+			}	
+			
+			PriorityQueue<List<Node>> offensivePaths = new PriorityQueue<>(new pathComparator());
+			int lim = 3;
+			while(lim > 0) {
+				offensivePaths.addAll(Navigator.DFS(borders, this, lim, galaxy, true));
+				lim--;
 			}
 			
-			if(targets.isEmpty()) return;
+			if(offensivePaths.isEmpty()) return;
+			List<Node> path = offensivePaths.poll();
 			
-			Node target = targets.poll();
-			targetNodes.add(target);
-			destinations.addAll(Navigator.findSimplePath(currentNode, mapping.get(target), galaxy));
-			destinations.add(target);
-			sequence.add(mapping.get(target));
-			sequence.add(target);
-			setSelected(target);
+			targetNodes.addAll(path);
+			destinations.addAll(Navigator.buildDijkstraPath(currentNode, preds.get(path.get(0)), galaxy));
+			destinations.addAll(path);
+			sequence.add(preds.get(path.get(0)));
+			sequence.addAll(path);
+			setSelected(path.get(path.size()-1));
 			
-		} finally {}
+		} finally {lock.unlock();}
 
 	}
 	
@@ -459,126 +456,10 @@ public class ComputerPlayer implements Player {
 	 */
 	private void generateRandomPath(int breadthLim) {
 		
-		Queue<Node> queue = new LinkedList<>();
-		HashSet<Node> visited = new HashSet<>();
-		queue.offer(currentNode);
-		
-		int hops = 0;
-		
-		while(!queue.isEmpty()) {		
-			Node node = queue.poll();	
-			if(node == null) {		
-				hops++;
-				if(hops <= breadthLim) continue;
-				else break;
-			}
-			List<Edge> adjList = galaxy.getAdjList().get(node);
-			for(Edge edge: adjList) {
-				if(!visited.contains(edge.getEnd())) {
-					queue.offer(edge.getEnd());
-				}
-			}
-			queue.offer(null);
-			visited.add(node);
-		}
-		List<Node> all = new LinkedList<>(visited);
+		List<Node> all = Navigator.BFS(currentNode, breadthLim, galaxy);
 		Node choice = all.get(Galaxy.generator.nextInt(all.size()));
 		setSelected(choice);
-		destinations.addAll(Navigator.dijkstra(currentNode, choice, galaxy));
-	}
-	
-	/**
-	 * Search reachable nodes adjacent to current reign of player
-	 * @param breadthLim set a limit on search area / prevents machine from getting too hot
-	 * @return a collection of candidate nodes
-	 */
-	private synchronized LinkedList<Node> bfs(int breadthLim) {
-		
-		// prepare tools
-		Queue<Node> queue = new LinkedList<>();
-		HashSet<Node> visited = new HashSet<>();
-		LinkedList<Node> reachable = new LinkedList<>();
-		
-		// set starting point
-		queue.offer(currentNode);
-		int hops = 0;
-		
-		// start search
-		while(!queue.isEmpty()) {		
-			Node node = queue.poll();	
-			if(node == null) {		
-				hops++;
-				if(hops <= breadthLim) continue;
-				else break;
-			}
-			List<Edge> adjList = galaxy.getAdjList().get(node);
-			Set<Node> neighbors = galaxy.getNeighboringNodes(node);
-			for(Node discovery: neighbors) {
-				if(StarCluster.find(node) != StarCluster.find(discovery)) {
-					if(!reachable.contains(discovery) && discovery.getRuler() == null) {
-						discovery.setPredecessor(node);
-						reachable.add(discovery);
-					}
-				}
-			}
-			for(Edge edge: adjList) {
-				if(!visited.contains(edge.getEnd())) {
-					queue.offer(edge.getEnd());
-				}
-			}
-			queue.offer(null);
-			visited.add(node);
-		}
-		
-		// return result
-		return reachable;
-	}
-	
-	/**
-	 * Perform depth first search from multiple sources
-	 * in order to find the best path to explore
-	 * @param sources starting points for depth-first searching
-	 * @param depthLim set a limit on search depth / prevents machine from getting too hot
-	 * @param pq a priority used for storing results
-	 */
-	private synchronized void dfs(List<Node> sources, int depthLim, PriorityQueue<List<Node>> pq) {
-		
-		Iterator<Node> it = sources.iterator();
-		while(it.hasNext()) {
-			
-			Node source = it.next();
-			Stack<Node> stack = new Stack<Node>();
-			HashSet<Node> visited = new HashSet<>();
-			source.setDepth(0);
-			source.setPredecessor(null);
-			stack.push(source);
-			while(!stack.isEmpty()) {
-				
-				Node node = stack.pop();
-				if(node.getDepth() >= depthLim) {
-					LinkedList<Node> ppath = new LinkedList<>();
-					while(node != null) {
-						ppath.addFirst(node);
-						node = node.getPredecessor();
-					}
-					pq.add(ppath);
-					continue;
-				}
-				List<Node> adjList = new LinkedList<>(galaxy.getNeighboringNodes(node));
-				for(Node next: adjList) {
-					if( StarCluster.find(currentNode) != StarCluster.find(next) 
-						&& !visited.contains(next)
-						&& !candidates.contains(next)
-						&& (next.getRuler() == null||next.getRuler() == this)) {
-						
-						next.setDepth(node.getDepth() + 1);
-						next.setPredecessor(node);
-						stack.push(next);
-					}
-				}
-				visited.add(node);
-			}	
-		}
+		destinations.addAll(Navigator.buildDijkstraPath(currentNode, choice, galaxy));
 	}
 	
 

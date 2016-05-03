@@ -308,7 +308,7 @@ public class Controller {
             		System.err.println("Path must be atttached to current reign");
             		return;
             	}
-            	List<Node> path = Navigator.dijkstra(source, dest, galaxy);
+            	List<Node> path = Navigator.buildDijkstraPath(source, dest, galaxy);
             	if(path == null) return;	
             	else humanPlayer.getDestinations().addAll(path);
             }

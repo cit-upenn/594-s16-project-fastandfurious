@@ -7,13 +7,11 @@ import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -245,7 +243,7 @@ public class HumanPlayer implements Player {
 			return;
 		}
 
-		destinations.addAll(Navigator.dijkstra(currentNode, start, galaxy));
+		destinations.addAll(Navigator.buildDijkstraPath(currentNode, start, galaxy));
 		destinations.remove(start);
 		destinations.addAll(selections);	
 	}

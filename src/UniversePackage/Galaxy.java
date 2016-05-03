@@ -47,12 +47,10 @@ public class Galaxy extends Observable{
         this.width = width;
         this.height = height;
         this.gridLength = gridLength;
-
-        generator = new Random();
-        adjList = new HashMap<>();
-        this.numPlanets = numPlanets;
-        
-        lock = new ReentrantLock();
+        Galaxy.generator = new Random();
+        this.adjList = new HashMap<>();
+        this.numPlanets = numPlanets;   
+        this.lock = new ReentrantLock();
     }
 
     /**
@@ -67,7 +65,6 @@ public class Galaxy extends Observable{
     	starboard = new Node[numRows][numCols];    	
     	
     	/* place planets on board */
-    	
     	starboard[1][1] = new Planet(gridLength, gridLength);
     	starboard[numRows-2][numCols-2]= new Planet((numCols - 2) * gridLength, (numRows - 2) * gridLength);
     	
@@ -101,9 +98,9 @@ public class Galaxy extends Observable{
 		
 		/* initialize players */
 		player = new Player[2];
-		player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony"); 
+		// player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony"); 
 		
-		// player[0] = new ComputerPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony");
+		player[0] = new ComputerPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony");
 		
 		player[0].setCurrentNode(starboard[1][1]);
 		starboard[1][1].setRuler(player[0]);
@@ -135,7 +132,6 @@ public class Galaxy extends Observable{
     	  	
     	player[0].think();
     	player[1].think();
-    	
     	player[0].move();
     	player[1].move();
     	
@@ -169,6 +165,10 @@ public class Galaxy extends Observable{
     		
         	// detects invalid input
         	if(current == null||togo == null) { System.err.println("Null pointer"); return false; }
+        	
+        	if(p.getCurrentNode().getRuler() == null) {
+        		captureNode(p, current);
+        	}
         	
         	// check for adjacency
         	if(!areAdjacentNodes(current, togo)) {
@@ -464,9 +464,9 @@ public class Galaxy extends Observable{
      */
 	public Node locateNode(double x, double y) {	
 		int col = (int)(x/getGridLength()); double remainder1 = x % getGridLength();	
-		if(remainder1 >= 48) col++;else if(remainder1 > 2) return null;
+		if(remainder1 > 48) col++;else if(remainder1 > 2) return null;
 		int row = (int)(y/getGridLength());double remainder2 = y %getGridLength();
-		if(remainder2 >= 48) row++;else if(remainder2 > 2) return null;
+		if(remainder2 > 48) row++;else if(remainder2 > 2) return null;
 		return getStarBoard()[row][col];
 	}
 
