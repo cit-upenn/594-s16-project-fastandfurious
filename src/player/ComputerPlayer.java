@@ -134,6 +134,12 @@ public class ComputerPlayer implements Player {
 	@Override
 	public synchronized void move() {
 		
+		if(currentNode.getRuler()!=this) {
+			teleport();
+			return;
+		}
+		
+		
 		if(!isThinking && inMotion()) {
 			Node position = galaxy.locateNode(x, y);
 			
@@ -141,6 +147,7 @@ public class ComputerPlayer implements Player {
 			else { status = "exploring"; }
 			
 			if(position != null) currentNode = position;
+			
 			Node dest = destinations.peek();
 			
 			if(currentNode == dest) {	
@@ -189,14 +196,21 @@ public class ComputerPlayer implements Player {
 					rotate(10);
 				}else{
 					clearStuffs();
-					List<Node> all = new LinkedList<>(nodesControlled);
-					Node choice = all.get(Galaxy.generator.nextInt(all.size()));
-					x = choice.getX();
-					y = choice.getY();
-					currentNode = choice;
+					teleport();
 				}
 			}
 		}
+	}
+	
+	/**
+	 * teleport if weird things happen
+	 */
+	private void teleport() {
+		List<Node> all = new LinkedList<>(nodesControlled);
+		Node choice = all.get(Galaxy.generator.nextInt(all.size()));
+		x = choice.getX();
+		y = choice.getY();
+		currentNode = choice;
 	}
 	
 	/**

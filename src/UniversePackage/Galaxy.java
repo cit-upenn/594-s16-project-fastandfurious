@@ -98,9 +98,9 @@ public class Galaxy extends Observable{
 		
 		/* initialize players */
 		player = new Player[2];
-		// player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony"); 
+		player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony"); 
 		
-		player[0] = new ComputerPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony");
+		// player[0] = new ComputerPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony");
 		
 		player[0].setCurrentNode(starboard[1][1]);
 		starboard[1][1].setRuler(player[0]);
@@ -165,10 +165,6 @@ public class Galaxy extends Observable{
     		
         	// detects invalid input
         	if(current == null||togo == null) { System.err.println("Null pointer"); return false; }
-        	
-        	if(p.getCurrentNode().getRuler() == null) {
-        		captureNode(p, current);
-        	}
         	
         	// check for adjacency
         	if(!areAdjacentNodes(current, togo)) {

@@ -105,6 +105,11 @@ public class HumanPlayer implements Player {
 	@Override
 	public void move() {
 		
+			if(currentNode.getRuler()!=this) {
+				teleport();
+				return;
+			}
+		
 			if(!inMotion()) return;
 			Node position = galaxy.locateNode(x, y);
 			if(position != null) currentNode = position;
@@ -143,13 +148,20 @@ public class HumanPlayer implements Player {
 					rotate(20);
 				}else{
 					clearStuffs();
-					List<Node> all = new LinkedList<>(reign);
-					Node choice = all.get(Galaxy.generator.nextInt(all.size()));
-					x = choice.getX();
-					y = choice.getY();
-					currentNode = choice;
+					teleport();
 				}
 			}
+	}
+	
+	/**
+	 * teleport if weird things happen
+	 */
+	private void teleport() {
+		List<Node> all = new LinkedList<>(reign);
+		Node choice = all.get(Galaxy.generator.nextInt(all.size()));
+		x = choice.getX();
+		y = choice.getY();
+		currentNode = choice;
 	}
 
 	private void clearStuffs() {
