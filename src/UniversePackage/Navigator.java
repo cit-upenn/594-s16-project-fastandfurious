@@ -13,6 +13,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+/**
+ * Navigator helps players find their paths
+ */
 public class Navigator {
 	
 	
@@ -148,6 +151,14 @@ public class Navigator {
 		return result;
 	}
 	
+	/**
+	 * Set velocity vector for a player
+	 * Given its current location and
+	 * the position of the destination node
+	 * @param p the player that needs to
+	 * be assigned new velocity
+	 * @param dest destination node to travel to
+	 */
 	public static void setVelocity(Player p, Node dest) {
 		
 		double x = p.getX();
@@ -161,6 +172,13 @@ public class Navigator {
 		p.setDY(dy);
 	}
 	
+	/**
+	 * Find shortest path 
+	 * @param start node
+	 * @param end node
+	 * @param galaxy space to be searched
+	 * @return list of node representing paths
+	 */
 	public static List<Node> buildDijkstraPath(Node start, Node end, Galaxy galaxy) {
 		
 		LinkedList<Node> path = new LinkedList<>();
@@ -198,7 +216,7 @@ public class Navigator {
 					updateHeap(minheap);
 				}
 			}
-		}
+		}		
 		while(end != null) {
 			path.addFirst(end);
 			end = end.getPredecessor();

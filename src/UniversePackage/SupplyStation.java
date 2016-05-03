@@ -37,21 +37,19 @@ public class SupplyStation extends Observable implements Node{
 	 * @param y initial vertical location of a SS
 	 */
 	public SupplyStation (double x, double y) {
-		
 		this.x = x;
 		this.y = y;
 		this.radius = 12;
-		ruler = null;
-		color = Color.lightGray;
-		instX = this.x;
-		instY = this.y;
-		rank = 0;
-		bound = 2;
-		dy = (Galaxy.generator.nextInt(2) == 1) ? 0.05 : -0.05;
-		parentNode = null;
-		depth = 0;
-		
-		shortest =  Integer.MAX_VALUE;
+		this.ruler = null;
+		this.color = Color.lightGray;
+		this.instX = this.x;
+		this.instY = this.y;
+		this.rank = 0;
+		this.bound = 2;
+		this.dy = (Galaxy.generator.nextInt(2) == 1) ? 0.05 : -0.05;
+		this.parentNode = null;
+		this.depth = 0;	
+		this.shortest =  Integer.MAX_VALUE;
 	}
 	
 	@Override
@@ -61,9 +59,7 @@ public class SupplyStation extends Observable implements Node{
 		g2.setColor(color);
 		g2.setStroke(new BasicStroke(2));
 		g2.draw(rect);	
-		
-		if(ruler != null) {
-			
+		if(ruler != null) {			
 			g2.setColor(ruler.getPlayerColor());
 			Shape core = new Rectangle2D.Double(instX - radius/2 + 3, instY - radius/2 + 3, 6, 6);
 			g2.fill(core);

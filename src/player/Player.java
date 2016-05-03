@@ -13,8 +13,7 @@ import UniversePackage.Node;
  */
 public interface Player {
 
-
-    public abstract void move() ;
+    public void move() ;
     
 	public void setCurrentNode(Node node);
 	
@@ -45,6 +44,10 @@ public interface Player {
 	public double getX();
 
 	public double getY();
+	
+	public double getDX();
+	
+	public double getDY();
     
     public Set<Node> getNodesControlled();
     
@@ -59,10 +62,6 @@ public interface Player {
     public Queue<Node> getDestinations();
 	
 	public Node getCurrentNode();
-	
-	public double getDX();
-	
-	public double getDY();
 	
 	public void setDX(double dx);
 	

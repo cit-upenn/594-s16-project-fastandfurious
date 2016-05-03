@@ -29,19 +29,27 @@ import player.Player;
  */
 public class Galaxy extends Observable{
 
-    // a galaxy has some size
+    // declare instance variables
     private int height;
     private int width;
     private int gridLength;
-    private Timer timer1;
-    private List<Player> players;
     private int numPlanets;
-    private Node[][] starboard;
+    private Timer timer1;
     private Timer timer2;
-    public static Random generator;
-    private Map<Node, List<Edge>> adjList;
     private Lock lock;
+    private Node[][] starboard;
+    private List<Player> players;
+    private Map<Node, List<Edge>> adjList;
+    public static Random generator;
     
+    /**
+     * constructor
+     * creates a new Galaxy instance
+     * @param width of the universe
+     * @param height of the universe
+     * @param gridLength size of each block
+     * @param numPlanets number of nodes that are planets
+     */
     public Galaxy(int width, int height, int gridLength, int numPlanets) {
 
         this.width = width;
@@ -110,22 +118,29 @@ public class Galaxy extends Observable{
 		players.add(p2);
     }
     
+    /**
+     * A "factory method" for creating player instances
+     * @param name of player
+     * @param type of player
+     * @param color of player
+     * @param start of player
+     * @return new player instance with the given parameters
+     */
     public Player CreatePlayer(String name, String type, Color color, Node start) {
     	
     	Player p;
-    	if(type.toLowerCase().equals("human")){
-    		p = new HumanPlayer(start.getX(), start.getY(), color, this, name); 
-    	}
-    	else {
-    		p = new ComputerPlayer(start.getX(), start.getY(), color, this, name);
-    	}
+    	if(type.toLowerCase().equals("human")) p = new HumanPlayer(start.getX(), start.getY(), color, this, name); 
+    	else p = new ComputerPlayer(start.getX(), start.getY(), color, this, name);	
     	return p;
     }
     
+    /**
+     * Make things start ticking
+     */
     public void start() {
     	timer1 = new Timer(40, new Strobe());
     	timer1.start();  	
-    	timer2 = new Timer(2000, new MoneyMaker());
+    	timer2 = new Timer(2000, new MoneyMachine());
     	timer2.start();
     }
     
@@ -147,6 +162,9 @@ public class Galaxy extends Observable{
     	this.notifyObservers();
     }
     
+    /**
+     * @return start board of the universe
+     */
     public Node[][] getStarBoard() {
     	return starboard;
     }
@@ -184,26 +202,21 @@ public class Galaxy extends Observable{
             	System.err.println("Edge already in existence");
             	return false;
         	}
-        	
         	Edge out = new Edge(current, togo, p);
         	Edge in = new Edge(togo, current, p);
-        	
         	if(!p.addWealth(-1 * out.getCost())) {
         		return false;
         	}
-    		
     		if(togo.getRuler() != p) {	
     			if(!captureNode(p, togo)) {
     				p.addWealth(out.getCost());
     				return false;
     			}
     		}
-    		
     		adjList.get(current).add(out);
     		adjList.get(togo).add(in);
         	// union nodes if edge build was successful
         	if(StarCluster.find(current) != StarCluster.find(togo)) StarCluster.union(current, togo);
-        	
         	return true;
     		
     	}finally{
@@ -227,14 +240,11 @@ public class Galaxy extends Observable{
         		return false;
         	}
         	Player otherPlayer = target.getRuler();
-        	
         	int cost = target.getResourceLevel() * 2;
-        	
         	if(!otherPlayer.addWealth(-1 * cost)) {
         		System.out.println("can't afford to launch missle");
         		return false;
-        	}
-        	
+        	}     	
         	target.setRuler(null);
         	for(Edge e1: adjList.get(target)) {
         		Node otherEnd = e1.getEnd();
@@ -246,8 +256,7 @@ public class Galaxy extends Observable{
         		}
         	}
         	adjList.get(target).clear();
-        	otherPlayer.loseNode(target);
-        	
+        	otherPlayer.loseNode(target);       	
         	SwingWorker<Void, Void> worker1 = new SwingWorker<Void, Void>(){
 				@Override
 				protected Void doInBackground() throws Exception {
@@ -255,25 +264,24 @@ public class Galaxy extends Observable{
 					return null;
 				}
         	};
-        	worker1.execute();
-   		
+        	worker1.execute();	
     		return true;
     		
-    	}finally {		
-    	}
-    	
+    	}finally {}	
     }
     
-    public void refactor(Player p) {
-    	
+    /**
+     * Update connectivity status
+     * for a given player
+     * @param p player that needs to be updated
+     */
+    public void refactor(Player p) {  	
     	try{
     		lock.lock();
     		List<Node> all = new LinkedList<>(p.getNodesControlled());
         	Iterator<Node> it = all.iterator();
         	// Separate all nodes
-        	while(it.hasNext()) {
-        		StarCluster.seperateNode(it.next());
-        	}
+        	while(it.hasNext()) { StarCluster.seperateNode(it.next()); }
         	it = all.iterator();
         	HashSet<Node> visited = new HashSet<>();	
         	while(it.hasNext()) {
@@ -282,13 +290,16 @@ public class Galaxy extends Observable{
         			depthFirstCluster(u, visited);
         		}
         	}
-    	}finally{
-    		lock.unlock();
-    	}
+    	}finally{ lock.unlock(); }
     }
     
-    public void depthFirstCluster(Node source, Set<Node> visited) {
-    	
+    /**
+     * depth-first-search graph
+     * while clustering nodes
+     * @param source   start point of search
+     * @param visited  a set marking which nodes have been visited
+     */
+    private void depthFirstCluster(Node source, Set<Node> visited) {
     	Stack<Node> stack = new Stack<>();
     	stack.push(source);
     	while(!stack.isEmpty()) {
@@ -305,23 +316,20 @@ public class Galaxy extends Observable{
     }
     
     /**
-     * 
-     * @param p
-     * @param node
-     * @return
+     * Set the ruler of a node to be player p
+     * @param p ruler player
+     * @param node that's to be assigned ruler-ship
+     * @return true if node capture was successful
      */
     public boolean captureNode(Player p, Node node) {
-    	
     	try{
     		lock.lock();
         	if(!(p.addWealth(-node.getCost()))) {
         		return false;
         	}
-        	
         	if(node.getRuler() != null) {
         		return false;
         	}
-        	
         	node.setRuler(p);
         	p.controlNode(node);
         	return true;
@@ -333,9 +341,9 @@ public class Galaxy extends Observable{
     		
     
     /**
-     * 
-     * @param node
-     * @return
+     * Get neighboring nodes of a given node
+     * @param node center node
+     * @return all neighbors of the given node
      */
     public Set<Node> getNeighboringNodes(Node node) {
     	
@@ -423,7 +431,7 @@ public class Galaxy extends Observable{
 		}
     }
     
-    private class MoneyMaker implements ActionListener {
+    private class MoneyMachine implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {

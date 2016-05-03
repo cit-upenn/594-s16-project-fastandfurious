@@ -94,26 +94,6 @@ public class ComputerPlayer implements Player {
 		this.lock = new ReentrantLock();
 	}
 	
-	/**
-	 * rotate the player's little triangle a bit
-	 * @param increment in degree
-	 */
-	private void rotate(double increment) {
-		
-		// some mathematical operations
-		this.deg += increment;
-		this.deg %= 360;
-		double radians1 = (double)this.deg/180;
-		double radians2 = radians1 + Math.PI * 2/3;
-		double radians3 = radians2 + Math.PI * 2/3;
-		p1.setX(x + radius * Math.cos(radians1));
-		p1.setY(y + radius * Math.sin(radians1));
-		p2.setX(x + radius * Math.cos(radians2));
-		p2.setY(y + radius * Math.sin(radians2));
-		p3.setX(x + radius * Math.cos(radians3));
-		p3.setY(y + radius * Math.sin(radians3));
-	}
-	
 	@Override
 	public synchronized void move() {
 		
@@ -168,7 +148,6 @@ public class ComputerPlayer implements Player {
 						}
 					}
 					finally{lock.unlock(); }
-
 				}	
 			}
 			else{			
@@ -200,7 +179,6 @@ public class ComputerPlayer implements Player {
 	 * Clear every thing and restart
 	 */
 	private synchronized void clearStuffs() {
-		
 		destinations.clear();
 		sequence.clear();
 		candidates.clear();
@@ -395,9 +373,7 @@ public class ComputerPlayer implements Player {
 				sequence.add(endpoint2);
 			}
 		
-		}finally{
-			lock.unlock();
-		}
+		} finally{ lock.unlock(); }
 	}
 	
 	/**
@@ -510,9 +486,7 @@ public class ComputerPlayer implements Player {
 	}
 
 	@Override
-	public Node getSelected() {
-		return selected;
-	}
+	public Node getSelected() { return selected; }
 
 	@Override
 	public void setSelected(Node selection) { this.selected = selection; }
@@ -612,6 +586,26 @@ public class ComputerPlayer implements Player {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * rotate the player's little triangle a bit
+	 * @param increment in degree
+	 */
+	private void rotate(double increment) {
+		
+		// some mathematical operations
+		this.deg += increment;
+		this.deg %= 360;
+		double radians1 = (double)this.deg/180;
+		double radians2 = radians1 + Math.PI * 2/3;
+		double radians3 = radians2 + Math.PI * 2/3;
+		p1.setX(x + radius * Math.cos(radians1));
+		p1.setY(y + radius * Math.sin(radians1));
+		p2.setX(x + radius * Math.cos(radians2));
+		p2.setY(y + radius * Math.sin(radians2));
+		p3.setX(x + radius * Math.cos(radians3));
+		p3.setY(y + radius * Math.sin(radians3));
 	}
 	
 	public Set<Node> getNodesControlled() {

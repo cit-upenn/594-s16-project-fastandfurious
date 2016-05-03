@@ -25,8 +25,7 @@ public class Edge {
 	 * @param p2 end-point of edge
 	 * @param builtBy owner of the edge
 	 */
-	public Edge(Node p1, Node p2, Player builtBy) {
-		
+	public Edge(Node p1, Node p2, Player builtBy) {	
 		this.p1 = p1;
 		this.p2 = p2;
 		this.ruler = builtBy;
@@ -37,18 +36,11 @@ public class Edge {
 	/**
 	 * Draw the edge on 2D graphics
 	 */
-	public void draw(Graphics2D g) {
-		
-		Line2D.Double line = new Line2D.Double(p1.getInstX(), p1.getInstY(), p2.getInstX(), p2.getInstY());
-		
-
+	public void draw(Graphics2D g) {		
+		Line2D.Double line = new Line2D.Double(p1.getInstX(), p1.getInstY(), p2.getInstX(), p2.getInstY());	
 		if(StarCluster.find(p1) == StarCluster.find(p2) && StarCluster.find(p1) == StarCluster.find(ruler.getCurrentNode())  ) {
 			g.setColor(ruler.getPlayerColor());
-		}else {
-			g.setColor(Color.gray);
-		}
-		
-		
+		}else g.setColor(Color.gray);	
 		g.setStroke(new BasicStroke(2.0f));
 		g.draw(line);
 	}
@@ -67,7 +59,10 @@ public class Edge {
 		this.cost = cost;
 	}
 	
-	
+	/**
+	 * Get length of an edge
+	 * @return
+	 */
 	public double getLength() {		
 		return len;
 	}
@@ -86,6 +81,10 @@ public class Edge {
 		return p2;
 	}
 	
+	/**
+	 * get ruler of edge
+	 * @return
+	 */
 	public Player getRuler() {
 		return ruler;
 	}
