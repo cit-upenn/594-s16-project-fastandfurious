@@ -9,6 +9,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -16,13 +19,19 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
 import UniversePackage.Galaxy;
 import UniversePackage.Navigator;
@@ -42,18 +51,181 @@ public class Controller {
 	private JLabel[] player;
 	private JLabel[] playerName;
 	private JLabel[] wealth;
-	private JButton ready;
-	private JLabel readyLabel;
 	private JComboBox<String> selectList;
+	private JTextArea[] messageBoard;
 	
 	private JButton Build;
 	private JButton Attack;
 	private JButton Move;
 	
-	private JScrollPane[] scrollPane;
-	private JTable[] table;
-	private JTextArea[] messageBoard;
+	private HashMap<Integer, String> playerMap;
+	boolean isHumanAllowed = true;
+	
+	/**
+	 * Login to start the game.
+	 */
+	protected void login() {
+		
+		playerMap = new HashMap<>();
+		
+		JFrame loginFrame = new JFrame("Login");
+		loginFrame.setPreferredSize(new Dimension(800, 600));
+		loginFrame.setLayout(null);
+		loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		JButton startGame = new JButton("Start");
+		startGame.setFont(new Font("Comic Sans MS", Font.BOLD, 25));
+		startGame.setForeground(Color.BLUE);
+		startGame.setBounds(300, 400, 200, 80);
+		loginFrame.add(BorderLayout.CENTER, startGame);
 
+		SingleSelectJSplitPane splitPane = new SingleSelectJSplitPane();
+		JSplitPane p = splitPane.getSplitPane();
+		p.setBounds(60, 150, 300, 150);
+		loginFrame.getContentPane().add(p);
+		
+		SingleSelectJSplitPane splitPane2 = new SingleSelectJSplitPane();
+		JSplitPane p2 = splitPane2.getSplitPane();
+		p2.setBounds(440, 150, 300, 150);
+		loginFrame.getContentPane().add(p2);
+		
+		JLabel player1 = new JLabel("Player1");
+		JLabel selectPlayer1 = new JLabel("Please select player1:");
+		player1.setFont(new Font("SansSerif", Font.BOLD, 22));
+		player1.setBounds(160, 10, 100, 30);
+		selectPlayer1.setFont(new Font("Comic Sans MS", Font.PLAIN, 16));
+		selectPlayer1.setBounds(60, 50, 200, 30);
+		
+		JLabel player2 = new JLabel("Player2");
+		JLabel selectPlayer2 = new JLabel("Please select player2:");
+		player2.setFont(new Font("SansSerif", Font.BOLD, 22));
+		player2.setBounds(540, 10, 100, 30);
+		selectPlayer2.setFont(new Font("Comic Sans MS", Font.PLAIN, 16));
+		selectPlayer2.setBounds(440, 50, 200, 30);
+		
+		JLabel l1 = new JLabel("Player Type:");
+		l1.setBounds(60, 85, 100, 20);
+		l1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		loginFrame.add(l1);
+		
+		JComboBox<String> type1 = new JComboBox<String>();
+		
+		type1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		type1.setBounds(160, 85, 150, 20);
+		loginFrame.add(type1);
+		
+		JLabel l2 = new JLabel("Player Type:");
+		l2.setBounds(440, 85, 100, 20);
+		l2.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		loginFrame.add(l2);
+		
+		JComboBox<String> type2 = new JComboBox<String>();
+		
+		type2.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		type2.setBounds(540, 85, 150, 20);
+		loginFrame.add(type2);
+		
+		ArrayList<String> types = new ArrayList<>();
+		types.add(" ");
+		types.add("Computer");
+		types.add("Human");
+		
+		for (String t: types) {
+			type1.addItem(t);
+			type2.addItem(t);
+		}
+		
+		type1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (e.getSource() == type1) {
+					JComboBox<String> cb = (JComboBox<String>) e.getSource();
+			        String selected = (String)cb.getSelectedItem();
+			        if (selected.equals("Human")) {
+			        	if (isHumanAllowed) {
+			        		playerMap.put(0, "Human");
+			        		isHumanAllowed = false;
+			        		types.remove("Human");
+			        		for (String t: types) {
+			        			type1.addItem(t);
+			        			type2.addItem(t);
+			        		}
+			        	} 
+			        	
+			        } else if (selected.equals("Computer")) {
+			        	playerMap.put(0, "Computer");
+			        }
+				}
+			}
+		});
+		
+		type2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (e.getSource() == type2) {
+					JComboBox<String> cb = (JComboBox<String>) e.getSource();
+			        String selected = (String)cb.getSelectedItem();
+			        if (selected.equals("Human")) {
+			        	if (isHumanAllowed) {
+			        		playerMap.put(1, "Human");
+			        		isHumanAllowed = false;
+			        		types.remove("Human");
+			        		for (String t: types) {
+			        			type1.addItem(t);
+			        			type2.addItem(t);
+			        		}
+			        	}
+			        }
+				}
+			}
+		});
+		
+		JLabel lbl1 = new JLabel("Player1's name:");
+		JLabel lbl2 = new JLabel("Player2's name:");
+		lbl1.setBounds(60, 320, 140, 40);
+		lbl2.setBounds(440, 320, 140, 40);
+		lbl1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		lbl2.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		loginFrame.add(lbl1);
+		loginFrame.add(lbl2);
+		
+		JTextField text1 = new JTextField(20);
+		JTextField text2 = new JTextField(20);
+		text1.setBounds(190, 320, 150, 40);
+		text2.setBounds(570, 320, 150, 40);
+		loginFrame.add(text1);
+		loginFrame.add(text2);
+		
+		loginFrame.getContentPane().add(player1);
+		loginFrame.getContentPane().add(player2);
+		loginFrame.getContentPane().add(selectPlayer1);
+		loginFrame.getContentPane().add(selectPlayer2);
+		
+		loginFrame.pack();
+		loginFrame.setVisible(true);
+
+		text1.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				
+			}
+			
+		});
+		
+		startGame.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				loginFrame.dispose();
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						init();
+						display();
+					}
+				});   		
+			}
+		});
+	}
+	
 	private void init() {
 
 		galaxy = new Galaxy(940, 720, 50, 70);
@@ -103,19 +275,14 @@ public class Controller {
 		control[0].setBorder(border);
 		control[1].setBorder(border);
 		
-		
 		frame.getContentPane().add(control[0]);
 		frame.getContentPane().add(control[1]);
 		
 		player = new JLabel[2];
 		playerName = new JLabel[2];
 		wealth = new JLabel[2];
-		table = new JTable[2];
-		scrollPane = new JScrollPane[2];
 		messageBoard = new JTextArea[2];		
 		selectList = new JComboBox<String>();
-		ready = new JButton();
-		readyLabel = new JLabel();
 		
 		// a bunch of buttons for human players 
 		Build = new JButton("Build");
@@ -125,22 +292,10 @@ public class Controller {
 		Move = new JButton("Move");
 		Move.setEnabled(false);
 		
-		// setup a table to display the statistics
-		String[] columnNames = {"Name", "Status"};
-		Object[][] data = {
-			    {"GiantPlanet", new Integer(5)},
-			    {"HugePlanet", new Integer(3)},
-			    {"MediumPlanet", new Integer(2)},
-			    {"SmallPlanet", new Integer(20)},
-			    {"Star", new Integer(10)}
-			};
-			
 		for(int i = 0; i < player.length; i++) {
 			
 			player[i] = new JLabel();	
 			playerName[i] = new JLabel();
-			table[i] = new JTable(data, columnNames);
-			scrollPane[i] = new JScrollPane(table[i]);
 			messageBoard[i] = new JTextArea();
 			messageBoard[i].setBackground(Color.BLACK);
 			wealth[i] = new JLabel();
@@ -169,12 +324,9 @@ public class Controller {
 				selectList.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 				selectList.setBounds(10, 150, 140, 30);
 				
-				scrollPane[i].setBounds(10, 550, 140, 60);
 				messageBoard[i].setBounds(10, 250, 140, 180);
 				
-				readyLabel.setBounds(16, 620, 128, 35);
 				control[i].add(selectList);
-				control[i].add(readyLabel);
 				
 			} else {
 				
@@ -200,12 +352,8 @@ public class Controller {
 				Attack.setBounds(1140, 480, 120, 30);
 				Move.setBounds(1140, 510, 120, 30);
 				
-				scrollPane[i].setBounds(1130, 550, 140, 60);
 				messageBoard[i].setBounds(1130, 250, 140, 180);
-				ready.setBounds(1136, 620, 128, 35);
-				ready.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 
-				control[i].add(ready);
 				control[i].add(Build);
 				control[i].add(Attack);
 				control[i].add(Move);
@@ -213,19 +361,9 @@ public class Controller {
 			playerName[i].setHorizontalAlignment(SwingConstants.CENTER);
 			playerName[i].setFont(new Font("Lucida Grande", Font.BOLD, 20));
 						
-			TableColumn column = null;
-			for (int j = 0; j < 2; j++) {
-			    column = table[i].getColumnModel().getColumn(j);
-			    if (j == 0) {
-			        column.setPreferredWidth(100); //third column is bigger
-			    } else {
-			        column.setPreferredWidth(40);
-			    }
-			}		
 			control[i].add(playerName[i]);
 			control[i].add(player[i]);					
 			control[i].add(wealth[i]);
-			control[i].add(scrollPane[i]);
 			control[i].add(messageBoard[i]);
 		}
 		
@@ -261,13 +399,6 @@ public class Controller {
 				}
 			}
 		});
-		
-		ready.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-            	galaxy.start();
-            }
-        });
 		
 		
 		Build.addActionListener(new ActionListener() {
@@ -387,13 +518,85 @@ public class Controller {
 		this.messageBoard[i].setText(msg);
 	}
 	
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-            	Controller c = new Controller();
-                c.init();
-                c.display();
-            }
-        });        
+	
+	/**
+	 * A class for setting up the JSplitPane on the login screen.
+	 *
+	 */
+	@SuppressWarnings("serial")
+	class SingleSelectJSplitPane extends JPanel implements ListSelectionListener {
+		
+		private JLabel picture;
+		private JList list;
+		private JSplitPane splitPane;
+		private String[] imageNames = { "iron-man", "captain", "zootopia_fox", "zootopia_judy"};
+
+		public SingleSelectJSplitPane() {
+			//Create the list of images and put it in a scroll pane.
+			list = new JList(imageNames);
+			list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			list.setSelectedIndex(0);
+			list.addListSelectionListener(this);
+
+			JScrollPane listScrollPane = new JScrollPane(list);
+			picture = new JLabel();
+			picture.setFont(picture.getFont().deriveFont(Font.ITALIC));
+			picture.setHorizontalAlignment(JLabel.CENTER);
+
+			JScrollPane pictureScrollPane = new JScrollPane(picture);
+
+			//Create a split pane with the two scroll panes in it.
+			splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+					listScrollPane, pictureScrollPane);
+			splitPane.setOneTouchExpandable(true);
+			splitPane.setDividerLocation(100);
+
+			//Provide minimum sizes for the two components in the split pane.
+			Dimension minimumSize = new Dimension(100, 50);
+			listScrollPane.setMinimumSize(minimumSize);
+			pictureScrollPane.setMinimumSize(minimumSize);
+
+			//Provide a preferred size for the split pane.
+			splitPane.setPreferredSize(new Dimension(400, 200));
+			updateLabel(imageNames[list.getSelectedIndex()]);
+		}
+
+
+		//Renders the selected image
+		protected void updateLabel (String name) {
+			ImageIcon icon = createImageIcon("/resources/" + name + ".jpg");
+			picture.setIcon(icon);
+			if  (icon != null) {
+				picture.setText(null);
+			} else {
+				picture.setText("Image not found");
+			}
+		}
+
+		/** Returns an ImageIcon, or null if the path was invalid. */
+		protected ImageIcon createImageIcon(String path) {
+			URL imgURL = this.getClass().getResource(path);
+			if (imgURL != null) {
+				return new ImageIcon(imgURL);
+			} else {
+				System.err.println("Couldn't find file: " + path);
+				return null;
+			}
+		}
+
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
+			 JList list = (JList)e.getSource();
+		     updateLabel(imageNames[list.getSelectedIndex()]);		
+		}
+
+		public JList getImageList() {
+	        return list;
+	    }
+	 
+	    public JSplitPane getSplitPane() {
+	        return splitPane;
+	    }
+
 	}
 }
