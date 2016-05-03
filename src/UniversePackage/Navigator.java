@@ -51,6 +51,7 @@ public class Navigator {
 		// set starting point
 		start.setPredecessor(null);
 		queue.offer(start);
+		queue.offer(null);
 		int hops = 0;
 		
 		// start search
@@ -58,7 +59,10 @@ public class Navigator {
 			Node u = queue.poll();	
 			if(u == null) {		
 				hops++;
-				if(hops <= breadthLim) continue;
+				if(hops <= breadthLim) {
+					queue.offer(null);
+					continue;
+				}
 				else break;
 			}
 			List<Edge> adjList = galaxy.getAdjList().get(u);
@@ -69,7 +73,6 @@ public class Navigator {
 					queue.offer(v);
 				}
 			}
-			queue.offer(null);
 			visited.add(u);
 			result.add(u);
 		}
