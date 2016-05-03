@@ -23,7 +23,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
@@ -32,7 +31,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.TableColumn;
 import UniversePackage.Galaxy;
 import UniversePackage.Navigator;
 import UniversePackage.Node;
@@ -139,9 +137,13 @@ public class Controller {
 		selectPlayer2.setBounds(440, 50, 200, 30);
 		
 		JLabel l1 = new JLabel("Player Type:");
+		JLabel l2 = new JLabel("Player Type:");
 		l1.setBounds(60, 85, 100, 20);
+		l2.setBounds(440, 85, 100, 20);
 		l1.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		l2.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		loginFrame.add(l1);
+		loginFrame.add(l2);
 		
 		type1 = new JComboBox<String>();
 		type2 = new JComboBox<String>();
@@ -155,21 +157,14 @@ public class Controller {
 		}
 		
 		type1.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		type1.setBounds(160, 85, 150, 20);
-		loginFrame.add(type1);
-		
-		JLabel l2 = new JLabel("Player Type:");
-		l2.setBounds(440, 85, 100, 20);
-		l2.setFont(new Font("SansSerif", Font.PLAIN, 16));
-		loginFrame.add(l2);
-		
 		type2.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		type1.setBounds(160, 85, 150, 20);
 		type2.setBounds(540, 85, 150, 20);
+		loginFrame.add(type1);
 		loginFrame.add(type2);
 		
 		type1.addActionListener(myAL); 
 		type2.addActionListener(myAL);
-		
 		
 		
 		JLabel lbl1 = new JLabel("Player1's name:");
