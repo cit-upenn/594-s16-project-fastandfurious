@@ -60,7 +60,42 @@ public class Controller {
 	
 	private HashMap<Integer, String> playerMap;
 	boolean isHumanAllowed = true;
-	
+	private MyActionListener myAL = new MyActionListener();
+	private JComboBox<String> type1;
+	private JComboBox<String> type2;
+
+	class MyActionListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == type1) {
+				JComboBox<String> cb = (JComboBox<String>) e.getSource();
+				String selected = (String)cb.getSelectedItem();
+		        if (selected.equals("Human")) { 	        	
+		        	type2.removeItem("Human");
+		        	System.out.println(type2.getItemCount());
+		        }else{
+		        	if(type2.getItemCount() == 2) {
+		        		type2.addItem("Human");
+		        	}
+		        }
+		        playerMap.put(0, selected);	
+		        
+			} else if (e.getSource() == type2) {
+				JComboBox<String> cb = (JComboBox<String>) e.getSource();
+				String selected = (String) cb.getSelectedItem();
+				if (selected.equals("Human")) {
+		        	type1.removeItem("Human");
+				}else {
+		        	if(type1.getItemCount() == 2) {
+		        		type1.addItem("Human");
+		        	}
+				}
+				playerMap.put(1, selected);
+			}
+		}
+		
+	}
 	/**
 	 * Login to start the game.
 	 */
@@ -108,7 +143,16 @@ public class Controller {
 		l1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		loginFrame.add(l1);
 		
-		JComboBox<String> type1 = new JComboBox<String>();
+		type1 = new JComboBox<String>();
+		type2 = new JComboBox<String>();
+		ArrayList<String> type = new ArrayList<>();
+		type.add(" ");
+		type.add("Computer");
+		type.add("Human");
+		for (String s : type) {
+			type1.addItem(s);
+			type2.addItem(s);
+		}
 		
 		type1.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		type1.setBounds(160, 85, 150, 20);
@@ -119,64 +163,14 @@ public class Controller {
 		l2.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		loginFrame.add(l2);
 		
-		JComboBox<String> type2 = new JComboBox<String>();
-		
 		type2.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		type2.setBounds(540, 85, 150, 20);
 		loginFrame.add(type2);
 		
-		ArrayList<String> types = new ArrayList<>();
-		types.add(" ");
-		types.add("Computer");
-		types.add("Human");
+		type1.addActionListener(myAL); 
+		type2.addActionListener(myAL);
 		
-		for (String t: types) {
-			type1.addItem(t);
-			type2.addItem(t);
-		}
 		
-		type1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (e.getSource() == type1) {
-					JComboBox<String> cb = (JComboBox<String>) e.getSource();
-			        String selected = (String)cb.getSelectedItem();
-			        if (selected.equals("Human")) {
-			        	if (isHumanAllowed) {
-			        		playerMap.put(0, "Human");
-			        		isHumanAllowed = false;
-			        		types.remove("Human");
-			        		for (String t: types) {
-			        			type1.addItem(t);
-			        			type2.addItem(t);
-			        		}
-			        	} 
-			        	
-			        } else if (selected.equals("Computer")) {
-			        	playerMap.put(0, "Computer");
-			        }
-				}
-			}
-		});
-		
-		type2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (e.getSource() == type2) {
-					JComboBox<String> cb = (JComboBox<String>) e.getSource();
-			        String selected = (String)cb.getSelectedItem();
-			        if (selected.equals("Human")) {
-			        	if (isHumanAllowed) {
-			        		playerMap.put(1, "Human");
-			        		isHumanAllowed = false;
-			        		types.remove("Human");
-			        		for (String t: types) {
-			        			type1.addItem(t);
-			        			type2.addItem(t);
-			        		}
-			        	}
-			        }
-				}
-			}
-		});
 		
 		JLabel lbl1 = new JLabel("Player1's name:");
 		JLabel lbl2 = new JLabel("Player2's name:");
