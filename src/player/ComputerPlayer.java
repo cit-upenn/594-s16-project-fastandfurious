@@ -17,15 +17,11 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
-import java.util.Stack;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import UniversePackage.Edge;
 import UniversePackage.Galaxy;
 import UniversePackage.Navigator;
 import UniversePackage.Node;
-import UniversePackage.StarCluster;
 
 /**
  * A computer player is a player controlled by the computer
@@ -118,19 +114,6 @@ public class ComputerPlayer implements Player {
 		p3.setY(y + radius * Math.sin(radians3));
 	}
 	
-	/**
-	 * Set velocity vector for player
-	 * @param dest next target node
-	 */
-	private void setVelocity(Node dest){
-		// normalize and re-direct unit-vel vector
-		double deltaX = dest.getX() - x;
-		double deltaY = dest.getY() - y;
-		double mod = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
-		dx = deltaX/mod * speed;
-		dy = deltaY/mod * speed;
-	}
-	
 	@Override
 	public synchronized void move() {
 		
@@ -190,7 +173,7 @@ public class ComputerPlayer implements Player {
 			}
 			else{			
 				if(galaxy.hasEdge(currentNode, dest)){
-					setVelocity(dest);
+					Navigator.setVelocity(this, dest);
 					x += dx;
 					y += dy;
 					rotate(10);
@@ -290,6 +273,7 @@ public class ComputerPlayer implements Player {
 	
 	/**
 	 * Basic strategy of a computer player
+	 * Explores neighboring area
 	 */
 	private void explore() {
 		
@@ -655,12 +639,32 @@ public class ComputerPlayer implements Player {
 	}
 
 	@Override
-	public boolean isThinking() {
-		return isThinking;
+	public Queue<Node> getDestinations() {
+		return destinations;
 	}
 
 	@Override
-	public Queue<Node> getDestinations() {
-		return destinations;
+	public double getDX() {
+		return dx;
+	}
+
+	@Override
+	public double getDY() {
+		return dy;
+	}
+
+	@Override
+	public void setDX(double dx) {
+		this.dx = dx;
+	}
+
+	@Override
+	public void setDY(double dy) {
+		this.dy  = dy;
+	}
+
+	@Override
+	public double getSpeed() {
+		return speed;
 	}
 }

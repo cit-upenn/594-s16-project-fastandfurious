@@ -142,7 +142,7 @@ public class HumanPlayer implements Player {
 			}
 			else{			
 				if(galaxy.hasEdge(currentNode, dest)){
-					setVelocity(dest);
+					Navigator.setVelocity(this, dest);
 					x += dx;
 					y += dy;
 					rotate(20);
@@ -174,15 +174,6 @@ public class HumanPlayer implements Player {
 		}finally{
 			lock.unlock();
 		}
-	}
-
-	private void setVelocity(Node dest){	
-		double deltaX = dest.getX() - x;
-		double deltaY = dest.getY() - y;
-		double mod = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
-		dx = deltaX/mod * speed;
-		dy = deltaY/mod * speed;
-
 	}
 
 	@Override
@@ -362,12 +353,32 @@ public class HumanPlayer implements Player {
 	}
 
 	@Override
-	public boolean isThinking() {
-		return !inMotion();
+	public Queue<Node> getDestinations() {
+		return destinations;
 	}
 
 	@Override
-	public Queue<Node> getDestinations() {
-		return destinations;
+	public double getDX() {
+		return dx;
+	}
+
+	@Override
+	public double getDY() {
+		return dy;
+	}
+
+	@Override
+	public void setDX(double dx) {
+		this.dx = dx;
+	}
+
+	@Override
+	public void setDY(double dy) {
+		this.dy = dy;
+	}
+
+	@Override
+	public double getSpeed() {
+		return speed;
 	}
 }

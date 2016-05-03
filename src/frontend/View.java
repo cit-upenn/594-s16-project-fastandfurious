@@ -1,16 +1,10 @@
 package frontend;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.util.List;
-import java.awt.Point;
-import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Rectangle2D;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -18,7 +12,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 import UniversePackage.*;
-import player.HumanPlayer;
 import player.Player;
 
 @SuppressWarnings("serial")
@@ -26,8 +19,6 @@ public class View extends JPanel implements Observer {
 
 	private Galaxy galaxy;
 	private Image bgImg;
-	private Image[] planets;
-	private Image station;
 	private Controller control;
 	
 	public View(Galaxy galaxy, Controller control) {

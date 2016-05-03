@@ -148,6 +148,19 @@ public class Navigator {
 		return result;
 	}
 	
+	public static void setVelocity(Player p, Node dest) {
+		
+		double x = p.getX();
+		double y = p.getY();
+		double deltaX = dest.getX() - x;
+		double deltaY = dest.getY() - y;
+		double mod = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+		double dx = deltaX/mod * p.getSpeed();
+		double dy = deltaY/mod * p.getSpeed();
+		p.setDX(dx);
+		p.setDY(dy);
+	}
+	
 	public static List<Node> buildDijkstraPath(Node start, Node end, Galaxy galaxy) {
 		
 		LinkedList<Node> path = new LinkedList<>();

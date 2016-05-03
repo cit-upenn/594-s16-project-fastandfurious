@@ -3,7 +3,6 @@ package player;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.LinkedList;
-import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 
@@ -15,7 +14,7 @@ import UniversePackage.Node;
 public interface Player {
 
 
-    public void move() ;
+    public abstract void move() ;
     
 	public void setCurrentNode(Node node);
 	
@@ -61,7 +60,14 @@ public interface Player {
 	
 	public Node getCurrentNode();
 	
-	public boolean isThinking();
+	public double getDX();
 	
+	public double getDY();
+	
+	public void setDX(double dx);
+	
+	public void setDY(double dy);
+	
+	public double getSpeed();
 
 }

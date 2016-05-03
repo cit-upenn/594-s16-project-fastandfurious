@@ -33,11 +33,11 @@ public class Galaxy extends Observable{
     private int height;
     private int width;
     private int gridLength;
-    private Timer timer;
-    private Player[] player;
+    private Timer timer1;
+    private List<Player> players;
     private int numPlanets;
     private Node[][] starboard;
-    private Timer moneyMachine;
+    private Timer timer2;
     public static Random generator;
     private Map<Node, List<Edge>> adjList;
     private Lock lock;
@@ -51,6 +51,7 @@ public class Galaxy extends Observable{
         this.adjList = new HashMap<>();
         this.numPlanets = numPlanets;   
         this.lock = new ReentrantLock();
+        this.players = new LinkedList<>();
     }
 
     /**
@@ -58,7 +59,7 @@ public class Galaxy extends Observable{
      * @param numPlanets number of planets existing in the galaxy
      * @throws IllegalArgumentException
      */
-    public void init(int numPlanets) throws IllegalArgumentException {
+    public void build(String p1name, Color p1color, String p1type, String p2name, Color p2color, String p2type) throws IllegalArgumentException {
     	 
     	int numRows = height / gridLength + 1;
     	int numCols = width / gridLength + 2;
@@ -97,28 +98,35 @@ public class Galaxy extends Observable{
     	StarCluster.makeSet(starboard);
 		
 		/* initialize players */
-		player = new Player[2];
-		player[0] = new HumanPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony"); 
+		Player p1 = CreatePlayer(p1name, p1type, p1color, starboard[1][1]);
+		Player p2 = CreatePlayer(p2name, p2type, p2color, starboard[starboard.length-2][starboard[0].length-2]);
 		
-		// player[0] = new ComputerPlayer(starboard[1][1].getX(), starboard[1][1].getY(), new Color(0, 153, 255), this, "Tony");
+		p1.setCurrentNode(starboard[1][1]);
+		starboard[1][1].setRuler(p1);
+		p2.setCurrentNode(starboard[starboard.length-2][starboard[0].length-2]);
+		starboard[starboard.length-2][starboard[0].length-2].setRuler(p2);
 		
-		player[0].setCurrentNode(starboard[1][1]);
-		starboard[1][1].setRuler(player[0]);
-		
-		player[1] = new ComputerPlayer(starboard[numRows-2][numCols-2].getX(),starboard[numRows-2][numCols-2].getY(), Color.yellow , this, "Steve");
-		player[1].setCurrentNode(starboard[starboard.length-2][starboard[0].length-2]);
-		starboard[starboard.length-2][starboard[0].length-2].setRuler(player[1]);
-	
+		players.add(p1);
+		players.add(p2);
+    }
+    
+    public Player CreatePlayer(String name, String type, Color color, Node start) {
+    	
+    	Player p;
+    	if(type.toLowerCase().equals("human")){
+    		p = new HumanPlayer(start.getX(), start.getY(), color, this, name); 
+    	}
+    	else {
+    		p = new ComputerPlayer(start.getX(), start.getY(), color, this, name);
+    	}
+    	return p;
     }
     
     public void start() {
-
-    	init(numPlanets);
-    	timer = new Timer(40, new Strobe());
-    	timer.start();
-    	
-    	moneyMachine = new Timer(2000, new MoneyMaker());
-    	moneyMachine.start();
+    	timer1 = new Timer(40, new Strobe());
+    	timer1.start();  	
+    	timer2 = new Timer(2000, new MoneyMaker());
+    	timer2.start();
     }
     
     /**
@@ -130,10 +138,10 @@ public class Galaxy extends Observable{
     		for(int j = 1; j < starboard[0].length - 1; j++) 
     			starboard[i][j].move();	
     	  	
-    	player[0].think();
-    	player[1].think();
-    	player[0].move();
-    	player[1].move();
+    	getPlayer(0).think();
+    	getPlayer(1).think();
+    	getPlayer(0).move();
+    	getPlayer(1).move();
     	
     	this.setChanged();
     	this.notifyObservers();
@@ -150,7 +158,7 @@ public class Galaxy extends Observable{
     public Player getPlayer(int num) {
     	if (num > 1 || num < 0) 
     		return null;
-    	return player[num];
+    	return players.get(num);
     }
     
     /**
@@ -392,9 +400,9 @@ public class Galaxy extends Observable{
      * @return the human player
      */
     public Player getHumanPlayer(){
-    	for(int i = 0; i < player.length; i++) 
-    		if(player[i] instanceof HumanPlayer) 
-    			return player[i];
+    	for(int i = 0; i < players.size(); i++) 
+    		if(getPlayer(i) instanceof HumanPlayer) 
+    			return getPlayer(i);
     	return null;
     }
 
@@ -423,8 +431,8 @@ public class Galaxy extends Observable{
 				@Override
 				protected Void doInBackground() throws Exception {
 					HashMap<Player, Integer> incomeMapping = new HashMap<>();
-					incomeMapping.put(player[0], 0);
-					incomeMapping.put(player[1], 0);
+					incomeMapping.put(getPlayer(0), 0);
+					incomeMapping.put(getPlayer(1), 0);
 					for(int i = 0; i < starboard.length; i++) {
 						for(int j = 0; j < starboard[0].length; j++) {
 							Node  node = starboard[i][j];
@@ -446,8 +454,8 @@ public class Galaxy extends Observable{
 							}
 						}
 					}
-					player[0].addWealth(incomeMapping.get(player[0]));
-					player[1].addWealth(incomeMapping.get(player[1]));
+					getPlayer(0).addWealth(incomeMapping.get(getPlayer(0)));
+					getPlayer(1).addWealth(incomeMapping.get(getPlayer(1)));
 					return null;
 				}
 			};

@@ -22,16 +22,12 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.table.TableColumn;
-
 import UniversePackage.Galaxy;
 import UniversePackage.Navigator;
 import UniversePackage.Node;
-import UniversePackage.Planet;
 import UniversePackage.StarCluster;
-import UniversePackage.SupplyStation;
 import player.HumanPlayer;
 import player.Player;
 
@@ -61,6 +57,7 @@ public class Controller {
 	private void init() {
 
 		galaxy = new Galaxy(940, 720, 50, 70);
+		galaxy.build("Tony", Color.yellow, "human", "Steve", Color.cyan, "cpu");
 		view = new View(galaxy, this);		
 		galaxy.addObserver(view);
 		galaxy.start();
@@ -305,12 +302,13 @@ public class Controller {
             	Node source = humanPlayer.getCurrentNode();
             	Node dest = humanPlayer.getSelected();
             	if(StarCluster.find(source) != StarCluster.find(dest)) {
-            		System.err.println("Path must be atttached to current reign");
-            		return;
+            		System.err.println("Unreachable");
             	}
-            	List<Node> path = Navigator.buildDijkstraPath(source, dest, galaxy);
-            	if(path == null) return;	
-            	else humanPlayer.getDestinations().addAll(path);
+            	else{
+                	List<Node> path = Navigator.buildDijkstraPath(source, dest, galaxy);
+                	if(path == null) return;	
+                	else humanPlayer.getDestinations().addAll(path);
+            	}
             }
         });
 		
@@ -372,12 +370,12 @@ public class Controller {
 		
 		int col = (int)(x/galaxy.getGridLength());
 		double remainder1 = x % galaxy.getGridLength();	
-		if(remainder1 >= 35) col++;
-		else if(remainder1 > 15) return null;
+		if(remainder1 >= 30) col++;
+		else if(remainder1 > 10) return null;
 		int row = (int)(y/galaxy.getGridLength());
 		double remainder2 = y % galaxy.getGridLength();
-		if(remainder2 >= 35) row++;
-		else if(remainder2 > 15) return null;
+		if(remainder2 >= 30) row++;
+		else if(remainder2 > 10) return null;
 		return galaxy.getStarBoard()[row][col];
 	}
 	
