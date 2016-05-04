@@ -13,7 +13,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -28,7 +27,6 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import UniversePackage.Galaxy;
@@ -62,45 +60,9 @@ public class Controller {
 	private JComboBox<String> type1;
 	private JComboBox<String> type2;
 
-<<<<<<< HEAD
+
 	private String[] imageNames = { "iron-man", "captain", "zootopia_fox", "zootopia_judy"};
 	
-=======
-	class MyActionListener implements ActionListener {
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == type1) {
-				@SuppressWarnings("unchecked")
-				JComboBox<String> cb = (JComboBox<String>) e.getSource();
-				String selected = (String)cb.getSelectedItem();
-		        if (selected.equals("Human")) { 	        	
-		        	type2.removeItem("Human");
-		        	System.out.println(type2.getItemCount());
-		        }else{
-		        	if(type2.getItemCount() == 2) {
-		        		type2.addItem("Human");
-		        	}
-		        }
-		        playerMap.put(0, selected);	
-		        
-			} else if (e.getSource() == type2) {
-				@SuppressWarnings("unchecked")
-				JComboBox<String> cb = (JComboBox<String>) e.getSource();
-				String selected = (String) cb.getSelectedItem();
-				if (selected.equals("Human")) {
-		        	type1.removeItem("Human");
-				}else {
-		        	if(type1.getItemCount() == 2) {
-		        		type1.addItem("Human");
-		        	}
-				}
-				playerMap.put(1, selected);
-			}
-		}
-		
-	}
->>>>>>> 50d64b338ebe0a9c80fea2cf3855c8c784c3ff48
 	/**
 	 * Login to start the game.
 	 */
@@ -559,14 +521,8 @@ public class Controller {
 
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
-<<<<<<< HEAD
 			 JList list = (JList)e.getSource();
 		     updateLabel(imageNames[list.getSelectedIndex()]);	
-=======
-			 @SuppressWarnings("unchecked")
-			JList<String> list = (JList<String>)e.getSource();
-		     updateLabel(imageNames[list.getSelectedIndex()]);		
->>>>>>> 50d64b338ebe0a9c80fea2cf3855c8c784c3ff48
 		}
 
 		public JList<String> getImageList() {
