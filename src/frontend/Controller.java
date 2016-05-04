@@ -49,7 +49,6 @@ public class Controller {
 	private JLabel[] player;
 	private JLabel[] playerName;
 	private JLabel[] wealth;
-	private JComboBox<String> selectList;
 	private JTextArea[] messageBoard;
 	
 	private JButton Build;
@@ -57,49 +56,22 @@ public class Controller {
 	private JButton Move;
 	
 	private HashMap<Integer, String> playerMap;
-	boolean isHumanAllowed = true;
+	private HashMap<Integer, String> playerNames;
+	private HashMap<Integer, Integer> playerIcon;
 	private MyActionListener myAL = new MyActionListener();
 	private JComboBox<String> type1;
 	private JComboBox<String> type2;
 
-	class MyActionListener implements ActionListener {
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == type1) {
-				JComboBox<String> cb = (JComboBox<String>) e.getSource();
-				String selected = (String)cb.getSelectedItem();
-		        if (selected.equals("Human")) { 	        	
-		        	type2.removeItem("Human");
-		        	System.out.println(type2.getItemCount());
-		        }else{
-		        	if(type2.getItemCount() == 2) {
-		        		type2.addItem("Human");
-		        	}
-		        }
-		        playerMap.put(0, selected);	
-		        
-			} else if (e.getSource() == type2) {
-				JComboBox<String> cb = (JComboBox<String>) e.getSource();
-				String selected = (String) cb.getSelectedItem();
-				if (selected.equals("Human")) {
-		        	type1.removeItem("Human");
-				}else {
-		        	if(type1.getItemCount() == 2) {
-		        		type1.addItem("Human");
-		        	}
-				}
-				playerMap.put(1, selected);
-			}
-		}
-		
-	}
+	private String[] imageNames = { "iron-man", "captain", "zootopia_fox", "zootopia_judy"};
+	
 	/**
 	 * Login to start the game.
 	 */
 	protected void login() {
 		
 		playerMap = new HashMap<>();
+		playerNames = new HashMap<>();
+		playerIcon = new HashMap<>();
 		
 		JFrame loginFrame = new JFrame("Login");
 		loginFrame.setPreferredSize(new Dimension(800, 600));
@@ -191,19 +163,15 @@ public class Controller {
 		loginFrame.pack();
 		loginFrame.setVisible(true);
 
-		text1.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				
-			}
-			
-		});
-		
 		startGame.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				String s = text1.getText();
+				playerNames.put(0, s);
+				s = text2.getText();
+				playerNames.put(1, s);		
+				playerIcon.put(0, splitPane.getSelectedIndex());
+				playerIcon.put(1, splitPane2.getSelectedIndex());
 				loginFrame.dispose();
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
@@ -217,8 +185,8 @@ public class Controller {
 	
 	private void init() {
 
-		galaxy = new Galaxy(940, 720, 50, 70);
-		galaxy.build("Tony", Color.yellow, "human", "Steve", Color.cyan, "cpu");
+		galaxy = new Galaxy(940, 720, 50, 70);	
+		galaxy.build(playerNames.get(0), Color.yellow, playerMap.get(0), playerNames.get(1), Color.cyan, playerMap.get(1));
 		view = new View(galaxy, this);		
 		galaxy.addObserver(view);
 		galaxy.start();
@@ -259,11 +227,6 @@ public class Controller {
 		control[0].setBackground(Color.BLACK);
 		control[1].setBackground(Color.BLACK);
 		
-		Border border = BorderFactory.createLineBorder(Color.cyan);
-		
-		control[0].setBorder(border);
-		control[1].setBorder(border);
-		
 		frame.getContentPane().add(control[0]);
 		frame.getContentPane().add(control[1]);
 		
@@ -271,7 +234,6 @@ public class Controller {
 		playerName = new JLabel[2];
 		wealth = new JLabel[2];
 		messageBoard = new JTextArea[2];		
-		selectList = new JComboBox<String>();
 		
 		// a bunch of buttons for human players 
 		Build = new JButton("Build");
@@ -290,51 +252,35 @@ public class Controller {
 			wealth[i] = new JLabel();
 			if (i == 0) {
 				
-				String player1name = "PLAYER1";
-				if(galaxy.getPlayer(0) instanceof HumanPlayer) {
-					player1name += " (HUMAN) " ;
-				}else {
-					player1name += " (CPU) ";
-				}
+				String player1name = playerNames.get(i);
 				
 				playerName[i].setText(player1name);				
 				playerName[i].setForeground(galaxy.getPlayer(0).getPlayerColor());
 				playerName[i].setBounds(16, 5, 120, 20);	
-				playerName[i].setFont(new Font("Comic Sans MS", Font.PLAIN, 15));	
+				playerName[i].setFont(new Font("Comic Sans MS", Font.PLAIN, 14));	
 				
-				player[i].setIcon(new ImageIcon(this.getClass().getResource("/resources/rsz_marvel-iron-man-mark-xlvi-sixth-scale-captain-america-civil-war-hot-toys-thumb-902622.jpg")));
+				player[i].setIcon(new ImageIcon(this.getClass().getResource("/resources/" + imageNames[playerIcon.get(i)] + ".jpg")));
 				player[i].setBounds(16, 40, 128, 96);
 				
 				wealth[i].setBounds(16, 200, 128, 30);
 				wealth[i].setFont(new Font("Comic Sans MS", Font.PLAIN, 15));
 				wealth[i].setText("Current Wealth: \n");
 				
-				// selectList only for player1 (computer)
-				selectList.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
-				selectList.setBounds(10, 150, 140, 30);
-				
 				messageBoard[i].setBounds(10, 250, 140, 180);
-				
-				control[i].add(selectList);
 				
 			} else {
 				
-				String player2name = "PLAYER2";
+				String player2name = playerNames.get(i);
 				
-				if(galaxy.getPlayer(1) instanceof HumanPlayer) {
-					player2name += " (HUMAN) " ;
-				}else {
-					player2name += " (CPU) ";
-				}
-
 				playerName[i].setText(player2name);
 				playerName[i].setForeground(galaxy.getPlayer(1).getPlayerColor());
 				playerName[i].setBounds(1136, 5, 120, 20);
-				player[i].setIcon(new ImageIcon(this.getClass().getResource("/resources/rsz_captain.jpg")));
+				
+				player[i].setIcon(new ImageIcon(this.getClass().getResource("/resources/" + imageNames[playerIcon.get(i)] + ".jpg")));
 				player[i].setBounds(1136, 40, 128, 96);
 				
 				wealth[i].setBounds(1136, 200, 128, 30);
-				wealth[i].setFont(new Font("Comic Sans MS", Font.PLAIN, 15));
+				wealth[i].setFont(new Font("Comic Sans MS", Font.PLAIN, 14));
 				wealth[i].setText("Current Wealth: \n");
 				
 				Build.setBounds(1140, 450, 120, 30);
@@ -518,7 +464,7 @@ public class Controller {
 		private JLabel picture;
 		private JList list;
 		private JSplitPane splitPane;
-		private String[] imageNames = { "iron-man", "captain", "zootopia_fox", "zootopia_judy"};
+		
 
 		public SingleSelectJSplitPane() {
 			//Create the list of images and put it in a scroll pane.
@@ -576,7 +522,7 @@ public class Controller {
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
 			 JList list = (JList)e.getSource();
-		     updateLabel(imageNames[list.getSelectedIndex()]);		
+		     updateLabel(imageNames[list.getSelectedIndex()]);	
 		}
 
 		public JList getImageList() {
@@ -587,5 +533,44 @@ public class Controller {
 	        return splitPane;
 	    }
 
+	    public int getSelectedIndex() {
+	    	return list.getSelectedIndex();
+	    }
+	}
+	
+	/**
+	 * 
+	 *
+	 */
+	class MyActionListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == type1) {
+				JComboBox<String> cb = (JComboBox<String>) e.getSource();
+				String selected = (String)cb.getSelectedItem();
+		        if (selected.equals("Human")) { 	        	
+		        	type2.removeItem("Human");
+		        }else{
+		        	if(type2.getItemCount() == 2) {
+		        		type2.addItem("Human");
+		        	}
+		        }
+		        playerMap.put(0, selected);	
+		        
+			} else if (e.getSource() == type2) {
+				JComboBox<String> cb = (JComboBox<String>) e.getSource();
+				String selected = (String) cb.getSelectedItem();
+				if (selected.equals("Human")) {
+		        	type1.removeItem("Human");
+				}else {
+		        	if(type1.getItemCount() == 2) {
+		        		type1.addItem("Human");
+		        	}
+				}
+				playerMap.put(1, selected);
+			}
+		}
+		
 	}
 }
