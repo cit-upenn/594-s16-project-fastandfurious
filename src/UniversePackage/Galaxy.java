@@ -104,16 +104,22 @@ public class Galaxy extends Observable{
     	
     	// for every node in the galaxy, make set
     	StarCluster.makeSet(starboard);
+    	
+    	Node lt = starboard[1][1];
+    	Node rb = starboard[starboard.length-2][starboard[0].length-2];
 		
 		/* initialize players */
-		Player p1 = CreatePlayer(p1name, p1type, p1color, starboard[1][1]);
-		Player p2 = CreatePlayer(p2name, p2type, p2color, starboard[starboard.length-2][starboard[0].length-2]);
+		Player p1 = CreatePlayer(p1name, p1type, p1color, lt);
+		Player p2 = CreatePlayer(p2name, p2type, p2color, rb);
 		
-		p1.setCurrentNode(starboard[1][1]);
-		starboard[1][1].setRuler(p1);
-		p2.setCurrentNode(starboard[starboard.length-2][starboard[0].length-2]);
-		starboard[starboard.length-2][starboard[0].length-2].setRuler(p2);
+		p1.setCurrentNode(lt);
+		p2.setCurrentNode(rb);
+		p1.controlNode(lt);
+		p2.controlNode(rb);
+		lt.setRuler(p1);
+		rb.setRuler(p2);
 		
+		// add players to player's list
 		players.add(p1);
 		players.add(p2);
     }
@@ -139,8 +145,8 @@ public class Galaxy extends Observable{
      */
     public void start() {
     	timer1 = new Timer(40, new Strobe());
-    	timer1.start();  	
     	timer2 = new Timer(2000, new MoneyMachine());
+    	timer1.start();  	
     	timer2.start();
     }
     

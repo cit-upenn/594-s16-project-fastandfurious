@@ -23,7 +23,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
@@ -32,7 +31,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.TableColumn;
 import UniversePackage.Galaxy;
 import UniversePackage.Navigator;
 import UniversePackage.Node;
@@ -69,6 +67,7 @@ public class Controller {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == type1) {
+				@SuppressWarnings("unchecked")
 				JComboBox<String> cb = (JComboBox<String>) e.getSource();
 				String selected = (String)cb.getSelectedItem();
 		        if (selected.equals("Human")) { 	        	
@@ -82,6 +81,7 @@ public class Controller {
 		        playerMap.put(0, selected);	
 		        
 			} else if (e.getSource() == type2) {
+				@SuppressWarnings("unchecked")
 				JComboBox<String> cb = (JComboBox<String>) e.getSource();
 				String selected = (String) cb.getSelectedItem();
 				if (selected.equals("Human")) {
@@ -158,7 +158,7 @@ public class Controller {
 		type1.setBounds(160, 85, 150, 20);
 		loginFrame.add(type1);
 		
-		JLabel l2 = new JLabel("Player Type:");
+		JLabel l2 = new JLabel("Player Type: ");
 		l2.setBounds(440, 85, 100, 20);
 		l2.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		loginFrame.add(l2);
@@ -172,8 +172,8 @@ public class Controller {
 		
 		
 		
-		JLabel lbl1 = new JLabel("Player1's name:");
-		JLabel lbl2 = new JLabel("Player2's name:");
+		JLabel lbl1 = new JLabel("Player1's name: ");
+		JLabel lbl2 = new JLabel("Player2's name: ");
 		lbl1.setBounds(60, 320, 140, 40);
 		lbl2.setBounds(440, 320, 140, 40);
 		lbl1.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -241,7 +241,6 @@ public class Controller {
 	}
 	
 	
-	@SuppressWarnings("unchecked")
 	private void layOutComponents() {
 		frame = new JFrame("Conquer the Universe");
 		frame.setPreferredSize(new Dimension(1280, 740));
@@ -521,13 +520,13 @@ public class Controller {
 	class SingleSelectJSplitPane extends JPanel implements ListSelectionListener {
 		
 		private JLabel picture;
-		private JList list;
+		private JList<String> list;
 		private JSplitPane splitPane;
 		private String[] imageNames = { "iron-man", "captain", "zootopia_fox", "zootopia_judy"};
 
 		public SingleSelectJSplitPane() {
 			//Create the list of images and put it in a scroll pane.
-			list = new JList(imageNames);
+			list = new JList<String>(imageNames);
 			list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			list.setSelectedIndex(0);
 			list.addListSelectionListener(this);
@@ -580,11 +579,12 @@ public class Controller {
 
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
-			 JList list = (JList)e.getSource();
+			 @SuppressWarnings("unchecked")
+			JList<String> list = (JList<String>)e.getSource();
 		     updateLabel(imageNames[list.getSelectedIndex()]);		
 		}
 
-		public JList getImageList() {
+		public JList<String> getImageList() {
 	        return list;
 	    }
 	 
