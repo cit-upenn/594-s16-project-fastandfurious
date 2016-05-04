@@ -27,6 +27,8 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import javax.swing.Timer;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import UniversePackage.Galaxy;
@@ -59,7 +61,6 @@ public class Controller {
 	private MyActionListener myAL = new MyActionListener();
 	private JComboBox<String> type1;
 	private JComboBox<String> type2;
-
 
 	private String[] imageNames = { "iron-man", "captain", "zootopia_fox", "zootopia_judy"};
 	
@@ -186,7 +187,7 @@ public class Controller {
 	
 	private void init() {
 
-		galaxy = new Galaxy(940, 720, 50, 70);	
+		galaxy = new Galaxy(940, 720, 50, 70, 3600);	
 		galaxy.build(playerNames.get(0), Color.yellow, playerMap.get(0), playerNames.get(1), Color.cyan, playerMap.get(1));
 		view = new View(galaxy, this);		
 		galaxy.addObserver(view);
@@ -310,6 +311,7 @@ public class Controller {
 		
 		messageBoard[0].setText("hello");
 		messageBoard[1].setText("hello");
+
 	}
 	
 	/**
@@ -570,7 +572,7 @@ public class Controller {
 				}
 				playerMap.put(1, selected);
 			}
-		}
-		
+		}	
 	}
+	
 }

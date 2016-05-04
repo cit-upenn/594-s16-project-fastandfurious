@@ -1,4 +1,6 @@
 package frontend;
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -53,9 +55,12 @@ public class View extends JPanel implements Observer {
 		// paint game canvas
 		
 		try {
+		
 			
 			// paint starboard
 			Graphics2D g2 = (Graphics2D) g;
+			
+			
 			g2.drawImage(bgImg, 0, 0, null);		
 			Node[][] starboard = galaxy.getStarBoard();			
 			for (int i = 0; i < starboard.length; i++) {
@@ -110,11 +115,12 @@ public class View extends JPanel implements Observer {
 		String numPlanetsStr = "# Planets: " + numPlanets;
 		String numStationsStr = "# Stations: " + numStations;		
 		
-		String output = String.format("%s\n%s\n%s\n%s\n", 
+		String output = String.format("%s\n%s\n%s\n%s\n  %s\n", 
 									  status, 
 									  wealthStr, 
 									  numPlanetsStr, 
-									  numStationsStr);
+									  numStationsStr,
+									  galaxy.getWorldTime());
 		
 		return output;
 	}

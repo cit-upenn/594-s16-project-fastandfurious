@@ -36,10 +36,15 @@ public class Galaxy extends Observable{
     private int numPlanets;
     private Timer timer1;
     private Timer timer2;
+    private Timer countdown;
     private Lock lock;
     private Node[][] starboard;
     private List<Player> players;
     private Map<Node, List<Edge>> adjList;
+    private int timeElapsed;
+    private int timeLimit;
+	private int timeLimitInSeconds;
+	private String timeStr;
     public static Random generator;
     
     /**
@@ -50,7 +55,7 @@ public class Galaxy extends Observable{
      * @param gridLength size of each block
      * @param numPlanets number of nodes that are planets
      */
-    public Galaxy(int width, int height, int gridLength, int numPlanets) {
+    public Galaxy(int width, int height, int gridLength, int numPlanets, int timeLimitInSeconds) {
 
         this.width = width;
         this.height = height;
@@ -60,6 +65,9 @@ public class Galaxy extends Observable{
         this.numPlanets = numPlanets;   
         this.lock = new ReentrantLock();
         this.players = new LinkedList<>();
+        this.timeElapsed = 0;
+        this.timeLimit = timeLimitInSeconds;
+        this.timeStr = timeLimitInSeconds/60 + ":00";
     }
 
     /**
@@ -146,8 +154,19 @@ public class Galaxy extends Observable{
     public void start() {
     	timer1 = new Timer(40, new Strobe());
     	timer2 = new Timer(2000, new MoneyMachine());
+    	countdown = new Timer(1000, new UniverseTimer());
+    	
+    	/*
+    	try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		*/
+    	
     	timer1.start();  	
     	timer2.start();
+    	countdown.start();
     }
     
     /**
@@ -475,6 +494,24 @@ public class Galaxy extends Observable{
 			};
 			maker.execute();
 		}
+    }
+    
+    private class UniverseTimer implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			advanceTime();
+		}
+    }
+    
+    private void advanceTime() {
+    	
+    	timeElapsed++;
+    	int secsRemaining = timeLimit - timeElapsed;
+    	timeStr = secsRemaining/60 + ":" + secsRemaining%60;
+    }
+    
+    public String getWorldTime() { 	
+    	return timeStr;
     }
     
     /**
