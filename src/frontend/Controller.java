@@ -351,8 +351,15 @@ public class Controller {
 
 			@Override
 			public void mousePressed(MouseEvent event) {
+				HumanPlayer human = (HumanPlayer)galaxy.getHumanPlayer();
 				Point mousePoint = event.getPoint();		
 				Node node = click(mousePoint);			
+				
+				if(!human.getSelections().isEmpty()&&node == human.getCurrentNode()) {					
+					human.buildPath();
+					return;
+				}
+				
 				if(galaxy.getHumanPlayer() != null) {
 					if(!galaxy.getHumanPlayer().inMotion()) { galaxy.getHumanPlayer().getSelections().clear(); }
 					galaxy.getHumanPlayer().setSelected(node);		
@@ -360,68 +367,23 @@ public class Controller {
 					if (node != null && (node.getRuler() != null && node.getRuler() != galaxy.getHumanPlayer())) {		
 						// if right-click, then attack
 						if (event.getButton() == MouseEvent.BUTTON3) {
-							Player human = galaxy.getHumanPlayer();
 							if(human != null) {
 								Node target = human.getSelected();
 								Node cur = human.getCurrentNode();
 								if(galaxy.areAdjacentNodes(cur, target)&&target.getRuler()!=human&&target.getRuler()!=null){
-									human.getDestinations().add(target);
+									human.getDestinations().add(target);							
 									human.getSelections().add(cur);
 									human.getSelections().add(target);
+									galaxy.neutralizeNode(human, target);
 								}
 							}
 						}
 					}
 				}
+				
 			}
 		});
-
-
-		//		Build.addActionListener(new ActionListener() {
-		//            @Override
-		//            public void actionPerformed(ActionEvent event) {
-		//            	HumanPlayer hp = (HumanPlayer)galaxy.getHumanPlayer();
-		//            	hp.buildPath();
-		//            }
-		//        });
-
-		//		Attack.addActionListener(new ActionListener() {
-		//            @Override
-		//            public void actionPerformed(ActionEvent event) {
-		//                Player human = galaxy.getHumanPlayer();
-		//                if(human != null) {
-		//                	Node target = human.getSelected();
-		//                	Node cur = human.getCurrentNode();
-		//                	if(galaxy.areAdjacentNodes(cur, target)&&target.getRuler()!=human&&target.getRuler()!=null){
-		//                		human.getDestinations().add(target);
-		//                		human.getSelections().add(cur);
-		//                		human.getSelections().add(target);
-		//                	}
-		//                }
-		//            }
-		//        });
-
-		//		Move.addActionListener(new ActionListener() {
-		//            @Override
-		//            public void actionPerformed(ActionEvent event) {     	
-		//            	Player humanPlayer = galaxy.getHumanPlayer();
-		//            	if(humanPlayer == null) return;
-		//            	Node source = humanPlayer.getCurrentNode();
-		//            	Node dest = humanPlayer.getSelected();
-		//            	if(StarCluster.find(source) != StarCluster.find(dest)) {
-		//            		System.err.println("Unreachable");
-		//            	}
-		//            	else{
-		//                	List<Node> path = Navigator.buildDijkstraPath(source, dest, galaxy);
-		//                	if(path == null) return;	
-		//                	else humanPlayer.getDestinations().addAll(path);
-		//            	}
-		//            }
-		//        });
-
-		// add mouse motion listener to view
-		// this is used to help user keeping track
-		// of the current location of the cursor
+		
 		view.addMouseMotionListener(new MouseAdapter() {
 			@Override
 			public void mouseMoved(MouseEvent event) {
@@ -453,15 +415,9 @@ public class Controller {
 				}
 			}
 		});
-
-		view.addMouseMotionListener(new MouseAdapter() {
-			@Override
-			public void mouseReleased(MouseEvent event) {
-				HumanPlayer hp = (HumanPlayer)galaxy.getHumanPlayer();
-				hp.buildPath();
-				System.out.println("Mouse released");
-			}
-		});
+	
+		
+		
 	}
 
 

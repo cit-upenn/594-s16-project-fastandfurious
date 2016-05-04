@@ -46,6 +46,7 @@ public class Galaxy extends Observable{
 	private int timeLimitInSeconds;
 	private String timeStr;
     public static Random generator;
+    public Player winner;
     
     /**
      * constructor
@@ -68,6 +69,7 @@ public class Galaxy extends Observable{
         this.timeElapsed = 0;
         this.timeLimit = timeLimitInSeconds;
         this.timeStr = timeLimitInSeconds/60 + ":00";
+        winner = null;
     }
 
     /**
@@ -156,14 +158,12 @@ public class Galaxy extends Observable{
     	timer2 = new Timer(2000, new MoneyMachine());
     	countdown = new Timer(1000, new UniverseTimer());
     	
-    	/*
     	try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		*/
-    	
+		    	
     	timer1.start();  	
     	timer2.start();
     	countdown.start();
@@ -173,6 +173,28 @@ public class Galaxy extends Observable{
      * Every planet in the galaxy takes a small step
      */
     public void makeStep() {
+    	
+    	if(timeLimit - timeElapsed <= 0) {
+    		
+    		stop();
+    		decideWinner();
+        	this.setChanged();
+        	this.notifyObservers();
+        	
+    	}else if(getPlayer(0).getNodesControlled().isEmpty()){
+    		
+    		stop();
+    		winner = getPlayer(1); 		
+        	this.setChanged();
+        	this.notifyObservers();
+        	
+    	}else if(getPlayer(1).getNodesControlled().isEmpty()){
+    		
+    		stop();
+    		winner = getPlayer(0);
+        	this.setChanged();
+        	this.notifyObservers();
+    	}
     	
     	for(int i = 1; i < starboard.length - 1; i++) 
     		for(int j = 1; j < starboard[0].length - 1; j++) 
@@ -187,11 +209,47 @@ public class Galaxy extends Observable{
     	this.notifyObservers();
     }
     
+    private void stop() {
+    	timer1.stop();
+    	timer2.stop(); 
+    	countdown.stop();
+    }
+    
     /**
      * @return start board of the universe
      */
     public Node[][] getStarBoard() {
     	return starboard;
+    }
+    
+    public void decideWinner() {
+    	
+    	long p1score = 0;
+    	long p2score = 0;
+    	
+    	for(int i = 0; i < starboard.length; i++) {
+    		for(int j = 0; j < starboard[0].length; j++) {
+    			Node node = starboard[i][j];
+    			if(node != null) {
+    				int score = node.getResourceLevel() * adjList.get(node).size();
+    				Player owner = node.getRuler();
+    				if(owner == getPlayer(0)) {
+    					p1score += score;
+    				}
+    				else if(owner == getPlayer(1)) {
+    					p2score += score;
+    				}
+    			}
+    		}
+    	}
+    	
+    	if(p1score > p2score) winner = getPlayer(0);
+    	else  winner = getPlayer(1);   	
+    }
+    
+    public String getWinner() {
+    	if(winner == null) return "";
+    	else return winner.toString();
     }
     
     /**

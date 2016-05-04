@@ -115,12 +115,13 @@ public class View extends JPanel implements Observer {
 		String numPlanetsStr = "# Planets: " + numPlanets;
 		String numStationsStr = "# Stations: " + numStations;		
 		
-		String output = String.format("%s\n%s\n%s\n%s\n  %s\n", 
+		String output = String.format("%s\n%s\n%s\n%s\n  %s\n%s\n", 
 									  status, 
 									  wealthStr, 
 									  numPlanetsStr, 
 									  numStationsStr,
-									  galaxy.getWorldTime());
+									  galaxy.getWorldTime(),
+									  "Winner is: " + galaxy.getWinner());
 		
 		return output;
 	}
