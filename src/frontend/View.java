@@ -33,7 +33,7 @@ public class View extends JPanel implements Observer {
 	public View(Galaxy galaxy, Controller control) {
 	
 		this.galaxy = galaxy;
-		this.bgImg = new ImageIcon("resources/universe960x720.jpg").getImage();
+		this.bgImg = new ImageIcon("resources/universe.jpg").getImage();
 		Dimension size = new Dimension(bgImg.getWidth(null), bgImg.getHeight(null));
 		setPreferredSize(size);
 		setPreferredSize(size);

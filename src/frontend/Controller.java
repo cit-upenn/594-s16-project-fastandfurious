@@ -27,8 +27,6 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-import javax.swing.Timer;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import UniversePackage.Galaxy;
@@ -61,17 +59,27 @@ public class Controller {
 	private MyActionListener myAL = new MyActionListener();
 	private JComboBox<String> type1;
 	private JComboBox<String> type2;
+	private JComboBox<String> selectTime;
+	private int timeLimit = 60;
 
-	private String[] imageNames = { "iron-man", "captain", "zootopia_fox", "zootopia_judy"};
+	private String[] imageNames = { "Ironman", "Captain", "Zootopia_Nick", "Zootopia_Judy", "Baymax", "Yokai", "Rocket", "StarLord"};
 	
 	/**
 	 * Login to start the game.
 	 */
 	protected void login() {
 		
+		// initialize the mappings of player types, names and avatars
+		// give some default values
 		playerMap = new HashMap<>();
+		playerMap.put(0, "Computer");
+		playerMap.put(1, "Computer");
 		playerNames = new HashMap<>();
+		playerNames.put(0, "player1");
+		playerNames.put(1, "player2");
 		playerIcon = new HashMap<>();
+		playerIcon.put(0, 0);
+		playerIcon.put(1, 0);
 		
 		JFrame loginFrame = new JFrame("Login");
 		loginFrame.setPreferredSize(new Dimension(800, 600));
@@ -81,7 +89,7 @@ public class Controller {
 		JButton startGame = new JButton("Start");
 		startGame.setFont(new Font("Comic Sans MS", Font.BOLD, 25));
 		startGame.setForeground(Color.BLUE);
-		startGame.setBounds(300, 400, 200, 80);
+		startGame.setBounds(300, 450, 200, 80);
 		loginFrame.add(BorderLayout.CENTER, startGame);
 
 		SingleSelectJSplitPane splitPane = new SingleSelectJSplitPane();
@@ -157,6 +165,20 @@ public class Controller {
 		loginFrame.add(text1);
 		loginFrame.add(text2);
 		
+		selectTime = new JComboBox<>();
+		selectTime.setBounds(430, 400, 100, 30);
+		String[] times = { "60", "90", "120", "150", "180", "210", "240", "300", "600" };
+		for (String time: times) {
+			selectTime.addItem(time);
+		}
+		selectTime.addActionListener(myAL);
+		loginFrame.add(selectTime);
+		
+		JLabel selectTimelbl = new JLabel("Select time limit: ");
+		selectTimelbl.setBounds(270, 400, 140, 30);
+		selectTimelbl.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		loginFrame.add(selectTimelbl);
+		
 		loginFrame.getContentPane().add(player1);
 		loginFrame.getContentPane().add(player2);
 		loginFrame.getContentPane().add(selectPlayer1);
@@ -169,12 +191,18 @@ public class Controller {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String s = text1.getText();
-				playerNames.put(0, s);
+				if (!s.equals("")) {
+					playerNames.put(0, s);
+				}
 				s = text2.getText();
-				playerNames.put(1, s);		
+				if (!s.equals("")) {
+					playerNames.put(1, s);		
+				}
 				playerIcon.put(0, splitPane.getSelectedIndex());
 				playerIcon.put(1, splitPane2.getSelectedIndex());
+				
 				loginFrame.dispose();
+				
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
 						init();
@@ -187,7 +215,7 @@ public class Controller {
 	
 	private void init() {
 
-		galaxy = new Galaxy(940, 720, 50, 70, 3600);	
+		galaxy = new Galaxy(940, 720, 50, 70, timeLimit);	
 		galaxy.build(playerNames.get(0), Color.yellow, playerMap.get(0), playerNames.get(1), Color.cyan, playerMap.get(1));
 		view = new View(galaxy, this);		
 		galaxy.addObserver(view);
@@ -541,7 +569,9 @@ public class Controller {
 	}
 	
 	/**
-	 * 
+	 * A class that implements the ActionListener 
+	 * that listens for selection actions in the 
+	 * player type JComboBox compoment.
 	 *
 	 */
 	class MyActionListener implements ActionListener {
@@ -571,6 +601,10 @@ public class Controller {
 		        	}
 				}
 				playerMap.put(1, selected);
+			} else if (e.getSource() == selectTime) {
+				JComboBox<String> cb = (JComboBox<String>) e.getSource();
+				String selected = (String) cb.getSelectedItem();
+				timeLimit = Integer.parseInt(selected);
 			}
 		}	
 	}
