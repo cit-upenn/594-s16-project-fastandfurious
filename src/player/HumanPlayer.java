@@ -22,6 +22,7 @@ import UniversePackage.StarCluster;
 
 public class HumanPlayer implements Player {
 
+	// declare instance variables
 	private double x;
 	private double y;
 	private Queue<Node> destinations;
@@ -165,7 +166,6 @@ public class HumanPlayer implements Player {
 	}
 
 	private void clearStuffs() {
-		
 		try{
 			lock.lock();
 			destinations.clear();
