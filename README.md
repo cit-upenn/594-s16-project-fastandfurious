@@ -1,4 +1,4 @@
-#FastAndFurious
+#Conquer the Universe
 
 ### Introduction
 
@@ -30,7 +30,7 @@ The project uses MVC design pattern to govern the entire organization of various
 -	__Data Structures:__
 Graph, Adjacency List, Map, Set, Heap, Priority Queue, Linked List, etc.
 -	__Interfaces:__ 
-Player (to make different type of players be somewhat consistent)
+Player (to make different type of players be somewhat consistent);
 Node (to represent different nodes including planets and supply stations)
 -	__Design Pattern:__
 Singleton, Observer, Iterator, Factory method, etc.
