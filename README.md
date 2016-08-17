@@ -10,11 +10,15 @@ To run this game from command line, export the entire project into a Runnable JA
 
 To run this game in eclipse, find the class GameLauncher.java and click “Run As”  “Java Application”. The login screen should show up shortly. 
 
-In the login screen, please enter information for both player1 and player2. Select the player type, avatar and enter the player’s name. Note that only one human player is allowed, so if you select “human” for either one, the other will only have one option left – “computer”. In addition, please select the game time from the drop down list (default to 60 sec). Then click start to start the game, and the login screen will change to the game screen. 
+In the login screen shown below, please enter information for both player1 and player2. Select the player type, avatar and enter the player’s name. Note that only one human player is allowed, so if you select “human” for either one, the other will only have one option left – “computer”. In addition, please select the game time from the drop down list (default to 60 sec). Then click start to start the game, and the login screen will change to the game screen. 
+
+<img src="https://github.com/cit-upenn/594-s16-project-fastandfurious/blob/master/login.png" width="500px">
 
 The aim of the game is to conquer as many planets as possible in certain amount of time. Each player has some initial wealth. Players can conquer a planet by spending certain amount of money and building an edge from your current location to the target location. The conquered planets by your opponents can also be attacked and reclaimed by you. If a planet is attacked, all the edges connected to the planet are broken. If the territory of a player is cut by this breakdown of edges, the path is no longer connected and the player needs to build a new path to the subset of territory to regain control of that subset. When all time has elapsed, the player with the most planets and edges win (a more detailed description of the winning rule is down below).
 
-In the game window, each triangle represents a player. Each circle in the universe represent a different planet, and their colors indicate their level of value (also the amount of money you need to spend to conquer them). The small squares are supply stations. If you don’t have enough money, you may find yourself unable to go to the planet you selected, but you might have enough money to build a path along the supply stations and regain some power.
+In the game window shown below, each triangle represents a player. Each circle in the universe represent a different planet, and their colors indicate their level of value (also the amount of money you need to spend to conquer them). The small squares are supply stations. If you don’t have enough money, you may find yourself unable to go to the planet you selected, but you might have enough money to build a path along the supply stations and regain some power.
+
+<img src="https://github.com/cit-upenn/594-s16-project-fastandfurious/blob/master/game.png" width="500px">
 
 If both players are computer, they explore their path by using strategies including BFS, DFS and Dijkstra.   
 
